@@ -1,3 +1,5 @@
+using MoonSharp.Interpreter;
+
 namespace BitmapsPxDiff
 {
     public partial class FrmMain : Form
@@ -8,6 +10,52 @@ namespace BitmapsPxDiff
         public FrmMain()
         {
             InitializeComponent();
+
+            // TODO: TEMP
+            Color c = Color.FromArgb(12, 23, 34, 45);
+            int i = c.R + (c.G << 8) + (c.B << 16) + (c.A << 24);
+
+            Color c2 = LuaChangeColor(c);
+
+            //Color c2 = Color.FromArgb((byte)(i >> 24), (byte)i, (byte)(i >> 8), (byte)(i >> 16));  
+
+            MessageBox.Show(c2.ToString());
+            //MessageBox.Show(MoonSharpFactorial().ToString());
+        }
+
+        Color LuaChangeColor(Color c)
+        {
+            string script = @"    
+		    function ChangeColor (a,r,g,b)
+                a = a + 1
+                r = r + 1
+                g = g + 1
+                b = b + 1
+                return r + g*256 + b*65536 + a*16777216
+		    end
+            return ChangeColor(" + c.A.ToString() + "," + c.R.ToString() + "," + c.G.ToString() + "," + c.B.ToString() + ")";
+            //MessageBox.Show(script);
+            DynValue res = Script.RunString(script);
+            int i = Convert.ToInt32(res.Number);
+            return Color.FromArgb((byte)(i >> 24), (byte)i, (byte)(i >> 8), (byte)(i >> 16));
+        }
+
+        double MoonSharpFactorial()
+        {
+            string script = @"    
+		-- defines a factorial function
+		function fact (n)
+			if (n == 0) then
+				return 1
+			else
+				return n*fact(n - 1)
+			end
+		end
+
+	return fact(5)";
+
+            DynValue res = Script.RunString(script);
+            return res.Number;
         }
 
         private void btnLoadImage_Click(object sender, EventArgs e)
