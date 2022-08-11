@@ -38,6 +38,7 @@
             this.rbPreviewModeImg2 = new System.Windows.Forms.RadioButton();
             this.rbPreviewModeImg1 = new System.Windows.Forms.RadioButton();
             this.od = new System.Windows.Forms.OpenFileDialog();
+            this.btnSwapImages = new System.Windows.Forms.Button();
             this.tableLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pb)).BeginInit();
             this.tableLayoutPanel2.SuspendLayout();
@@ -66,6 +67,7 @@
             this.pb.Margin = new System.Windows.Forms.Padding(16);
             this.pb.Name = "pb";
             this.pb.Size = new System.Drawing.Size(448, 418);
+            this.pb.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pb.TabIndex = 1;
             this.pb.TabStop = false;
             // 
@@ -75,11 +77,13 @@
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel2.Controls.Add(this.btnLoadImage2, 0, 1);
             this.tableLayoutPanel2.Controls.Add(this.btnLoadImage1, 0, 0);
-            this.tableLayoutPanel2.Controls.Add(this.gbPreviewMode, 0, 2);
+            this.tableLayoutPanel2.Controls.Add(this.gbPreviewMode, 0, 3);
+            this.tableLayoutPanel2.Controls.Add(this.btnSwapImages, 0, 2);
             this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel2.Location = new System.Drawing.Point(3, 3);
             this.tableLayoutPanel2.Name = "tableLayoutPanel2";
-            this.tableLayoutPanel2.RowCount = 6;
+            this.tableLayoutPanel2.RowCount = 7;
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
@@ -119,7 +123,7 @@
             this.gbPreviewMode.Controls.Add(this.rbPreviewModeImg2);
             this.gbPreviewMode.Controls.Add(this.rbPreviewModeImg1);
             this.gbPreviewMode.Dock = System.Windows.Forms.DockStyle.Top;
-            this.gbPreviewMode.Location = new System.Drawing.Point(3, 113);
+            this.gbPreviewMode.Location = new System.Drawing.Point(3, 168);
             this.gbPreviewMode.Name = "gbPreviewMode";
             this.gbPreviewMode.Size = new System.Drawing.Size(308, 105);
             this.gbPreviewMode.TabIndex = 3;
@@ -163,6 +167,18 @@
             this.rbPreviewModeImg1.UseVisualStyleBackColor = true;
             this.rbPreviewModeImg1.CheckedChanged += new System.EventHandler(this.rbPreviewModeImg_CheckedChanged);
             // 
+            // btnSwapImages
+            // 
+            this.btnSwapImages.Dock = System.Windows.Forms.DockStyle.Top;
+            this.btnSwapImages.Location = new System.Drawing.Point(16, 126);
+            this.btnSwapImages.Margin = new System.Windows.Forms.Padding(16);
+            this.btnSwapImages.Name = "btnSwapImages";
+            this.btnSwapImages.Size = new System.Drawing.Size(282, 23);
+            this.btnSwapImages.TabIndex = 4;
+            this.btnSwapImages.Text = "Swap images";
+            this.btnSwapImages.UseVisualStyleBackColor = true;
+            this.btnSwapImages.Click += new System.EventHandler(this.btnSwapImages_Click);
+            // 
             // FrmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -192,5 +208,6 @@
         private RadioButton tbPreviewModeResult;
         private RadioButton rbPreviewModeImg2;
         private RadioButton rbPreviewModeImg1;
+        private Button btnSwapImages;
     }
 }
