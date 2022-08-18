@@ -1,11 +1,18 @@
+using System.Diagnostics;
 namespace BitmapsPxDiff
 {
+    delegate void RenderFinishEvent(Bitmap newImage, string newStatus);
     public partial class FrmMain : Form
     {
         private enum ImagesIndexes { image1, image2, imageResult };
         private int currentImageIndex = 0;
         private Bitmap[] images = new Bitmap[3];
         private LuaScriptCalc luaScriptCalc = new LuaScriptCalc();
+
+        private Thread? renderThread;
+        private ManualResetEvent rendererSignal = new ManualResetEvent(true); // blokuje utworzenie nowego watku, dopoki dziala poprzednie wywolanie
+        private bool interruptRendering = false;
+        private static readonly object controlsLocker = new object();
         public FrmMain()
         {
             InitializeComponent();
@@ -45,6 +52,7 @@ namespace BitmapsPxDiff
 
         private void rbPreviewModeImg_CheckedChanged(object sender, EventArgs e)
         {
+            Debug.WriteLine("rbPreviewModeImg_CheckedChanged()");
             if (!(sender is RadioButton)) return;
             RadioButton rb = (RadioButton)sender;
             if ((!rb.Checked) 
@@ -57,16 +65,55 @@ namespace BitmapsPxDiff
         {
             if (0 > currentImageIndex || currentImageIndex > images.Length) return;
 
-            bool refreshImage = true;
-
             if (currentImageIndex == (int)ImagesIndexes.imageResult)
-                refreshImage = RenderResult(images[0], images[1], ref images[2]);
-
-            if (refreshImage) pb.Image = images[currentImageIndex];
+                StartRenderer();
+            else
+                pb.Image = images[currentImageIndex];
         }
-        private bool RenderResult(Bitmap src1, Bitmap src2, ref Bitmap resultImage)
+
+        private void StartRenderer()
         {
-            if ((src1 is null) || (src2 is null)) return false;
+            Debug.WriteLine("StartRenderer()");
+            interruptRendering = true;
+            rendererSignal.WaitOne();
+            interruptRendering = false;
+            Debug.WriteLine("StartRenderer(); new thread;");
+            renderThread = new Thread(() => RenderResult(images[0], images[1], ref images[2], OnRenderFinish));
+            rendererSignal.Reset();
+            Debug.WriteLine("StartRenderer(); Start();");
+            renderThread.Start();
+        }
+
+        private void OnRenderFinish(Bitmap newImage, string newStatus)
+        {
+            Debug.WriteLine("OnRenderFinish()");
+            lock (controlsLocker)
+            {
+                this.tbScriptOutput.BeginInvoke((MethodInvoker)delegate
+                {
+                    tbScriptOutput.Text = newStatus;
+                });
+                if (newImage != null)
+                {
+                    this.pb.BeginInvoke((MethodInvoker)delegate
+                    {
+                        pb.Image = newImage;
+                    });
+                }
+            }
+            Debug.WriteLine("OnRenderFinish(); Set();");
+        }
+
+        private bool RenderResult(Bitmap src1, Bitmap src2, ref Bitmap resultImage, RenderFinishEvent onRenderFinish)
+        {
+            Debug.WriteLine("RenderResult()");
+
+            if ((src1 is null) || (src2 is null))
+            {
+                Debug.WriteLine("RenderResult(); return1");
+                rendererSignal.Set();
+                return false;
+            }
             int x = Math.Min(src1.Width, src2.Width);
             int y = Math.Min(src1.Height, src2.Height);
             resultImage = new Bitmap(x, y);
@@ -81,6 +128,12 @@ namespace BitmapsPxDiff
             {
                 for (x = 0; x < resultImage.Width; x++)
                 {
+                    if (interruptRendering)
+                    {
+                        Debug.WriteLine("RenderResult(); return2");
+                        rendererSignal.Set();
+                        return false;
+                    }
                     c1 = src1.GetPixel(x, y);
                     c2 = src2.GetPixel(x, y);
                     pixels1[y * resultImage.Width + x] = (uint)(c1.R + (c1.G << 8) + (c1.B << 16) + (c1.A << 24));
@@ -89,7 +142,9 @@ namespace BitmapsPxDiff
             }
             if (!luaScriptCalc.LuaChangeColor(tbScriptInput.Text, ref pixels1, ref pixels2, ref pixelsOut, ref errorMessage))
             {
-                tbScriptOutput.Text = errorMessage;
+                onRenderFinish(resultImage, errorMessage);
+                Debug.WriteLine("RenderResult(); return3");
+                rendererSignal.Set();
                 return false;
             }
             uint i;
@@ -97,21 +152,27 @@ namespace BitmapsPxDiff
             {
                 for (x = 0; x < resultImage.Width; x++)
                 {
+                    if (interruptRendering)
+                    {
+                        Debug.WriteLine("RenderResult(); return4");
+                        rendererSignal.Set();
+                        return false;
+                    }
                     i = pixelsOut[y * resultImage.Width + x];
                     cr = Color.FromArgb((byte)(i >> 24), (byte)i, (byte)(i >> 8), (byte)(i >> 16));  
                     resultImage.SetPixel(x, y, cr);
                 }
             }
-
-            tbScriptOutput.Text = "Script processed successfully";
-            return true;   
+            onRenderFinish(resultImage, "Script processed successfully");
+            Debug.WriteLine("RenderResult(); return5");
+            rendererSignal.Set();
+            return true;
         }
         
 
         private void tbScriptInput_TextChanged(object sender, EventArgs e)
         {
             if (currentImageIndex != (int)ImagesIndexes.imageResult) return;
-
 
             RefreshPreview();
         }
