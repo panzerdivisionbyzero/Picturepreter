@@ -175,6 +175,7 @@ namespace BitmapsPxDiff
             {
                 Graphics g = Graphics.FromImage(localResultImage);
                 g.DrawImage(thrResultImage, chunk.startX, chunk.startY);
+                g.Dispose();
             }
             /*onRenderFinish(resultImage, "Script processed successfully");
             Debug.WriteLine("RenderResult(); return5");

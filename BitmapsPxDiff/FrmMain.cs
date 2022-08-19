@@ -62,7 +62,11 @@ namespace BitmapsPxDiff
             if (0 > currentImageIndex || currentImageIndex > images.Length) return;
 
             if (currentImageIndex == (int)ImagesIndexes.imageResult)
+            {
+                if ((images[2] is null) || (images[2].Width != images[0].Width) || (images[2].Height != images[0].Height))
+                    images[2] = new Bitmap(images[0].Width, images[0].Height);
                 renderer.StartRenderer(images[0], images[1], tbScriptInput.Text, OnRenderFinish);
+            }
             else
                 pb.Image = images[currentImageIndex];
         }
@@ -82,7 +86,10 @@ namespace BitmapsPxDiff
                 {
                     this.pb.BeginInvoke((MethodInvoker)delegate
                     {
-                        pb.Image = newImage;
+                        Graphics g = Graphics.FromImage(images[2]);
+                        g.DrawImage(newImage, 0, 0);
+                        pb.Image = images[2];
+                        g.Dispose(); 
                     });
                 }
             }
