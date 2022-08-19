@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Drawing.Imaging;
 namespace BitmapsPxDiff
 {
     public partial class FrmMain : Form
@@ -34,7 +35,8 @@ namespace BitmapsPxDiff
 
             if ((images[0] != null) && (images[1] != null))
                 images[2] = new Bitmap(Math.Min(images[0].Width, images[1].Width),
-                                       Math.Min(images[0].Height, images[1].Height));
+                                       Math.Min(images[0].Height, images[1].Height),
+                                       System.Drawing.Imaging.PixelFormat.Format32bppArgb);
 
             RefreshPreview(true);
         }
@@ -95,17 +97,51 @@ namespace BitmapsPxDiff
 
         private void btnLoadScript_Click(object sender, EventArgs e)
         {
-
+            if (odLoadScript.ShowDialog() != DialogResult.OK) return;
+            tbScriptInput.Text = File.ReadAllText(odLoadScript.FileName);
         }
 
         private void btnSaveScript_Click(object sender, EventArgs e)
         {
-
+            if (sdSaveScript.ShowDialog() != DialogResult.OK) return;
+            File.WriteAllText(sdSaveScript.FileName, tbScriptInput.Text);
         }
 
         private void btnSaveResultImage_Click(object sender, EventArgs e)
         {
+            if (images[2] is null)
+            {
+                MessageBox.Show("Result image is empty.");
+                return;
+            }
+            if (sdSaveResultImage.ShowDialog() != DialogResult.OK) return;
 
+            ImageFormat imgFormat;
+
+            switch (Path.GetExtension(sdSaveResultImage.FileName).ToLower())
+            {
+                case ".bmp":
+                    imgFormat = ImageFormat.Bmp;
+                    break;
+                case ".png":
+                    imgFormat = ImageFormat.Png;
+                    break ;
+                case ".jpg":
+                    imgFormat = ImageFormat.Jpeg;
+                    break;
+                case ".gif":
+                    imgFormat = ImageFormat.Gif;
+                    break;
+                case ".tif":
+                    imgFormat = ImageFormat.Tiff;
+                    break;
+                default:
+                    MessageBox.Show("Unknown file format.");
+                    return;
+            }
+
+            images[2].Save(sdSaveResultImage.FileName, imgFormat);
+            MessageBox.Show("File saved.");
         }
         private void OnRenderFinish(Bitmap newImage, string newStatus)
         {

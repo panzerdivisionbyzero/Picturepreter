@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Drawing.Imaging;
 
 namespace BitmapsPxDiff
 {
@@ -83,7 +84,7 @@ namespace BitmapsPxDiff
             int x = Math.Min(localSrc1.Width, localSrc2.Width);
             int y = Math.Min(localSrc1.Height, localSrc2.Height);
             lock (resultImgLocker)
-                localResultImage = new Bitmap(x, y); // initializing render result bitmap
+                localResultImage = new Bitmap(x, y, System.Drawing.Imaging.PixelFormat.Format32bppArgb); // initializing render result bitmap
 
             // preparing worker threads:
             for (int t = 0; t < maxChunksThreads; t++)
@@ -169,7 +170,7 @@ namespace BitmapsPxDiff
             string errorMessage = "";
             Bitmap thrSrc1;
             Bitmap thrSrc2;
-            Bitmap thrResultImage = new Bitmap(chunk.width, chunk.height);
+            Bitmap thrResultImage = new Bitmap(chunk.width, chunk.height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
             uint[] pixels1 = new uint[chunk.width * chunk.height];
             uint[] pixels2 = new uint[chunk.width * chunk.height];
             uint[] pixelsOut = new uint[chunk.width * chunk.height];

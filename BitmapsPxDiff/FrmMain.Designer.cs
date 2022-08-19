@@ -278,6 +278,15 @@
             // 
             this.odLoadScript.Filter = "Script Files(*.TXT;*.LUA)|*.TXT;*.LUA|All files (*.*)|*.*";
             // 
+            // sdSaveResultImage
+            // 
+            this.sdSaveResultImage.Filter = "PNG (*.png)|*.png|Bitmap (*.bmp)|*.bmp|JPG (*.jpg)|*.jpg|GIF (*.gif)|*.gif|TIF (*" +
+    ".tif)|*.tif";
+            // 
+            // sdSaveScript
+            // 
+            this.sdSaveScript.Filter = "Text file (*.txt)|*.txt";
+            // 
             // FrmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
