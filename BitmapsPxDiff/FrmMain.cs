@@ -155,9 +155,7 @@ namespace BitmapsPxDiff
                 {
                     this.pb.BeginInvoke((MethodInvoker)delegate
                     {
-                        Graphics g = Graphics.FromImage(images[2]);
-                        g.DrawImage(newImage, 0, 0);
-                        g.Dispose();
+                        images[2] = (Bitmap)newImage.Clone();
                         RefreshPreview(false);
                     });
                 }
