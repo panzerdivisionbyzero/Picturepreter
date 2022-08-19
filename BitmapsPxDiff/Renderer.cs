@@ -19,7 +19,11 @@ namespace BitmapsPxDiff
         private Bitmap? localSrc1;
         private Bitmap? localSrc2;
         private Bitmap? localResultImage;
-        private string localScript;
+        private string? localScript;
+        RenderFinishEvent? localOnRenderFinish;
+
+        Stopwatch stopwatch = new Stopwatch();
+
         public Renderer()
 		{
 		}
@@ -30,13 +34,25 @@ namespace BitmapsPxDiff
             rendererSignal.WaitOne();
             interruptRendering = false;
             Debug.WriteLine("StartRenderer(); new thread;");
+
+            stopwatch.Restart();
+
             localSrc1 = (Bitmap)src1.Clone();
             localSrc2 = (Bitmap)src2.Clone();
             localScript = script;
-            renderThread = new Thread(() => RenderResult(onRenderFinish));
+            localOnRenderFinish = onRenderFinish;
+            renderThread = new Thread(() => RenderResult());
             rendererSignal.Reset();
             Debug.WriteLine("StartRenderer(); Start();");
             renderThread.Start();
+        }
+        private void ShowThreadResult(string scriptStatus)
+        {
+            if ((localOnRenderFinish is null) || (localResultImage is null)) return;
+            TimeSpan ts = TimeSpan.FromMilliseconds(stopwatch.ElapsedMilliseconds);
+
+            lock (resultImgLocker)
+                localOnRenderFinish((Bitmap)localResultImage.Clone(), scriptStatus+"\r\nTime elapsed: "+ ts.ToString(@"hh\:mm\:ss\.fff"));
         }
 
         private struct ImageChunk { public int startX, endX, startY, endY, width, height; }
@@ -74,6 +90,27 @@ namespace BitmapsPxDiff
         }
         ThreadParams[] threadsParams = new ThreadParams[maxChunksThreads];
 
+        private void ImageToPixelsArray(ref Bitmap bmp, ref ImageChunk chunk, ref uint[] pixels)
+        {
+            Color c;
+            for (int ty = 0; ty < chunk.height; ty++)
+            {
+                for (int tx = 0; tx < chunk.width; tx++)
+                {
+                    
+                    c = bmp.GetPixel(tx, ty);
+                    pixels[ty * chunk.width + tx] = (uint)(c.R + (c.G << 8) + (c.B << 16) + (c.A << 24));
+                }
+            }
+        }
+
+        // https://stackoverflow.com/questions/7350679/convert-a-bitmap-into-a-byte-array
+        /*public static uint[] ImageToByte(Image img)
+        {
+            ImageConverter converter = new ImageConverter();
+            return (uint[])converter.ConvertTo(img, typeof(uint[]));
+        }*/
+
         private void ThreadMethod(int threadIndex)
         {
             int index = Convert.ToInt32(threadIndex);
@@ -89,42 +126,28 @@ namespace BitmapsPxDiff
 
             Debug.WriteLine("thread(" + index.ToString() + "); before src1Locker");
             lock (src1Locker) { thrSrc1 = localSrc1.Clone(new Rectangle(chunk.startX, chunk.startY, chunk.width, chunk.height), localSrc1.PixelFormat); }
-            Debug.WriteLine("thread(" + index.ToString() + "); before src2Locker");
-            lock (src2Locker) { thrSrc2 = localSrc2.Clone(new Rectangle(chunk.startX, chunk.startY, chunk.width, chunk.height), localSrc2.PixelFormat); }
-            Debug.WriteLine("thread(" + index.ToString() + "); after src2Locker");
+            Debug.WriteLine("thread(" + index.ToString() + "); after src1Locker");
             uint[] pixels1 = new uint[chunk.width * chunk.height];
             uint[] pixels2 = new uint[chunk.width * chunk.height];
             uint[] pixelsOut = new uint[chunk.width * chunk.height];
-            for (int ty = 0; ty < chunk.height; ty++)
-            {
-                for (int tx = 0; tx < chunk.width; tx++)
-                {
-                    if (interruptRendering)
-                    {
-                        Debug.WriteLine("thread(" + index.ToString() + "); Set1");
-                        endOfWorkEvents[index].Set();
-                        return;
-                    }
-                    //try
-                    // {
-                    c1 = thrSrc1.GetPixel(tx, ty);
-                    c2 = thrSrc2.GetPixel(tx, ty);
 
-                    pixels1[ty * chunk.width + tx] = (uint)(c1.R + (c1.G << 8) + (c1.B << 16) + (c1.A << 24));
-                    pixels2[ty * chunk.width + tx] = (uint)(c2.R + (c2.G << 8) + (c2.B << 16) + (c2.A << 24));
-                    /*}
-                    catch (Exception e)
-                    {
-                        throw new Exception(e.Message + "\ntx=" + tx.ToString() + "\nty=" + ty.ToString() + "\nthrSrc1.width=" + thrSrc1.Width.ToString() + "\nthrSrc1.height=" + thrSrc1.Height.ToString());
-                    }*/
-                }
+            if (interruptRendering)
+            {
+                Debug.WriteLine("thread(" + index.ToString() + "); Set1");
+                endOfWorkEvents[index].Set();
+                return;
             }
+            ImageToPixelsArray(ref thrSrc1, ref chunk, ref pixels1);
+
+
+            Debug.WriteLine("thread(" + index.ToString() + "); before src2Locker");
+            lock (src2Locker) { thrSrc2 = localSrc2.Clone(new Rectangle(chunk.startX, chunk.startY, chunk.width, chunk.height), localSrc2.PixelFormat); }
+            Debug.WriteLine("thread(" + index.ToString() + "); after src2Locker");
+
+            ImageToPixelsArray(ref thrSrc2, ref chunk, ref pixels2);
+
             if (!luaScriptCalc.LuaChangeColor(localScript, ref pixels1, ref pixels2, ref pixelsOut, ref errorMessage))
             {
-                /*onRenderFinish(resultImage, errorMessage);
-                Debug.WriteLine("RenderResult(); return3");
-                rendererSignal.Set();
-                return false;*/
                 threadsParams[index].errorMessage = errorMessage;
                 threadsParams[index].methodResult = false;
                 Debug.WriteLine("thread(" + index.ToString() + "); Set2");
@@ -161,7 +184,7 @@ namespace BitmapsPxDiff
             endOfWorkEvents[index].Set();
         }
 
-        private bool RenderResult(RenderFinishEvent onRenderFinish)
+        private bool RenderResult()
         {
             Debug.WriteLine("RenderResult()");
 
@@ -199,8 +222,7 @@ namespace BitmapsPxDiff
                 Debug.WriteLine("RenderResult(); t="+t.ToString());
                 int threadIndex = WaitHandle.WaitAny(endOfWorkEvents);
                 if (!threadsParams[threadIndex].methodResult) break;
-                lock (resultImgLocker)
-                    onRenderFinish((Bitmap)localResultImage.Clone(), "Processing...");
+                ShowThreadResult("Processing...");
                 Debug.WriteLine("RenderResult(); threadIndex="+threadIndex.ToString());
                 threadsParams[threadIndex].chunk = chunks[t];
                 endOfWorkEvents[threadIndex].Reset();
@@ -214,8 +236,8 @@ namespace BitmapsPxDiff
             {
                 if (!tp.methodResult)
                 {
-                    lock (resultImgLocker)
-                        onRenderFinish(localResultImage, tp.errorMessage);
+                    stopwatch.Stop();
+                    ShowThreadResult(tp.errorMessage);
                     //tbScriptOutput.Text = tp.errorMessage;
                     Debug.WriteLine("RenderResult; return3");
                     rendererSignal.Set();
@@ -224,7 +246,8 @@ namespace BitmapsPxDiff
             }
             //lock (threadsResultImage) resultImage = (Bitmap)threadsResultImage.Clone();
             //tbScriptOutput.Text = "Script processed successfully";
-            onRenderFinish(localResultImage, "Script processed successfully");
+            stopwatch.Stop();
+            ShowThreadResult("Script processed successfully");
             Debug.WriteLine("RenderResult; return4");
             rendererSignal.Set();
             return true;
