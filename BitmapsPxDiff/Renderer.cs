@@ -38,16 +38,20 @@ namespace BitmapsPxDiff
         private string localScript = "";
         RenderFinishEvent? localOnRenderFinish; // an event allowing mainRenderThread to update progress and return results
 
-        Stopwatch stopwatch = new Stopwatch();        
+        Stopwatch stopwatch = new Stopwatch();
+
+        private bool _running = false; 
+        public bool Running { get => _running; }
 
         public Renderer()
 		{
+            _running = false;
 		}
-        public void StartRenderer(Bitmap src1, Bitmap src2, string script, RenderFinishEvent onRenderFinish)
+        public void StartRendering(Bitmap src1, Bitmap src2, string script, RenderFinishEvent onRenderFinish)
         {
-            interruptRendering = true; // interrupt running rendering
-            mainRenderThreadSignal.WaitOne(); // wait for threads to terminate (mainRenderThread waits for all workers first)
+            StopRendering(); // interrupt running rendering
             interruptRendering = false;
+            _running = true;
 
             stopwatch.Restart();
 
@@ -61,6 +65,12 @@ namespace BitmapsPxDiff
             mainRenderThread = new Thread(() => RenderResult());
             mainRenderThreadSignal.Reset();
             mainRenderThread.Start();
+        }
+        public void StopRendering()
+        {
+            interruptRendering = true; // interrupt running rendering
+            mainRenderThreadSignal.WaitOne(); // wait for threads to terminate (mainRenderThread waits for all workers first)
+            _running = false;
         }
         private bool RenderResult()
         {

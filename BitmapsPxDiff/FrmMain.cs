@@ -21,6 +21,8 @@ namespace BitmapsPxDiff
             if ((0 > btn.TabIndex || btn.TabIndex > 1)
                 || (odLoadImage.ShowDialog() != DialogResult.OK)) return;
 
+            if (renderer.Running) renderer.StopRendering();
+
             btn.Text = Path.GetFileName(odLoadImage.FileName);
 
             images[btn.TabIndex] = new Bitmap(odLoadImage.FileName);
@@ -29,8 +31,12 @@ namespace BitmapsPxDiff
                 rbPreviewModeImg1.Checked = true;
             else
                 rbPreviewModeImg2.Checked = true;
-            
-            RefreshPreview();
+
+            if ((images[0] != null) && (images[1] != null))
+                images[2] = new Bitmap(Math.Min(images[0].Width, images[1].Width),
+                                       Math.Min(images[0].Height, images[1].Height));
+
+            RefreshPreview(true);
         }
         private void btnSwapImages_Click(object sender, EventArgs e)
         {
@@ -43,65 +49,48 @@ namespace BitmapsPxDiff
             btnLoadImage2.Text = s;
             images[1] = img;
 
-            RefreshPreview();
+            RefreshPreview(true);
         }
 
         private void rbPreviewModeImg_CheckedChanged(object sender, EventArgs e)
         {
-            Debug.WriteLine("rbPreviewModeImg_CheckedChanged()");
             if (!(sender is RadioButton)) return;
             RadioButton rb = (RadioButton)sender;
-            if ((!rb.Checked) 
+            if ((!rb.Checked)
                 || (0 > rb.TabIndex || rb.TabIndex > images.Length)) return;
             currentImageIndex = rb.TabIndex;
-            RefreshPreview();
+            if ((currentImageIndex != (int)ImagesIndexes.imageResult)
+                && (renderer.Running))
+            {
+                renderer.StopRendering();
+            }
+
+            RefreshPreview(false);
         }
 
-        private void RefreshPreview()
+        private void RefreshPreview(bool restartRendererIfRunning)
         {
             if (0 > currentImageIndex || currentImageIndex > images.Length) return;
 
             if (currentImageIndex == (int)ImagesIndexes.imageResult)
             {
-                if ((images[2] is null) || (images[2].Width != images[0].Width) || (images[2].Height != images[0].Height))
-                    images[2] = new Bitmap(images[0].Width, images[0].Height);
-                renderer.StartRenderer(images[0], images[1], tbScriptInput.Text, OnRenderFinish);
+                if (renderer.Running && (!restartRendererIfRunning))
+                    pb.Image = images[2];
+                else
+                    renderer.StartRendering(images[0], images[1], tbScriptInput.Text, OnRenderFinish);
             }
             else
-                pb.Image = images[currentImageIndex];
-        }
-
-        
-
-        private void OnRenderFinish(Bitmap newImage, string newStatus)
-        {
-            Debug.WriteLine("OnRenderFinish()");
-            lock (controlsLocker)
             {
-                this.tbScriptOutput.BeginInvoke((MethodInvoker)delegate
-                {
-                    tbScriptOutput.Text = newStatus;
-                });
-                if (newImage != null)
-                {
-                    this.pb.BeginInvoke((MethodInvoker)delegate
-                    {
-                        Graphics g = Graphics.FromImage(images[2]);
-                        g.DrawImage(newImage, 0, 0);
-                        pb.Image = images[2];
-                        g.Dispose(); 
-                    });
-                }
+                lock (controlsLocker)
+                    pb.Image = images[currentImageIndex];
             }
-            Debug.WriteLine("OnRenderFinish(); Set();");
-        }
-        
+        }        
 
         private void tbScriptInput_TextChanged(object sender, EventArgs e)
         {
             if (currentImageIndex != (int)ImagesIndexes.imageResult) return;
 
-            RefreshPreview();
+            RefreshPreview(true);
         }
 
         private void btnLoadScript_Click(object sender, EventArgs e)
@@ -117,6 +106,32 @@ namespace BitmapsPxDiff
         private void btnSaveResultImage_Click(object sender, EventArgs e)
         {
 
+        }
+        private void OnRenderFinish(Bitmap newImage, string newStatus)
+        {
+            lock (controlsLocker)
+            {
+                this.tbScriptOutput.BeginInvoke((MethodInvoker)delegate
+                {
+                    tbScriptOutput.Text = newStatus;
+                });
+                if ((newImage != null) && (currentImageIndex == (int)ImagesIndexes.imageResult))
+                {
+                    this.pb.BeginInvoke((MethodInvoker)delegate
+                    {
+                        Graphics g = Graphics.FromImage(images[2]);
+                        g.DrawImage(newImage, 0, 0);
+                        g.Dispose();
+                        RefreshPreview(false);
+                    });
+                }
+            }
+        }
+
+        private void FrmMain_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if ((renderer != null) && (renderer.Running))
+                renderer.StopRendering();
         }
     }
 }
