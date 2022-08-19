@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Drawing.Imaging;
+using System.Drawing.Drawing2D;
 namespace BitmapsPxDiff
 {
     public partial class FrmMain : Form
@@ -68,6 +69,27 @@ namespace BitmapsPxDiff
             }
 
             RefreshPreview(false);
+        }
+
+        private void rbInterpolationMode_CheckedChanged(object sender, EventArgs e)
+        {
+            if (!(sender is RadioButton)) return;
+            RadioButton rb = (RadioButton)sender;
+            switch (rb.TabIndex)
+            {
+                case 0: 
+                    pb.InterpolationMode = InterpolationMode.Default;
+                    break;
+                case 1:
+                    pb.InterpolationMode = InterpolationMode.NearestNeighbor;
+                    break;
+                case 2:
+                    pb.InterpolationMode = InterpolationMode.High;
+                    break;
+                default:;
+                    break;
+            }
+            pb.Refresh();
         }
 
         private void RefreshPreview(bool restartRendererIfRunning)

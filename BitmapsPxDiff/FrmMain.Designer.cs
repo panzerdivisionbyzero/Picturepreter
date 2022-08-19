@@ -1,4 +1,6 @@
-﻿namespace BitmapsPxDiff
+﻿using System.Drawing.Drawing2D;
+using System.Windows.Forms;
+namespace BitmapsPxDiff
 {
     partial class FrmMain
     {
@@ -20,6 +22,22 @@
             base.Dispose(disposing);
         }
 
+
+        /// <summary>
+        /// Inherits from PictureBox; adds Interpolation Mode Setting
+        /// https://stackoverflow.com/questions/29157/how-do-i-make-a-picturebox-use-nearest-neighbor-resampling
+        /// </summary>
+        public class PictureBoxWithInterpolationMode : PictureBox
+        {
+            public InterpolationMode InterpolationMode { get; set; }
+
+            protected override void OnPaint(PaintEventArgs paintEventArgs)
+            {
+                paintEventArgs.Graphics.InterpolationMode = InterpolationMode;
+                base.OnPaint(paintEventArgs);
+            }
+        }
+
         #region Windows Form Designer generated code
 
         /// <summary>
@@ -29,14 +47,10 @@
         private void InitializeComponent()
         {
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
-            this.pb = new System.Windows.Forms.PictureBox();
+            this.pb = new BitmapsPxDiff.FrmMain.PictureBoxWithInterpolationMode();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
             this.btnLoadImage2 = new System.Windows.Forms.Button();
             this.btnLoadImage1 = new System.Windows.Forms.Button();
-            this.gbPreviewMode = new System.Windows.Forms.GroupBox();
-            this.tbPreviewModeResult = new System.Windows.Forms.RadioButton();
-            this.rbPreviewModeImg2 = new System.Windows.Forms.RadioButton();
-            this.rbPreviewModeImg1 = new System.Windows.Forms.RadioButton();
             this.btnSwapImages = new System.Windows.Forms.Button();
             this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
             this.btnLoadScript = new System.Windows.Forms.Button();
@@ -44,6 +58,15 @@
             this.btnSaveResultImage = new System.Windows.Forms.Button();
             this.tbScriptInput = new System.Windows.Forms.TextBox();
             this.tbScriptOutput = new System.Windows.Forms.TextBox();
+            this.tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
+            this.gbPreviewMode = new System.Windows.Forms.GroupBox();
+            this.tbPreviewModeResult = new System.Windows.Forms.RadioButton();
+            this.rbPreviewModeImg2 = new System.Windows.Forms.RadioButton();
+            this.rbPreviewModeImg1 = new System.Windows.Forms.RadioButton();
+            this.gbInterpolationMode = new System.Windows.Forms.GroupBox();
+            this.rbimOther = new System.Windows.Forms.RadioButton();
+            this.rbimNearestNeighbour = new System.Windows.Forms.RadioButton();
+            this.rbimDefault = new System.Windows.Forms.RadioButton();
             this.odLoadImage = new System.Windows.Forms.OpenFileDialog();
             this.odLoadScript = new System.Windows.Forms.OpenFileDialog();
             this.sdSaveResultImage = new System.Windows.Forms.SaveFileDialog();
@@ -51,8 +74,10 @@
             this.tableLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pb)).BeginInit();
             this.tableLayoutPanel2.SuspendLayout();
-            this.gbPreviewMode.SuspendLayout();
             this.tableLayoutPanel3.SuspendLayout();
+            this.tableLayoutPanel4.SuspendLayout();
+            this.gbPreviewMode.SuspendLayout();
+            this.gbInterpolationMode.SuspendLayout();
             this.SuspendLayout();
             // 
             // tableLayoutPanel1
@@ -73,6 +98,7 @@
             // pb
             // 
             this.pb.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pb.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.Default;
             this.pb.Location = new System.Drawing.Point(336, 16);
             this.pb.Margin = new System.Windows.Forms.Padding(16);
             this.pb.Name = "pb";
@@ -87,12 +113,12 @@
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel2.Controls.Add(this.btnLoadImage2, 0, 1);
             this.tableLayoutPanel2.Controls.Add(this.btnLoadImage1, 0, 0);
-            this.tableLayoutPanel2.Controls.Add(this.gbPreviewMode, 0, 3);
             this.tableLayoutPanel2.Controls.Add(this.btnSwapImages, 0, 2);
             this.tableLayoutPanel2.Controls.Add(this.tableLayoutPanel3, 0, 6);
             this.tableLayoutPanel2.Controls.Add(this.btnSaveResultImage, 0, 7);
             this.tableLayoutPanel2.Controls.Add(this.tbScriptInput, 0, 4);
             this.tableLayoutPanel2.Controls.Add(this.tbScriptOutput, 0, 5);
+            this.tableLayoutPanel2.Controls.Add(this.tableLayoutPanel4, 0, 3);
             this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel2.Location = new System.Drawing.Point(3, 3);
             this.tableLayoutPanel2.Name = "tableLayoutPanel2";
@@ -100,7 +126,7 @@
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 111F));
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 64F));
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
@@ -131,56 +157,6 @@
             this.btnLoadImage1.Text = "Load image 1";
             this.btnLoadImage1.UseVisualStyleBackColor = true;
             this.btnLoadImage1.Click += new System.EventHandler(this.btnLoadImage_Click);
-            // 
-            // gbPreviewMode
-            // 
-            this.gbPreviewMode.Controls.Add(this.tbPreviewModeResult);
-            this.gbPreviewMode.Controls.Add(this.rbPreviewModeImg2);
-            this.gbPreviewMode.Controls.Add(this.rbPreviewModeImg1);
-            this.gbPreviewMode.Dock = System.Windows.Forms.DockStyle.Top;
-            this.gbPreviewMode.Location = new System.Drawing.Point(3, 168);
-            this.gbPreviewMode.Name = "gbPreviewMode";
-            this.gbPreviewMode.Size = new System.Drawing.Size(308, 105);
-            this.gbPreviewMode.TabIndex = 3;
-            this.gbPreviewMode.TabStop = false;
-            this.gbPreviewMode.Text = "Preview mode";
-            // 
-            // tbPreviewModeResult
-            // 
-            this.tbPreviewModeResult.AutoSize = true;
-            this.tbPreviewModeResult.Location = new System.Drawing.Point(13, 72);
-            this.tbPreviewModeResult.Name = "tbPreviewModeResult";
-            this.tbPreviewModeResult.Size = new System.Drawing.Size(93, 19);
-            this.tbPreviewModeResult.TabIndex = 2;
-            this.tbPreviewModeResult.TabStop = true;
-            this.tbPreviewModeResult.Text = "Result image";
-            this.tbPreviewModeResult.UseVisualStyleBackColor = true;
-            this.tbPreviewModeResult.CheckedChanged += new System.EventHandler(this.rbPreviewModeImg_CheckedChanged);
-            // 
-            // rbPreviewModeImg2
-            // 
-            this.rbPreviewModeImg2.AutoSize = true;
-            this.rbPreviewModeImg2.Location = new System.Drawing.Point(13, 47);
-            this.rbPreviewModeImg2.Name = "rbPreviewModeImg2";
-            this.rbPreviewModeImg2.Size = new System.Drawing.Size(67, 19);
-            this.rbPreviewModeImg2.TabIndex = 1;
-            this.rbPreviewModeImg2.TabStop = true;
-            this.rbPreviewModeImg2.Text = "Image 2";
-            this.rbPreviewModeImg2.UseVisualStyleBackColor = true;
-            this.rbPreviewModeImg2.CheckedChanged += new System.EventHandler(this.rbPreviewModeImg_CheckedChanged);
-            // 
-            // rbPreviewModeImg1
-            // 
-            this.rbPreviewModeImg1.AutoSize = true;
-            this.rbPreviewModeImg1.Checked = true;
-            this.rbPreviewModeImg1.Location = new System.Drawing.Point(13, 22);
-            this.rbPreviewModeImg1.Name = "rbPreviewModeImg1";
-            this.rbPreviewModeImg1.Size = new System.Drawing.Size(67, 19);
-            this.rbPreviewModeImg1.TabIndex = 0;
-            this.rbPreviewModeImg1.TabStop = true;
-            this.rbPreviewModeImg1.Text = "Image 1";
-            this.rbPreviewModeImg1.UseVisualStyleBackColor = true;
-            this.rbPreviewModeImg1.CheckedChanged += new System.EventHandler(this.rbPreviewModeImg_CheckedChanged);
             // 
             // btnSwapImages
             // 
@@ -270,6 +246,120 @@
             this.tbScriptOutput.TabIndex = 8;
             this.tbScriptOutput.Text = " \r\n";
             // 
+            // tableLayoutPanel4
+            // 
+            this.tableLayoutPanel4.ColumnCount = 2;
+            this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel4.Controls.Add(this.gbPreviewMode, 0, 0);
+            this.tableLayoutPanel4.Controls.Add(this.gbInterpolationMode, 1, 0);
+            this.tableLayoutPanel4.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanel4.Location = new System.Drawing.Point(0, 165);
+            this.tableLayoutPanel4.Margin = new System.Windows.Forms.Padding(0);
+            this.tableLayoutPanel4.Name = "tableLayoutPanel4";
+            this.tableLayoutPanel4.RowCount = 1;
+            this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel4.Size = new System.Drawing.Size(314, 111);
+            this.tableLayoutPanel4.TabIndex = 9;
+            // 
+            // gbPreviewMode
+            // 
+            this.gbPreviewMode.Controls.Add(this.tbPreviewModeResult);
+            this.gbPreviewMode.Controls.Add(this.rbPreviewModeImg2);
+            this.gbPreviewMode.Controls.Add(this.rbPreviewModeImg1);
+            this.gbPreviewMode.Dock = System.Windows.Forms.DockStyle.Top;
+            this.gbPreviewMode.Location = new System.Drawing.Point(3, 3);
+            this.gbPreviewMode.Name = "gbPreviewMode";
+            this.gbPreviewMode.Size = new System.Drawing.Size(151, 105);
+            this.gbPreviewMode.TabIndex = 4;
+            this.gbPreviewMode.TabStop = false;
+            this.gbPreviewMode.Text = "Preview mode";
+            // 
+            // tbPreviewModeResult
+            // 
+            this.tbPreviewModeResult.AutoSize = true;
+            this.tbPreviewModeResult.Location = new System.Drawing.Point(13, 72);
+            this.tbPreviewModeResult.Name = "tbPreviewModeResult";
+            this.tbPreviewModeResult.Size = new System.Drawing.Size(93, 19);
+            this.tbPreviewModeResult.TabIndex = 2;
+            this.tbPreviewModeResult.TabStop = true;
+            this.tbPreviewModeResult.Text = "Result image";
+            this.tbPreviewModeResult.UseVisualStyleBackColor = true;
+            this.tbPreviewModeResult.CheckedChanged += new System.EventHandler(this.rbPreviewModeImg_CheckedChanged);
+            // 
+            // rbPreviewModeImg2
+            // 
+            this.rbPreviewModeImg2.AutoSize = true;
+            this.rbPreviewModeImg2.Location = new System.Drawing.Point(13, 47);
+            this.rbPreviewModeImg2.Name = "rbPreviewModeImg2";
+            this.rbPreviewModeImg2.Size = new System.Drawing.Size(67, 19);
+            this.rbPreviewModeImg2.TabIndex = 1;
+            this.rbPreviewModeImg2.TabStop = true;
+            this.rbPreviewModeImg2.Text = "Image 2";
+            this.rbPreviewModeImg2.UseVisualStyleBackColor = true;
+            this.rbPreviewModeImg2.CheckedChanged += new System.EventHandler(this.rbPreviewModeImg_CheckedChanged);
+            // 
+            // rbPreviewModeImg1
+            // 
+            this.rbPreviewModeImg1.AutoSize = true;
+            this.rbPreviewModeImg1.Checked = true;
+            this.rbPreviewModeImg1.Location = new System.Drawing.Point(13, 22);
+            this.rbPreviewModeImg1.Name = "rbPreviewModeImg1";
+            this.rbPreviewModeImg1.Size = new System.Drawing.Size(67, 19);
+            this.rbPreviewModeImg1.TabIndex = 0;
+            this.rbPreviewModeImg1.TabStop = true;
+            this.rbPreviewModeImg1.Text = "Image 1";
+            this.rbPreviewModeImg1.UseVisualStyleBackColor = true;
+            this.rbPreviewModeImg1.CheckedChanged += new System.EventHandler(this.rbPreviewModeImg_CheckedChanged);
+            // 
+            // gbInterpolationMode
+            // 
+            this.gbInterpolationMode.Controls.Add(this.rbimOther);
+            this.gbInterpolationMode.Controls.Add(this.rbimNearestNeighbour);
+            this.gbInterpolationMode.Controls.Add(this.rbimDefault);
+            this.gbInterpolationMode.Dock = System.Windows.Forms.DockStyle.Top;
+            this.gbInterpolationMode.Location = new System.Drawing.Point(160, 3);
+            this.gbInterpolationMode.Name = "gbInterpolationMode";
+            this.gbInterpolationMode.Size = new System.Drawing.Size(151, 105);
+            this.gbInterpolationMode.TabIndex = 5;
+            this.gbInterpolationMode.TabStop = false;
+            this.gbInterpolationMode.Text = "Interpolation mode";
+            // 
+            // rbimOther
+            // 
+            this.rbimOther.AutoSize = true;
+            this.rbimOther.Location = new System.Drawing.Point(13, 72);
+            this.rbimOther.Name = "rbimOther";
+            this.rbimOther.Size = new System.Drawing.Size(51, 19);
+            this.rbimOther.TabIndex = 2;
+            this.rbimOther.Text = "High";
+            this.rbimOther.UseVisualStyleBackColor = true;
+            this.rbimOther.CheckedChanged += new System.EventHandler(this.rbInterpolationMode_CheckedChanged);
+            // 
+            // rbimNearestNeighbour
+            // 
+            this.rbimNearestNeighbour.AutoSize = true;
+            this.rbimNearestNeighbour.Location = new System.Drawing.Point(13, 47);
+            this.rbimNearestNeighbour.Name = "rbimNearestNeighbour";
+            this.rbimNearestNeighbour.Size = new System.Drawing.Size(123, 19);
+            this.rbimNearestNeighbour.TabIndex = 1;
+            this.rbimNearestNeighbour.Text = "Nearest neighbour";
+            this.rbimNearestNeighbour.UseVisualStyleBackColor = true;
+            this.rbimNearestNeighbour.CheckedChanged += new System.EventHandler(this.rbInterpolationMode_CheckedChanged);
+            // 
+            // rbimDefault
+            // 
+            this.rbimDefault.AutoSize = true;
+            this.rbimDefault.Checked = true;
+            this.rbimDefault.Location = new System.Drawing.Point(13, 22);
+            this.rbimDefault.Name = "rbimDefault";
+            this.rbimDefault.Size = new System.Drawing.Size(63, 19);
+            this.rbimDefault.TabIndex = 0;
+            this.rbimDefault.TabStop = true;
+            this.rbimDefault.Text = "Default";
+            this.rbimDefault.UseVisualStyleBackColor = true;
+            this.rbimDefault.CheckedChanged += new System.EventHandler(this.rbInterpolationMode_CheckedChanged);
+            // 
             // odLoadImage
             // 
             this.odLoadImage.Filter = "Image Files(*.BMP;*.PNG;*.JPG;*.GIF)|*.BMP;*.PNG;*.JPG;*.GIF|All files (*.*)|*.*";
@@ -300,9 +390,12 @@
             ((System.ComponentModel.ISupportInitialize)(this.pb)).EndInit();
             this.tableLayoutPanel2.ResumeLayout(false);
             this.tableLayoutPanel2.PerformLayout();
+            this.tableLayoutPanel3.ResumeLayout(false);
+            this.tableLayoutPanel4.ResumeLayout(false);
             this.gbPreviewMode.ResumeLayout(false);
             this.gbPreviewMode.PerformLayout();
-            this.tableLayoutPanel3.ResumeLayout(false);
+            this.gbInterpolationMode.ResumeLayout(false);
+            this.gbInterpolationMode.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -310,15 +403,11 @@
         #endregion
 
         private TableLayoutPanel tableLayoutPanel1;
-        private PictureBox pb;
+        private PictureBoxWithInterpolationMode pb;
         private OpenFileDialog odLoadImage;
         private TableLayoutPanel tableLayoutPanel2;
         private Button btnLoadImage2;
         private Button btnLoadImage1;
-        private GroupBox gbPreviewMode;
-        private RadioButton tbPreviewModeResult;
-        private RadioButton rbPreviewModeImg2;
-        private RadioButton rbPreviewModeImg1;
         private Button btnSwapImages;
         private TableLayoutPanel tableLayoutPanel3;
         private Button btnLoadScript;
@@ -329,5 +418,14 @@
         private SaveFileDialog sdSaveScript;
         private TextBox tbScriptInput;
         private TextBox tbScriptOutput;
+        private TableLayoutPanel tableLayoutPanel4;
+        private GroupBox gbPreviewMode;
+        private RadioButton tbPreviewModeResult;
+        private RadioButton rbPreviewModeImg2;
+        private RadioButton rbPreviewModeImg1;
+        private GroupBox gbInterpolationMode;
+        private RadioButton rbimOther;
+        private RadioButton rbimNearestNeighbour;
+        private RadioButton rbimDefault;
     }
 }
