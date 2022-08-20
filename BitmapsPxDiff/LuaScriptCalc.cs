@@ -8,7 +8,7 @@ namespace BitmapsPxDiff
 function CastToByte(i)
     if i<0 then i = i % 256 + 255 end
     if i>255 then i = i % 256 end
-    return i
+    return math.floor(i)
 end
 function rshift(x, by)
   return math.floor(x / 2 ^ by)
