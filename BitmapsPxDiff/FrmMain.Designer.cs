@@ -378,7 +378,7 @@ namespace BitmapsPxDiff
             // 
             // sdSaveScript
             // 
-            this.sdSaveScript.Filter = "Text file (*.txt)|*.txt";
+            this.sdSaveScript.Filter = "LUA script (*.lua)|*.lua|Text file (*.txt)|*.txt";
             // 
             // FrmMain
             // 

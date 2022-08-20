@@ -2,51 +2,24 @@
 
 namespace BitmapsPxDiff
 {
+    public struct ScriptEnvironmentVariables
+    {
+        public int chunkX, chunkY, chunkLastX, chunkLastY, imageW, imageH;
+        public ScriptEnvironmentVariables (int chunkStartX, int chunkStartY, int chunkWidth, int chunkHeight, int imageW, int imageH)
+        { this.chunkX = chunkStartX; this.chunkY = chunkStartY; this.chunkLastX = chunkWidth; this.chunkLastY = chunkHeight; this.imageW = imageW; this.imageH = imageH; }
+        public override string ToString() => $"chunkStartX={chunkX}\r\nchunkStartY={chunkY}\r\nchunkLastX={chunkLastX}\r\nchunkLastY={chunkLastY}\r\nimageW={imageW}\r\nimageH={imageH}\r\n";
+    }
 	public class LuaScriptCalc
 	{
-        const string scriptBegin = @"  
-function CastToByte(i)
-    if i<0 then i = i % 256 + 255 end
-    if i>255 then i = i % 256 end
-    return math.floor(i)
-end
-function rshift(x, by)
-  return math.floor(x / 2 ^ by)
-end
-function ChangeColor2 (c1,c2)
-image1R = CastToByte(c1)
-image1G = CastToByte(rshift(c1,8))
-image1B = CastToByte(rshift(c1,16))
-image1A = CastToByte(rshift(c1,24))
-image2R = CastToByte(c2)
-image2G = CastToByte(rshift(c2,8))
-image2B = CastToByte(rshift(c2,16))
-image2A = CastToByte(rshift(c2,24))"+ "\r\n";
-
-        const string scriptEnd = "\r\n"+@"return CastToByte(resultR) + CastToByte(resultG)*256 + CastToByte(resultB)*65536 + CastToByte(resultA)*16777216
-end
-function tablelength(T)
-  local count = 0
-  for _ in pairs(T) do count = count + 1 end
-  return count
-end
-for i=1,tablelength(pixelsOut) do 
-    pixelsOut[i]=ChangeColor2(pixels1[i],pixels2[i])
-end
-return pixelsOut";
 		public LuaScriptCalc()
 		{
 		}
-        /* LUA functions sources:
-         * https://stackoverflow.com/questions/5977654/how-do-i-use-the-bitwise-operator-xor-in-lua
-         * https://stackoverflow.com/questions/2705793/how-to-get-number-of-entries-in-a-lua-table
-         */
-        public bool LuaChangeColor(string dynamicCode, ref uint[] pixels1, ref uint[] pixels2, ref uint[] pixelsOut, ref string errorMessage)
+        public bool LuaChangeColor(string dynamicCode, ref uint[] pixels1, ref uint[] pixels2, ref uint[] pixelsOut, ScriptEnvironmentVariables envVars, ref string errorMessage)
         {
             string script = "";
             try
             {
-                script = scriptBegin + dynamicCode + scriptEnd;
+                script = envVars.ToString() + scriptBegin + dynamicCode + scriptEnd;
 
                 Script s = new Script();
                 s.Globals["pixels1"] = pixels1;
@@ -65,5 +38,47 @@ return pixelsOut";
 
             return true;
         }
+        /* LUA functions sources:
+         * https://stackoverflow.com/questions/5977654/how-do-i-use-the-bitwise-operator-xor-in-lua
+         * https://stackoverflow.com/questions/2705793/how-to-get-number-of-entries-in-a-lua-table
+         */
+        const string scriptBegin = @"  
+function CastToByte(i)
+    if i<0 then i = i % 256 + 255 end
+    if i>255 then i = i % 256 end
+    return math.floor(i)
+end
+function rshift(x, by)
+    return math.floor(x / 2 ^ by)
+end
+function ChangeColor2 (c1,c2)
+    image1R = CastToByte(c1)
+    image1G = CastToByte(rshift(c1,8))
+    image1B = CastToByte(rshift(c1,16))
+    image1A = CastToByte(rshift(c1,24))
+    image2R = CastToByte(c2)
+    image2G = CastToByte(rshift(c2,8))
+    image2B = CastToByte(rshift(c2,16))
+    image2A = CastToByte(rshift(c2,24))" + "\r\n";
+        // (user script between scriptBegin and scriptEnd)
+        const string scriptEnd = "\r\n" + @"return CastToByte(resultR) + CastToByte(resultG)*256 + CastToByte(resultB)*65536 + CastToByte(resultA)*16777216
+end
+function tablelength(T)
+    local count = 0
+    for _ in pairs(T) do count = count + 1 end
+    return count
+end
+
+imageX=chunkStartX
+imageY=chunkStartY
+for i=1,tablelength(pixelsOut) do
+    pixelsOut[i]=ChangeColor2(pixels1[i],pixels2[i])
+    imageX=imageX+1
+    if imageX>chunkLastX then
+        imageX=chunkStartX
+        imageY=imageY+1
+    end
+end
+return pixelsOut";
     }
 }

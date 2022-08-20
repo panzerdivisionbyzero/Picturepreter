@@ -7,7 +7,7 @@ namespace BitmapsPxDiff
     public class Renderer
 	{
         // structs:
-        private struct ImageChunk { public int startX, endX, startY, endY, width, height; }
+        private struct ImageChunk { public int startX, lastX, startY, lastY, width, height; }
         private struct ThreadParams
         {
             public ImageChunk chunk;
@@ -36,6 +36,7 @@ namespace BitmapsPxDiff
         private Bitmap localSrc1 = new Bitmap(1, 1);
         private Bitmap localSrc2 = new Bitmap(1, 1);
         private Bitmap localResultImage = new Bitmap(1,1);
+        private int localResultImageWidth, localResultImageHeight = 1;
         private string localScript = "";
         RenderFinishEvent? localOnRenderFinish; // an event allowing mainRenderThread to update progress and return results
 
@@ -81,10 +82,10 @@ namespace BitmapsPxDiff
                 return false;
             }
             // defining source bitmaps intersection dimensions:
-            int x = Math.Min(localSrc1.Width, localSrc2.Width);
-            int y = Math.Min(localSrc1.Height, localSrc2.Height);
+            localResultImageWidth = Math.Min(localSrc1.Width, localSrc2.Width);
+            localResultImageHeight = Math.Min(localSrc1.Height, localSrc2.Height);
             lock (resultImgLocker)
-                localResultImage = new Bitmap(x, y, System.Drawing.Imaging.PixelFormat.Format32bppArgb); // initializing render result bitmap
+                localResultImage = new Bitmap(localResultImageWidth, localResultImageHeight, System.Drawing.Imaging.PixelFormat.Format32bppArgb); // initializing render result bitmap
 
             // preparing worker threads:
             for (int t = 0; t < maxChunksThreads; t++)
@@ -94,7 +95,7 @@ namespace BitmapsPxDiff
                 threadsParams[t].errorMessage = "";
             }
             // preparing chunks coords/dimensions:
-            ImageChunk[] chunks = GenerateImageChunks(x, y);
+            ImageChunk[] chunks = GenerateImageChunks(localResultImageWidth, localResultImageHeight);
 
             // calculating chunks by worker threads:
             for (int t = 0; t < chunks.Length; t++)
@@ -154,10 +155,10 @@ namespace BitmapsPxDiff
                     int c = y * chunksX + x;
                     chunks[c].startX = x * chunkSize;
                     chunks[c].startY = y * chunkSize;
-                    chunks[c].endX = Math.Min(imageWidth - 1, (x + 1) * chunkSize - 1);
-                    chunks[c].endY = Math.Min(imageHeight - 1, (y + 1) * chunkSize - 1);
-                    chunks[c].width = chunks[c].endX - chunks[c].startX + 1;
-                    chunks[c].height = chunks[c].endY - chunks[c].startY + 1;
+                    chunks[c].lastX = Math.Min(imageWidth - 1, (x + 1) * chunkSize - 1);
+                    chunks[c].lastY = Math.Min(imageHeight - 1, (y + 1) * chunkSize - 1);
+                    chunks[c].width = chunks[c].lastX - chunks[c].startX + 1;
+                    chunks[c].height = chunks[c].lastY - chunks[c].startY + 1;
                 }
             }
             return chunks;
@@ -174,6 +175,7 @@ namespace BitmapsPxDiff
             uint[] pixels1 = new uint[chunk.width * chunk.height];
             uint[] pixels2 = new uint[chunk.width * chunk.height];
             uint[] pixelsOut = new uint[chunk.width * chunk.height];
+            ScriptEnvironmentVariables envVars = new ScriptEnvironmentVariables(chunk.startX, chunk.startY, chunk.lastX, chunk.lastY, localResultImageWidth, localResultImageHeight);
 
             // getting bitmaps chunks and converting them to pixels arrays:
             lock (src1Locker) { thrSrc1 = localSrc1.Clone(new Rectangle(chunk.startX, chunk.startY, chunk.width, chunk.height), localSrc1.PixelFormat); }
@@ -184,7 +186,7 @@ namespace BitmapsPxDiff
             if (interruptRendering) { endOfWorkEvents[index].Set(); return; } // interrupt signal check
 
             // LUA script operations:
-            if (!luaScriptCalc.LuaChangeColor(localScript, ref pixels1, ref pixels2, ref pixelsOut, ref errorMessage))
+            if (!luaScriptCalc.LuaChangeColor(localScript, ref pixels1, ref pixels2, ref pixelsOut, envVars, ref errorMessage))
             {
                 threadsParams[index].errorMessage = errorMessage;
                 threadsParams[index].errorOccurred = true;
