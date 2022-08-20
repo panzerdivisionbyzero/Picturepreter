@@ -1,0 +1,36 @@
+-- instructions to run this script:
+-- 1. Load images:
+-- - palmsGroup_groundOnly.bmp
+-- - palmsGroup_ground.bmp
+-- 2. Check "Result image" radio button
+-- Optional: comment out or set "transparencyToColor" to "false"
+
+transparencyToColor = true
+
+function CalcShadowFactor(gnd,shadow)
+  f=0
+  if gnd!=0 and gnd>shadow then f = (gnd-shadow)/gnd*255 end
+  return f
+end
+
+rf = CalcShadowFactor(image1R,image2R)
+gf = CalcShadowFactor(image1G,image2G)
+bf = CalcShadowFactor(image1B,image2B)
+af = (rf+gf+bf)/3
+resultA = af
+resultR = 0
+resultG = 0
+resultB = 0
+
+if transparencyToColor then
+  function TransparencyToColor(r,g,b)
+    if resultA<255 then
+      resultR = r/255*(255-resultA)
+      resultG = g/255*(255-resultA)
+      resultB = b/255*(255-resultA)
+    end
+    resultA = 255
+  end
+  c = 128
+  TransparencyToColor(c,c,c)
+end
