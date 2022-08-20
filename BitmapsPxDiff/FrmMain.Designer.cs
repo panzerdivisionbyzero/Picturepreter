@@ -30,10 +30,12 @@ namespace BitmapsPxDiff
         public class PictureBoxWithInterpolationMode : PictureBox
         {
             public InterpolationMode InterpolationMode { get; set; }
+            public PixelOffsetMode PixelOffsetMode { get; set; }
 
             protected override void OnPaint(PaintEventArgs paintEventArgs)
             {
                 paintEventArgs.Graphics.InterpolationMode = InterpolationMode;
+                paintEventArgs.Graphics.PixelOffsetMode = PixelOffsetMode;
                 base.OnPaint(paintEventArgs);
             }
         }
@@ -102,6 +104,7 @@ namespace BitmapsPxDiff
             this.pb.Location = new System.Drawing.Point(336, 16);
             this.pb.Margin = new System.Windows.Forms.Padding(16);
             this.pb.Name = "pb";
+            this.pb.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.Half;
             this.pb.Size = new System.Drawing.Size(448, 639);
             this.pb.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pb.TabIndex = 1;
@@ -137,8 +140,8 @@ namespace BitmapsPxDiff
             // btnLoadImage2
             // 
             this.btnLoadImage2.Dock = System.Windows.Forms.DockStyle.Top;
-            this.btnLoadImage2.Location = new System.Drawing.Point(16, 71);
-            this.btnLoadImage2.Margin = new System.Windows.Forms.Padding(16);
+            this.btnLoadImage2.Location = new System.Drawing.Point(16, 47);
+            this.btnLoadImage2.Margin = new System.Windows.Forms.Padding(16, 4, 16, 4);
             this.btnLoadImage2.Name = "btnLoadImage2";
             this.btnLoadImage2.Size = new System.Drawing.Size(282, 23);
             this.btnLoadImage2.TabIndex = 1;
@@ -150,7 +153,7 @@ namespace BitmapsPxDiff
             // 
             this.btnLoadImage1.Dock = System.Windows.Forms.DockStyle.Top;
             this.btnLoadImage1.Location = new System.Drawing.Point(16, 16);
-            this.btnLoadImage1.Margin = new System.Windows.Forms.Padding(16);
+            this.btnLoadImage1.Margin = new System.Windows.Forms.Padding(16, 16, 16, 4);
             this.btnLoadImage1.Name = "btnLoadImage1";
             this.btnLoadImage1.Size = new System.Drawing.Size(282, 23);
             this.btnLoadImage1.TabIndex = 0;
@@ -161,8 +164,8 @@ namespace BitmapsPxDiff
             // btnSwapImages
             // 
             this.btnSwapImages.Dock = System.Windows.Forms.DockStyle.Top;
-            this.btnSwapImages.Location = new System.Drawing.Point(16, 126);
-            this.btnSwapImages.Margin = new System.Windows.Forms.Padding(16);
+            this.btnSwapImages.Location = new System.Drawing.Point(16, 78);
+            this.btnSwapImages.Margin = new System.Windows.Forms.Padding(16, 4, 16, 4);
             this.btnSwapImages.Name = "btnSwapImages";
             this.btnSwapImages.Size = new System.Drawing.Size(282, 23);
             this.btnSwapImages.TabIndex = 4;
@@ -178,19 +181,19 @@ namespace BitmapsPxDiff
             this.tableLayoutPanel3.Controls.Add(this.btnLoadScript, 0, 0);
             this.tableLayoutPanel3.Controls.Add(this.btnSaveScript, 1, 0);
             this.tableLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanel3.Location = new System.Drawing.Point(0, 554);
+            this.tableLayoutPanel3.Location = new System.Drawing.Point(0, 590);
             this.tableLayoutPanel3.Margin = new System.Windows.Forms.Padding(0);
             this.tableLayoutPanel3.Name = "tableLayoutPanel3";
             this.tableLayoutPanel3.RowCount = 1;
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel3.Size = new System.Drawing.Size(314, 56);
+            this.tableLayoutPanel3.Size = new System.Drawing.Size(314, 32);
             this.tableLayoutPanel3.TabIndex = 5;
             // 
             // btnLoadScript
             // 
             this.btnLoadScript.Dock = System.Windows.Forms.DockStyle.Top;
-            this.btnLoadScript.Location = new System.Drawing.Point(16, 16);
-            this.btnLoadScript.Margin = new System.Windows.Forms.Padding(16);
+            this.btnLoadScript.Location = new System.Drawing.Point(16, 4);
+            this.btnLoadScript.Margin = new System.Windows.Forms.Padding(16, 4, 16, 4);
             this.btnLoadScript.Name = "btnLoadScript";
             this.btnLoadScript.Size = new System.Drawing.Size(125, 23);
             this.btnLoadScript.TabIndex = 0;
@@ -201,8 +204,8 @@ namespace BitmapsPxDiff
             // btnSaveScript
             // 
             this.btnSaveScript.Dock = System.Windows.Forms.DockStyle.Top;
-            this.btnSaveScript.Location = new System.Drawing.Point(173, 16);
-            this.btnSaveScript.Margin = new System.Windows.Forms.Padding(16);
+            this.btnSaveScript.Location = new System.Drawing.Point(173, 4);
+            this.btnSaveScript.Margin = new System.Windows.Forms.Padding(16, 4, 16, 4);
             this.btnSaveScript.Name = "btnSaveScript";
             this.btnSaveScript.Size = new System.Drawing.Size(125, 23);
             this.btnSaveScript.TabIndex = 1;
@@ -214,7 +217,7 @@ namespace BitmapsPxDiff
             // 
             this.btnSaveResultImage.Dock = System.Windows.Forms.DockStyle.Top;
             this.btnSaveResultImage.Location = new System.Drawing.Point(16, 626);
-            this.btnSaveResultImage.Margin = new System.Windows.Forms.Padding(16);
+            this.btnSaveResultImage.Margin = new System.Windows.Forms.Padding(16, 4, 16, 16);
             this.btnSaveResultImage.Name = "btnSaveResultImage";
             this.btnSaveResultImage.Size = new System.Drawing.Size(282, 23);
             this.btnSaveResultImage.TabIndex = 6;
@@ -226,10 +229,10 @@ namespace BitmapsPxDiff
             // 
             this.tbScriptInput.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tbScriptInput.Font = new System.Drawing.Font("Cascadia Mono", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.tbScriptInput.Location = new System.Drawing.Point(3, 279);
+            this.tbScriptInput.Location = new System.Drawing.Point(3, 219);
             this.tbScriptInput.Multiline = true;
             this.tbScriptInput.Name = "tbScriptInput";
-            this.tbScriptInput.Size = new System.Drawing.Size(308, 208);
+            this.tbScriptInput.Size = new System.Drawing.Size(308, 304);
             this.tbScriptInput.TabIndex = 7;
             this.tbScriptInput.Text = "resultA = 255\r\nresultR = image1R + 1\r\nresultG = image1G + 1\r\nresultB = image1B + " +
     "1";
@@ -238,7 +241,7 @@ namespace BitmapsPxDiff
             // tbScriptOutput
             // 
             this.tbScriptOutput.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tbScriptOutput.Location = new System.Drawing.Point(3, 493);
+            this.tbScriptOutput.Location = new System.Drawing.Point(3, 529);
             this.tbScriptOutput.Multiline = true;
             this.tbScriptOutput.Name = "tbScriptOutput";
             this.tbScriptOutput.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
@@ -254,7 +257,7 @@ namespace BitmapsPxDiff
             this.tableLayoutPanel4.Controls.Add(this.gbPreviewMode, 0, 0);
             this.tableLayoutPanel4.Controls.Add(this.gbInterpolationMode, 1, 0);
             this.tableLayoutPanel4.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanel4.Location = new System.Drawing.Point(0, 165);
+            this.tableLayoutPanel4.Location = new System.Drawing.Point(0, 105);
             this.tableLayoutPanel4.Margin = new System.Windows.Forms.Padding(0);
             this.tableLayoutPanel4.Name = "tableLayoutPanel4";
             this.tableLayoutPanel4.RowCount = 1;

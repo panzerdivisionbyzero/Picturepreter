@@ -39,7 +39,7 @@ namespace BitmapsPxDiff
                                        Math.Min(images[0].Height, images[1].Height),
                                        System.Drawing.Imaging.PixelFormat.Format32bppArgb);
 
-            RefreshPreview(true);
+            RefreshPreview(false);
         }
         private void btnSwapImages_Click(object sender, EventArgs e)
         {
@@ -98,6 +98,11 @@ namespace BitmapsPxDiff
 
             if (currentImageIndex == (int)ImagesIndexes.imageResult)
             {
+                if ((images[0] is null) || (images[1] is null))
+                {
+                    MessageBox.Show("Source images cannot be empty.");
+                    return;
+                }
                 if (renderer.Running && (!restartRendererIfRunning))
                     pb.Image = images[2];
                 else
@@ -120,6 +125,7 @@ namespace BitmapsPxDiff
         private void btnLoadScript_Click(object sender, EventArgs e)
         {
             if (odLoadScript.ShowDialog() != DialogResult.OK) return;
+            if (renderer.Running) renderer.StopRendering();
             tbScriptInput.Text = File.ReadAllText(odLoadScript.FileName);
         }
 
