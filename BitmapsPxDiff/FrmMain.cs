@@ -8,36 +8,59 @@ namespace BitmapsPxDiff
         private enum ImagesIndexes { image1, image2, imageResult };
         private int currentImageIndex = 0;
         private Bitmap[] images = new Bitmap[3];
-        private Renderer renderer = new Renderer();
+        private Renderer renderer;
         
         private static readonly object controlsLocker = new object();
         public FrmMain()
         {
             InitializeComponent();
+            renderer = new Renderer(OnRefreshRenderingProgress, OnRenderingFinished);
+    }
+        private void FrmMain_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if ((renderer != null) && (renderer.Running))
+            {
+                renderer.StopRendering();
+            }
         }
-
         private void btnLoadImage_Click(object sender, EventArgs e)
         {
-            if (!(sender is Button)) return;
+            if (!(sender is Button))
+            {
+                return;
+            }
             Button btn = (Button)sender;
-            if ((0 > btn.TabIndex || btn.TabIndex > 1)
-                || (odLoadImage.ShowDialog() != DialogResult.OK)) return;
 
-            if (renderer.Running) renderer.StopRendering();
+            if ((0 > btn.TabIndex || btn.TabIndex > 1)
+                || (odLoadImage.ShowDialog() != DialogResult.OK))
+            {
+                return;
+            }
+
+            if (renderer.Running)
+            {
+                renderer.StopRendering(); 
+            }
 
             btn.Text = Path.GetFileName(odLoadImage.FileName);
 
             images[btn.TabIndex] = new Bitmap(odLoadImage.FileName);
 
             if (btn.TabIndex == 0)
+            {
                 rbPreviewModeImg1.Checked = true;
+            }
             else
+            {
                 rbPreviewModeImg2.Checked = true;
+            }
 
             if ((images[0] != null) && (images[1] != null))
+            {
                 images[2] = new Bitmap(Math.Min(images[0].Width, images[1].Width),
                                        Math.Min(images[0].Height, images[1].Height),
                                        System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            }
 
             RefreshPreview(false);
         }
@@ -52,28 +75,32 @@ namespace BitmapsPxDiff
             btnLoadImage2.Text = s;
             images[1] = img;
 
-            RefreshPreview(true);
+            RefreshPreview(renderer.Running);
         }
-
         private void rbPreviewModeImg_CheckedChanged(object sender, EventArgs e)
         {
             if (!(sender is RadioButton)) return;
             RadioButton rb = (RadioButton)sender;
             if ((!rb.Checked)
-                || (0 > rb.TabIndex || rb.TabIndex > images.Length)) return;
+                || (0 > rb.TabIndex || rb.TabIndex > images.Length))
+            {
+                return;
+            }
             currentImageIndex = rb.TabIndex;
+
             if ((currentImageIndex != (int)ImagesIndexes.imageResult)
                 && (renderer.Running))
             {
                 renderer.StopRendering();
             }
-
             RefreshPreview(false);
         }
-
         private void rbInterpolationMode_CheckedChanged(object sender, EventArgs e)
         {
-            if (!(sender is RadioButton)) return;
+            if (!(sender is RadioButton))
+            {
+                return;
+            }
             RadioButton rb = (RadioButton)sender;
             switch (rb.TabIndex)
             {
@@ -91,10 +118,12 @@ namespace BitmapsPxDiff
             }
             pb.Refresh();
         }
-
-        private void RefreshPreview(bool restartRendererIfRunning)
+        private void RefreshPreview(bool startRendering)
         {
-            if (0 > currentImageIndex || currentImageIndex > images.Length) return;
+            if (0 > currentImageIndex || currentImageIndex > images.Length)
+            {
+                return;
+            }
 
             if (currentImageIndex == (int)ImagesIndexes.imageResult)
             {
@@ -103,38 +132,69 @@ namespace BitmapsPxDiff
                     MessageBox.Show("Source images cannot be empty.");
                     return;
                 }
-                if (renderer.Running && (!restartRendererIfRunning))
+                if (startRendering)
+                {
+                    renderer.StartRendering(images[0], images[1], tbScriptInput.Text);
+                    btnRunStopScript.Text = "Stop script execution";
+                }
+                else 
+                {
                     pb.Image = images[2];
-                else
-                    renderer.StartRendering(images[0], images[1], tbScriptInput.Text, OnRenderFinish);
+                }
             }
             else
             {
                 lock (controlsLocker)
+                {
                     pb.Image = images[currentImageIndex];
+                }
             }
-        }        
-
+        }
         private void tbScriptInput_TextChanged(object sender, EventArgs e)
         {
-            if (currentImageIndex != (int)ImagesIndexes.imageResult) return;
+            if (currentImageIndex != (int)ImagesIndexes.imageResult)
+            {
+                return;
+            }
 
-            RefreshPreview(true);
+            RefreshPreview(true); // TODO: dodac checkbox
         }
-
+        private void btnRunStopScript_Click(object sender, EventArgs e)
+        {
+            if (currentImageIndex != (int)ImagesIndexes.imageResult)
+            {
+                MessageBox.Show("Preview mode must be set to \"Preview image\" option.");
+                return; 
+            }
+            if (renderer.Running)
+            {
+                renderer.StopRendering();
+            }
+            else
+            {
+                RefreshPreview(true);
+            }
+        }
         private void btnLoadScript_Click(object sender, EventArgs e)
         {
-            if (odLoadScript.ShowDialog() != DialogResult.OK) return;
-            if (renderer.Running) renderer.StopRendering();
+            if (odLoadScript.ShowDialog() != DialogResult.OK)
+            {
+                return;
+            }
+            if (renderer.Running)
+            {
+                renderer.StopRendering();
+            }
             tbScriptInput.Text = File.ReadAllText(odLoadScript.FileName);
         }
-
         private void btnSaveScript_Click(object sender, EventArgs e)
         {
-            if (sdSaveScript.ShowDialog() != DialogResult.OK) return;
+            if (sdSaveScript.ShowDialog() != DialogResult.OK)
+            {
+                return;
+            }
             File.WriteAllText(sdSaveScript.FileName, tbScriptInput.Text);
         }
-
         private void btnSaveResultImage_Click(object sender, EventArgs e)
         {
             if (images[2] is null)
@@ -142,7 +202,10 @@ namespace BitmapsPxDiff
                 MessageBox.Show("Result image is empty.");
                 return;
             }
-            if (sdSaveResultImage.ShowDialog() != DialogResult.OK) return;
+            if (sdSaveResultImage.ShowDialog() != DialogResult.OK)
+            {
+                return;
+            }
 
             ImageFormat imgFormat;
 
@@ -171,7 +234,7 @@ namespace BitmapsPxDiff
             images[2].Save(sdSaveResultImage.FileName, imgFormat);
             MessageBox.Show("File saved.");
         }
-        private void OnRenderFinish(Bitmap newImage, string newStatus)
+        private void OnRefreshRenderingProgress(Bitmap newImage, string newStatus)
         {
             lock (controlsLocker)
             {
@@ -189,11 +252,12 @@ namespace BitmapsPxDiff
                 }
             }
         }
-
-        private void FrmMain_FormClosing(object sender, FormClosingEventArgs e)
+        private void OnRenderingFinished()
         {
-            if ((renderer != null) && (renderer.Running))
-                renderer.StopRendering();
+            lock (controlsLocker)
+            {
+                btnRunStopScript.Text = "Run script";
+            }
         }
     }
 }

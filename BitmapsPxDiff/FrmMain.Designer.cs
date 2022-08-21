@@ -73,6 +73,7 @@ namespace BitmapsPxDiff
             this.odLoadScript = new System.Windows.Forms.OpenFileDialog();
             this.sdSaveResultImage = new System.Windows.Forms.SaveFileDialog();
             this.sdSaveScript = new System.Windows.Forms.SaveFileDialog();
+            this.btnRunStopScript = new System.Windows.Forms.Button();
             this.tableLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pb)).BeginInit();
             this.tableLayoutPanel2.SuspendLayout();
@@ -117,20 +118,22 @@ namespace BitmapsPxDiff
             this.tableLayoutPanel2.Controls.Add(this.btnLoadImage2, 0, 1);
             this.tableLayoutPanel2.Controls.Add(this.btnLoadImage1, 0, 0);
             this.tableLayoutPanel2.Controls.Add(this.btnSwapImages, 0, 2);
-            this.tableLayoutPanel2.Controls.Add(this.tableLayoutPanel3, 0, 6);
-            this.tableLayoutPanel2.Controls.Add(this.btnSaveResultImage, 0, 7);
+            this.tableLayoutPanel2.Controls.Add(this.tableLayoutPanel3, 0, 7);
+            this.tableLayoutPanel2.Controls.Add(this.btnSaveResultImage, 0, 8);
             this.tableLayoutPanel2.Controls.Add(this.tbScriptInput, 0, 4);
-            this.tableLayoutPanel2.Controls.Add(this.tbScriptOutput, 0, 5);
+            this.tableLayoutPanel2.Controls.Add(this.tbScriptOutput, 0, 6);
             this.tableLayoutPanel2.Controls.Add(this.tableLayoutPanel4, 0, 3);
+            this.tableLayoutPanel2.Controls.Add(this.btnRunStopScript, 0, 5);
             this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel2.Location = new System.Drawing.Point(3, 3);
             this.tableLayoutPanel2.Name = "tableLayoutPanel2";
-            this.tableLayoutPanel2.RowCount = 8;
+            this.tableLayoutPanel2.RowCount = 9;
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 111F));
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 64F));
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
@@ -232,7 +235,7 @@ namespace BitmapsPxDiff
             this.tbScriptInput.Location = new System.Drawing.Point(3, 219);
             this.tbScriptInput.Multiline = true;
             this.tbScriptInput.Name = "tbScriptInput";
-            this.tbScriptInput.Size = new System.Drawing.Size(308, 304);
+            this.tbScriptInput.Size = new System.Drawing.Size(308, 273);
             this.tbScriptInput.TabIndex = 7;
             this.tbScriptInput.Text = "resultA = 255\r\nresultR = image1R + 1\r\nresultG = image1G + 1\r\nresultB = image1B + " +
     "1";
@@ -380,6 +383,18 @@ namespace BitmapsPxDiff
             // 
             this.sdSaveScript.Filter = "LUA script (*.lua)|*.lua|Text file (*.txt)|*.txt";
             // 
+            // btnRunScript
+            // 
+            this.btnRunStopScript.Dock = System.Windows.Forms.DockStyle.Top;
+            this.btnRunStopScript.Location = new System.Drawing.Point(16, 499);
+            this.btnRunStopScript.Margin = new System.Windows.Forms.Padding(16, 4, 16, 4);
+            this.btnRunStopScript.Name = "btnRunScript";
+            this.btnRunStopScript.Size = new System.Drawing.Size(282, 23);
+            this.btnRunStopScript.TabIndex = 10;
+            this.btnRunStopScript.Text = "Run script";
+            this.btnRunStopScript.UseVisualStyleBackColor = true;
+            this.btnRunStopScript.Click += new System.EventHandler(this.btnRunStopScript_Click);
+            // 
             // FrmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -430,5 +445,6 @@ namespace BitmapsPxDiff
         private RadioButton rbimOther;
         private RadioButton rbimNearestNeighbour;
         private RadioButton rbimDefault;
+        private Button btnRunStopScript;
     }
 }

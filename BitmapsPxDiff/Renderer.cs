@@ -3,7 +3,8 @@ using System.Drawing.Imaging;
 
 namespace BitmapsPxDiff
 {
-    public delegate void RenderFinishEvent(Bitmap newImage, string newStatus);
+    public delegate void OnRefreshRenderingProgressEvent(Bitmap newImage, string newStatus);
+    public delegate void OnRenderingFinished();
     public class Renderer
 	{
         // structs:
@@ -38,18 +39,23 @@ namespace BitmapsPxDiff
         private Bitmap localResultImage = new Bitmap(1,1);
         private int localResultImageWidth, localResultImageHeight = 1;
         private string localScript = "";
-        RenderFinishEvent? localOnRenderFinish; // an event allowing mainRenderThread to update progress and return results
+
+        // rendering events:
+        private OnRefreshRenderingProgressEvent onRefreshRenderingProgress; // an event allowing mainRenderThread to update progress and return results
+        private OnRenderingFinished onRenderingFinished;
 
         Stopwatch stopwatch = new Stopwatch();
 
         private bool _running = false; 
         public bool Running { get => _running; }
 
-        public Renderer()
-		{
+        public Renderer(OnRefreshRenderingProgressEvent onRefreshRenderingProgress, OnRenderingFinished onRenderingFinished)
+        {
             _running = false;
-		}
-        public void StartRendering(Bitmap src1, Bitmap src2, string script, RenderFinishEvent onRenderFinish)
+            this.onRefreshRenderingProgress = onRefreshRenderingProgress;
+            this.onRenderingFinished = onRenderingFinished;
+        }
+        public void StartRendering(Bitmap src1, Bitmap src2, string script)
         {
             StopRendering(); // interrupt running rendering
             interruptRendering = false;
@@ -61,7 +67,6 @@ namespace BitmapsPxDiff
             localSrc1 = (Bitmap)src1.Clone();
             localSrc2 = (Bitmap)src2.Clone();
             localScript = script;
-            localOnRenderFinish = onRenderFinish;
 
             // ready, steady, go:
             mainRenderThread = new Thread(() => RenderResult());
@@ -73,6 +78,10 @@ namespace BitmapsPxDiff
             interruptRendering = true; // interrupt running rendering
             mainRenderThreadSignal.WaitOne(); // wait for threads to terminate (mainRenderThread waits for all workers first)
             _running = false;
+            if (onRenderingFinished != null)
+            {
+                onRenderingFinished();
+            }
         }
         private bool RenderResult()
         {
@@ -85,7 +94,9 @@ namespace BitmapsPxDiff
             localResultImageWidth = Math.Min(localSrc1.Width, localSrc2.Width);
             localResultImageHeight = Math.Min(localSrc1.Height, localSrc2.Height);
             lock (resultImgLocker)
+            {
                 localResultImage = new Bitmap(localResultImageWidth, localResultImageHeight, System.Drawing.Imaging.PixelFormat.Format32bppArgb); // initializing render result bitmap
+            }
 
             // preparing worker threads:
             for (int t = 0; t < maxChunksThreads; t++)
@@ -108,7 +119,10 @@ namespace BitmapsPxDiff
                 }
                 int threadIndex = WaitHandle.WaitAny(endOfWorkEvents); // get first available worker index
 
-                if (threadsParams[threadIndex].errorOccurred) break; // if previous worker reported error, interrupt loop
+                if (threadsParams[threadIndex].errorOccurred)
+                {
+                    break; // if previous worker reported error, interrupt loop
+                }
 
                 RefreshRenderingProgress("Processing...");
 
@@ -118,29 +132,42 @@ namespace BitmapsPxDiff
                 new Thread(() => ThreadMethod(threadIndex)).Start(); // create and start thread
             }
             WaitHandle.WaitAll(endOfWorkEvents); // wait for all workers to terminate
+
             // scanning workers results for errors:
+            bool errorOcurred = false;
+            string scriptStatus = "Script processed successfully";
             foreach (var tp in threadsParams)
             {
                 if (tp.errorOccurred)
                 {
-                    stopwatch.Stop();
-                    RefreshRenderingProgress(tp.errorMessage);
-                    mainRenderThreadSignal.Set();
-                    return false;
+                    errorOcurred = true;
+                    scriptStatus = tp.errorMessage;
+                    break;
                 }
             }
             // render finish:
             stopwatch.Stop();
-            RefreshRenderingProgress("Script processed successfully");
+            RefreshRenderingProgress(scriptStatus);
             mainRenderThreadSignal.Set();
-            return true;
+            _running = false;
+
+            if (onRenderingFinished != null)
+            {
+                onRenderingFinished();
+            }
+            return !errorOcurred;
         }
         private void RefreshRenderingProgress(string scriptStatus)
         {
-            if ((localOnRenderFinish is null) || (localResultImage is null)) return;
+            if ((onRefreshRenderingProgress is null) || (localResultImage is null))
+            {
+                return;
+            }
             TimeSpan ts = TimeSpan.FromMilliseconds(stopwatch.ElapsedMilliseconds);
             lock (resultImgLocker)
-                localOnRenderFinish((Bitmap)localResultImage.Clone(), scriptStatus + "\r\nTime elapsed: " + ts.ToString(@"hh\:mm\:ss\.fff"));
+            {
+                onRefreshRenderingProgress((Bitmap)localResultImage.Clone(), scriptStatus + "\r\nTime elapsed: " + ts.ToString(@"hh\:mm\:ss\.fff"));
+            }
         }
         private ImageChunk[] GenerateImageChunks(int imageWidth, int imageHeight)
         {
@@ -178,12 +205,23 @@ namespace BitmapsPxDiff
             ScriptEnvironmentVariables envVars = new ScriptEnvironmentVariables(chunk.startX, chunk.startY, chunk.lastX, chunk.lastY, localResultImageWidth, localResultImageHeight);
 
             // getting bitmaps chunks and converting them to pixels arrays:
-            lock (src1Locker) { thrSrc1 = localSrc1.Clone(new Rectangle(chunk.startX, chunk.startY, chunk.width, chunk.height), localSrc1.PixelFormat); }
+            lock (src1Locker)
+            {
+                thrSrc1 = localSrc1.Clone(new Rectangle(chunk.startX, chunk.startY, chunk.width, chunk.height), localSrc1.PixelFormat);
+            }
             BitmapToPixelsArray(ref thrSrc1, ref chunk, ref pixels1);
-            lock (src2Locker) { thrSrc2 = localSrc2.Clone(new Rectangle(chunk.startX, chunk.startY, chunk.width, chunk.height), localSrc2.PixelFormat); }
+
+            lock (src2Locker)
+            {
+                thrSrc2 = localSrc2.Clone(new Rectangle(chunk.startX, chunk.startY, chunk.width, chunk.height), localSrc2.PixelFormat);
+            }
             BitmapToPixelsArray(ref thrSrc2, ref chunk, ref pixels2);
             
-            if (interruptRendering) { endOfWorkEvents[index].Set(); return; } // interrupt signal check
+            if (interruptRendering) // interrupt signal check
+            { 
+                endOfWorkEvents[index].Set(); 
+                return; 
+            }
 
             // LUA script operations:
             if (!luaScriptCalc.LuaChangeColor(localScript, ref pixels1, ref pixels2, ref pixelsOut, envVars, ref errorMessage))
@@ -195,7 +233,11 @@ namespace BitmapsPxDiff
             }
             PixelArrayToBitmap(ref pixelsOut, ref chunk, ref thrResultImage); // converting script result to bitmap
 
-            if (interruptRendering) { endOfWorkEvents[index].Set(); return; } // interrupt signal check
+            if (interruptRendering) // interrupt signal check
+            {
+                endOfWorkEvents[index].Set();
+                return;
+            }
 
             // pasting thread result into the aggregate bitmap
             lock (resultImgLocker)
