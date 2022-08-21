@@ -157,7 +157,7 @@ namespace BitmapsPxDiff
                 return;
             }
 
-            RefreshPreview(true); // TODO: dodac checkbox
+            RefreshPreview(cbAutoRunScriptAfterChange.Checked);
         }
         private void btnRunStopScript_Click(object sender, EventArgs e)
         {
