@@ -14,7 +14,7 @@ namespace BitmapsPxDiff
         public FrmMain()
         {
             InitializeComponent();
-            renderer = new Renderer(OnRefreshRenderingProgress, OnRenderingFinished);
+            renderer = new Renderer(OnRefreshRenderingProgress, OnRenderingStarted, OnRenderingFinished);
     }
         private void FrmMain_FormClosing(object sender, FormClosingEventArgs e)
         {
@@ -135,7 +135,6 @@ namespace BitmapsPxDiff
                         return;
                     }
                     renderer.StartRendering(images[0], images[1], tbScriptInput.Text);
-                    btnRunStopScript.Text = "Stop script execution";
                 }
                 else 
                 {
@@ -249,6 +248,16 @@ namespace BitmapsPxDiff
                         RefreshPreview(false);
                     });
                 }
+            }
+        }
+        private void OnRenderingStarted()
+        {
+            lock (controlsLocker)
+            {
+                this.btnRunStopScript.BeginInvoke((MethodInvoker)delegate
+                {
+                    btnRunStopScript.Text = "Stop script execution";
+                });
             }
         }
         private void OnRenderingFinished()

@@ -4,7 +4,6 @@ using System.Drawing.Imaging;
 namespace BitmapsPxDiff
 {
     public delegate void OnRefreshRenderingProgressEvent(Bitmap newImage, string newStatus);
-    public delegate void OnRenderingFinished();
     public class Renderer
 	{
         // structs:
@@ -44,17 +43,19 @@ namespace BitmapsPxDiff
 
         // rendering events:
         private OnRefreshRenderingProgressEvent onRefreshRenderingProgress; // an event allowing mainRenderThread to update progress and return results
-        private OnRenderingFinished onRenderingFinished;
+        private Action onRenderingStarted;
+        private Action onRenderingFinished;
 
         Stopwatch stopwatch = new Stopwatch();
 
         private bool _running = false; 
         public bool Running { get => _running; }
 
-        public Renderer(OnRefreshRenderingProgressEvent onRefreshRenderingProgress, OnRenderingFinished onRenderingFinished)
+        public Renderer(OnRefreshRenderingProgressEvent onRefreshRenderingProgress, Action onRenderingStarted, Action onRenderingFinished)
         {
             _running = false;
             this.onRefreshRenderingProgress = onRefreshRenderingProgress;
+            this.onRenderingStarted = onRenderingStarted;
             this.onRenderingFinished = onRenderingFinished;
         }
         public void StartRendering(Bitmap src1, Bitmap src2, string script)
@@ -77,16 +78,18 @@ namespace BitmapsPxDiff
         }
         public void StopRendering()
         {
+            bool wasRunning = _running;
             interruptRendering = true; // interrupt running rendering
             mainRenderThreadSignal.WaitOne(); // wait for threads to terminate (mainRenderThread waits for all workers first)
             _running = false;
-            if (onRenderingFinished != null)
-            {
-                onRenderingFinished();
-            }
         }
         private bool MainRenderThreadJob()
         {
+            if (onRenderingStarted != null)
+            {
+                onRenderingStarted();
+            }
+
             if ((localSrc1 is null) || (localSrc2 is null))
             {
                 mainRenderThreadSignal.Set();
@@ -117,9 +120,7 @@ namespace BitmapsPxDiff
             {
                 if (interruptRendering)
                 {
-                    WaitHandle.WaitAll(endOfWorkEvents);
-                    mainRenderThreadSignal.Set();
-                    return false;
+                    break;
                 }
                 int threadIndex = WaitHandle.WaitAny(endOfWorkEvents); // get first available worker index
 
@@ -158,13 +159,12 @@ namespace BitmapsPxDiff
             // render finish:
             stopwatch.Stop();
             RefreshRenderingProgress(scriptStatus);
-            mainRenderThreadSignal.Set();
-            _running = false;
-
             if (onRenderingFinished != null)
             {
                 onRenderingFinished();
             }
+            mainRenderThreadSignal.Set();
+            _running = false;
             return !errorOcurred;
         }
         private void TryGetAndClearThreadLogs(List<string> threadLogs)

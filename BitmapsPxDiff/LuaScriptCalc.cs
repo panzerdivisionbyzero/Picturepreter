@@ -1,5 +1,4 @@
 ﻿using MoonSharp.Interpreter;
-using System.Diagnostics;
 
 namespace BitmapsPxDiff
 {
@@ -10,7 +9,6 @@ namespace BitmapsPxDiff
         { this.chunkX = chunkStartX; this.chunkY = chunkStartY; this.chunkLastX = chunkWidth; this.chunkLastY = chunkHeight; this.imageW = imageW; this.imageH = imageH; }
         public override string ToString() => $"chunkStartX={chunkX}\r\nchunkStartY={chunkY}\r\nchunkLastX={chunkLastX}\r\nchunkLastY={chunkLastY}\r\nimageW={imageW}\r\nimageH={imageH}\r\n";
     }
-
 	public class LuaScriptCalc
 	{
 		public LuaScriptCalc()
