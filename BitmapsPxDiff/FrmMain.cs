@@ -15,7 +15,11 @@ namespace BitmapsPxDiff
         {
             InitializeComponent();
             renderer = new Renderer(OnRefreshRenderingProgress, OnRenderingStarted, OnRenderingFinished);
-    }
+            tsslCursorCoords.Text = "";
+            tsslImage1argb.Text = "";
+            tsslImage2argb.Text = "";
+            tsslImageResultargb.Text = "";
+        }
         private void FrmMain_FormClosing(object sender, FormClosingEventArgs e)
         {
             if ((renderer != null) && (renderer.Running))
@@ -275,6 +279,34 @@ namespace BitmapsPxDiff
                     tsslState.Text = "Idle";
                 });
             }
+        }
+        private void pb_MouseLeave(object sender, EventArgs e)
+        {
+            tsslCursorCoords.Text = "";
+            tsslImage1argb.Text = "";
+            tsslImage2argb.Text = "";
+            tsslImageResultargb.Text = "";
+        }
+
+        private void pb_MouseMove(object sender, MouseEventArgs e)
+        {
+            Point p = pb.TranslateZoomMousePosition(new Point(e.X, e.Y));
+
+            tsslCursorCoords.Text = $"({p.X}; {p.Y})";
+            tsslImage1argb.Text = FormatBitmapPixelInfo("Image1 ARGB: ", images[0], p);
+            tsslImage2argb.Text = FormatBitmapPixelInfo("Image2 ARGB: ", images[1], p);
+            tsslImageResultargb.Text = FormatBitmapPixelInfo("Result ARGB: ", images[2], p);
+
+        }
+        private string FormatBitmapPixelInfo(string description, Bitmap bmp, Point p)
+        {
+            if ((bmp != null) && (new Rectangle(0, 0, bmp.Width, bmp.Height).Contains(p)))
+            {
+                Color c = bmp.GetPixel(p.X, p.Y);
+                // https://stackoverflow.com/questions/12078942/how-to-convert-from-argb-to-hex-aarrggbb
+                return string.Format("{0}{1:X2} {2:X2} {3:X2} {4:X2}", description, c.A, c.R, c.G, c.B);
+            }
+            return "";
         }
     }
 }

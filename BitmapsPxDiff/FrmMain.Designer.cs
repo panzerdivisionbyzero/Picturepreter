@@ -23,6 +23,7 @@ namespace BitmapsPxDiff
         }
 
 
+        // TODO: wylaczyc klase z tego pliku
         /// <summary>
         /// Inherits from PictureBox; adds Interpolation Mode Setting
         /// https://stackoverflow.com/questions/29157/how-do-i-make-a-picturebox-use-nearest-neighbor-resampling
@@ -37,6 +38,49 @@ namespace BitmapsPxDiff
                 paintEventArgs.Graphics.InterpolationMode = InterpolationMode;
                 paintEventArgs.Graphics.PixelOffsetMode = PixelOffsetMode;
                 base.OnPaint(paintEventArgs);
+            }
+            // https://www.codeproject.com/Articles/20923/Mouse-Position-over-Image-in-a-PictureBox
+            public Point TranslateZoomMousePosition(Point coordinates)
+            {
+                // test to make sure our image is not null
+                if (Image == null) return coordinates;
+                // Make sure our control width and height are not 0 and our 
+                // image width and height are not 0
+                if (Width == 0 || Height == 0 || Image.Width == 0 || Image.Height == 0) return coordinates;
+                // This is the one that gets a little tricky. Essentially, need to check 
+                // the aspect ratio of the image to the aspect ratio of the control
+                // to determine how it is being rendered
+                float imageAspect = (float)Image.Width / Image.Height;
+                float controlAspect = (float)Width / Height;
+                float newX = coordinates.X;
+                float newY = coordinates.Y;
+                if (imageAspect > controlAspect)
+                {
+                    // This means that we are limited by width, 
+                    // meaning the image fills up the entire control from left to right
+                    float ratioWidth = (float)Image.Width / Width;
+                    newX *= ratioWidth;
+                    float scale = (float)Width / Image.Width;
+                    float displayHeight = scale * Image.Height;
+                    float diffHeight = Height - displayHeight;
+                    diffHeight /= 2;
+                    newY -= diffHeight;
+                    newY /= scale;
+                }
+                else
+                {
+                    // This means that we are limited by height, 
+                    // meaning the image fills up the entire control from top to bottom
+                    float ratioHeight = (float)Image.Height / Height;
+                    newY *= ratioHeight;
+                    float scale = (float)Height / Image.Height;
+                    float displayWidth = scale * Image.Width;
+                    float diffWidth = Width - displayWidth;
+                    diffWidth /= 2;
+                    newX -= diffWidth;
+                    newX /= scale;
+                }
+                return new Point((int)newX, (int)newY);
             }
         }
 
@@ -79,10 +123,10 @@ namespace BitmapsPxDiff
             this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.tsslState = new System.Windows.Forms.ToolStripStatusLabel();
             this.tsslCursorCoords = new System.Windows.Forms.ToolStripStatusLabel();
+            this.tsslEmpty = new System.Windows.Forms.ToolStripStatusLabel();
             this.tsslImage1argb = new System.Windows.Forms.ToolStripStatusLabel();
             this.tsslImage2argb = new System.Windows.Forms.ToolStripStatusLabel();
             this.tsslImageResultargb = new System.Windows.Forms.ToolStripStatusLabel();
-            this.tsslEmpty = new System.Windows.Forms.ToolStripStatusLabel();
             this.tlbLeftRight.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pb)).BeginInit();
             this.tlbLeftPanels.SuspendLayout();
@@ -106,7 +150,7 @@ namespace BitmapsPxDiff
             this.tlbLeftRight.Name = "tlbLeftRight";
             this.tlbLeftRight.RowCount = 1;
             this.tlbLeftRight.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tlbLeftRight.Size = new System.Drawing.Size(1271, 664);
+            this.tlbLeftRight.Size = new System.Drawing.Size(1171, 664);
             this.tlbLeftRight.TabIndex = 0;
             // 
             // pb
@@ -117,10 +161,12 @@ namespace BitmapsPxDiff
             this.pb.Margin = new System.Windows.Forms.Padding(16);
             this.pb.Name = "pb";
             this.pb.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.Half;
-            this.pb.Size = new System.Drawing.Size(869, 632);
+            this.pb.Size = new System.Drawing.Size(769, 632);
             this.pb.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pb.TabIndex = 1;
             this.pb.TabStop = false;
+            this.pb.MouseLeave += new System.EventHandler(this.pb_MouseLeave);
+            this.pb.MouseMove += new System.Windows.Forms.MouseEventHandler(this.pb_MouseMove);
             // 
             // tlbLeftPanels
             // 
@@ -435,11 +481,12 @@ namespace BitmapsPxDiff
             this.tlbUpDown.RowCount = 2;
             this.tlbUpDown.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tlbUpDown.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tlbUpDown.Size = new System.Drawing.Size(1277, 692);
+            this.tlbUpDown.Size = new System.Drawing.Size(1177, 692);
             this.tlbUpDown.TabIndex = 1;
             // 
             // statusStrip
             // 
+            this.statusStrip.Font = new System.Drawing.Font("Cascadia Mono", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsslState,
             this.tsslCursorCoords,
@@ -449,7 +496,7 @@ namespace BitmapsPxDiff
             this.tsslImageResultargb});
             this.statusStrip.Location = new System.Drawing.Point(0, 670);
             this.statusStrip.Name = "statusStrip";
-            this.statusStrip.Size = new System.Drawing.Size(1277, 22);
+            this.statusStrip.Size = new System.Drawing.Size(1177, 22);
             this.statusStrip.TabIndex = 1;
             this.statusStrip.Text = "statusStrip1";
             // 
@@ -465,15 +512,21 @@ namespace BitmapsPxDiff
             // 
             this.tsslCursorCoords.AutoSize = false;
             this.tsslCursorCoords.Name = "tsslCursorCoords";
-            this.tsslCursorCoords.Size = new System.Drawing.Size(48, 17);
+            this.tsslCursorCoords.Size = new System.Drawing.Size(96, 17);
             this.tsslCursorCoords.Text = "(0; 0)";
             this.tsslCursorCoords.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // tsslEmpty
+            // 
+            this.tsslEmpty.Name = "tsslEmpty";
+            this.tsslEmpty.Size = new System.Drawing.Size(89, 17);
+            this.tsslEmpty.Spring = true;
             // 
             // tsslImage1argb
             // 
             this.tsslImage1argb.AutoSize = false;
             this.tsslImage1argb.Name = "tsslImage1argb";
-            this.tsslImage1argb.Size = new System.Drawing.Size(128, 17);
+            this.tsslImage1argb.Size = new System.Drawing.Size(192, 17);
             this.tsslImage1argb.Text = "FFFFFFFF";
             this.tsslImage1argb.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
@@ -481,7 +534,7 @@ namespace BitmapsPxDiff
             // 
             this.tsslImage2argb.AutoSize = false;
             this.tsslImage2argb.Name = "tsslImage2argb";
-            this.tsslImage2argb.Size = new System.Drawing.Size(128, 17);
+            this.tsslImage2argb.Size = new System.Drawing.Size(192, 17);
             this.tsslImage2argb.Text = "FFFFFFFF";
             this.tsslImage2argb.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
@@ -489,21 +542,15 @@ namespace BitmapsPxDiff
             // 
             this.tsslImageResultargb.AutoSize = false;
             this.tsslImageResultargb.Name = "tsslImageResultargb";
-            this.tsslImageResultargb.Size = new System.Drawing.Size(128, 17);
+            this.tsslImageResultargb.Size = new System.Drawing.Size(192, 17);
             this.tsslImageResultargb.Text = "result: FFFFFFFF";
             this.tsslImageResultargb.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // tsslEmpty
-            // 
-            this.tsslEmpty.Name = "tsslEmpty";
-            this.tsslEmpty.Size = new System.Drawing.Size(429, 17);
-            this.tsslEmpty.Spring = true;
             // 
             // FrmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1277, 692);
+            this.ClientSize = new System.Drawing.Size(1177, 692);
             this.Controls.Add(this.tlbUpDown);
             this.Name = "FrmMain";
             this.Text = "Picturepreter";
