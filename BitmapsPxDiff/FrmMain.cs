@@ -282,21 +282,31 @@ namespace BitmapsPxDiff
         }
         private void pb_MouseLeave(object sender, EventArgs e)
         {
-            tsslCursorCoords.Text = "";
-            tsslImage1argb.Text = "";
-            tsslImage2argb.Text = "";
-            tsslImageResultargb.Text = "";
+            if (pb.ImagePointer is null)
+            {
+                tsslCursorCoords.Text = "";
+                tsslImage1argb.Text = "";
+                tsslImage2argb.Text = "";
+                tsslImageResultargb.Text = "";
+            }
         }
 
         private void pb_MouseMove(object sender, MouseEventArgs e)
         {
-            Point p = pb.TranslateZoomMousePosition(new Point(e.X, e.Y));
-
+            Point p;
+            if (pb.ImagePointer != null)
+            {
+                p = (Point)pb.ImagePointer;
+            }
+            else
+            {
+                p = pb.TranslateZoomMousePosition(new Point(e.X, e.Y));
+            }
+            // TODO: zrobic odswiezenie przy zmianie stanu obrazow
             tsslCursorCoords.Text = $"({p.X}; {p.Y})";
             tsslImage1argb.Text = FormatBitmapPixelInfo("Image1 ARGB: ", images[0], p);
             tsslImage2argb.Text = FormatBitmapPixelInfo("Image2 ARGB: ", images[1], p);
             tsslImageResultargb.Text = FormatBitmapPixelInfo("Result ARGB: ", images[2], p);
-
         }
         private string FormatBitmapPixelInfo(string description, Bitmap bmp, Point p)
         {

@@ -1,5 +1,7 @@
 ﻿using System.Drawing.Drawing2D;
 using System.Windows.Forms;
+using System.ComponentModel;
+using System.Diagnostics;
 namespace BitmapsPxDiff
 {
     partial class FrmMain
@@ -30,15 +32,125 @@ namespace BitmapsPxDiff
         /// </summary>
         public class PictureBoxWithInterpolationMode : PictureBox
         {
+            // https://www.codeproject.com/messages/3182303/re-image-changed-in-picturebox-event-question.aspx
+            //event raised when image changed:
+            public event EventHandler OnImageChange;
+            //overridden/hidden Image property with event hooked up:
+            private Image _imageBackup;
+            private bool disablePrintImagePointer = false;
+            public new Image Image
+            {
+                get { return _imageBackup; }
+                set
+                {
+                    base.Image = value;
+                    if (value is null)
+                    {
+                        _imageBackup = null;
+                    }
+                    else
+                    {
+                        _imageBackup = (Image)value.Clone();
+                    }
+                    if (OnImageChange != null)
+                    {
+                        OnImageChange(this, new EventArgs());
+                    }
+                    if (!disablePrintImagePointer)
+                    {
+                        PaintImagePointer();
+                    }
+                }
+            }
+
             public InterpolationMode InterpolationMode { get; set; }
             public PixelOffsetMode PixelOffsetMode { get; set; }
-
+            private bool imagePointerSet = false;
+            private Point _imagePointer;
+            public Point? ImagePointer 
+            { 
+                get 
+                {
+                    if (imagePointerSet)
+                    {
+                        return _imagePointer;
+                    }
+                    return null;
+                } 
+            }
             protected override void OnPaint(PaintEventArgs paintEventArgs)
             {
                 paintEventArgs.Graphics.InterpolationMode = InterpolationMode;
                 paintEventArgs.Graphics.PixelOffsetMode = PixelOffsetMode;
+
                 base.OnPaint(paintEventArgs);
             }
+
+            private void PaintImagePointer()
+            {
+                if (disablePrintImagePointer || (Image is null))
+                {
+                    return;
+                }
+                disablePrintImagePointer = true;
+                if (imagePointerSet && (_imageBackup != null))
+                {
+                    Bitmap map = new Bitmap(_imageBackup.Width, _imageBackup.Height);
+                    Graphics g = Graphics.FromImage(map);
+                    g.DrawImage(_imageBackup, 0, 0);
+                    Pen pen = new Pen(Color.Red, 1.0f);
+                    int size = (int)Math.Round(Math.Max(2,Math.Max(_imageBackup.Width,_imageBackup.Height)*0.025));
+                    g.DrawRectangle(pen, _imagePointer.X - 1, _imagePointer.Y - 1, 2, 2);
+                    g.DrawLine(pen, _imagePointer.X - 1, _imagePointer.Y, _imagePointer.X - size, _imagePointer.Y); // left line
+                    g.DrawLine(pen, _imagePointer.X + 1, _imagePointer.Y, _imagePointer.X + size, _imagePointer.Y); // right line
+                    g.DrawLine(pen, _imagePointer.X, _imagePointer.Y - 1, _imagePointer.X, _imagePointer.Y - size); // top line
+                    g.DrawLine(pen, _imagePointer.X, _imagePointer.Y + 1, _imagePointer.X, _imagePointer.Y + size); // bottom line
+
+                    base.Image = map;
+
+                    pen.Dispose();
+                    g.Dispose();
+                }
+                disablePrintImagePointer = false;
+            }
+
+            protected override void OnMouseClick(MouseEventArgs e)
+            {
+                base.OnMouseClick(e);
+                if (Image is null)
+                {
+                    return;
+                }
+                Point p = TranslateZoomMousePosition(new Point(e.X, e.Y));
+                if (!new Rectangle(0, 0, Image.Width, Image.Height).Contains(p))
+                {
+                    return;
+                }
+                if (e.Button == MouseButtons.Left)
+                {
+                    DefinePointer(p);
+                }
+                else if (e.Button == MouseButtons.Right)
+                {
+                    ClearPointer();
+                }
+            }
+            private void ClearPointer()
+            {
+                if (!imagePointerSet)
+                {
+                    return;
+                }
+                imagePointerSet = false;
+                base.Image = _imageBackup;
+            }
+            private void DefinePointer(Point p)
+            {
+                _imagePointer = p;
+                imagePointerSet = true;
+                PaintImagePointer();
+            }
+
             // https://www.codeproject.com/Articles/20923/Mouse-Position-over-Image-in-a-PictureBox
             public Point TranslateZoomMousePosition(Point coordinates)
             {
@@ -167,6 +279,7 @@ namespace BitmapsPxDiff
             this.pb.TabStop = false;
             this.pb.MouseLeave += new System.EventHandler(this.pb_MouseLeave);
             this.pb.MouseMove += new System.Windows.Forms.MouseEventHandler(this.pb_MouseMove);
+            //this.pb.OnImageChange += new System.EventHandler(this.pb_ImageChanged);
             // 
             // tlbLeftPanels
             // 
@@ -519,7 +632,7 @@ namespace BitmapsPxDiff
             // tsslEmpty
             // 
             this.tsslEmpty.Name = "tsslEmpty";
-            this.tsslEmpty.Size = new System.Drawing.Size(89, 17);
+            this.tsslEmpty.Size = new System.Drawing.Size(120, 17);
             this.tsslEmpty.Spring = true;
             // 
             // tsslImage1argb
