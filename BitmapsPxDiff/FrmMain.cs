@@ -127,13 +127,13 @@ namespace BitmapsPxDiff
 
             if (currentImageIndex == (int)ImagesIndexes.imageResult)
             {
-                if ((images[0] is null) || (images[1] is null))
-                {
-                    MessageBox.Show("Source images cannot be empty.");
-                    return;
-                }
                 if (startRendering)
                 {
+                    if ((images[0] is null) || (images[1] is null))
+                    {
+                        MessageBox.Show("Source images cannot be empty.");
+                        return;
+                    }
                     renderer.StartRendering(images[0], images[1], tbScriptInput.Text);
                     btnRunStopScript.Text = "Stop script execution";
                 }
@@ -163,8 +163,7 @@ namespace BitmapsPxDiff
         {
             if (currentImageIndex != (int)ImagesIndexes.imageResult)
             {
-                MessageBox.Show("Preview mode must be set to \"Preview image\" option.");
-                return; 
+                rbPreviewModeResult.Checked = true;
             }
             if (renderer.Running)
             {
@@ -256,7 +255,10 @@ namespace BitmapsPxDiff
         {
             lock (controlsLocker)
             {
-                btnRunStopScript.Text = "Run script";
+                this.btnRunStopScript.BeginInvoke((MethodInvoker)delegate
+                {
+                    btnRunStopScript.Text = "Run script";
+                });
             }
         }
     }

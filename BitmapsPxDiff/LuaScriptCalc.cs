@@ -1,4 +1,5 @@
 ﻿using MoonSharp.Interpreter;
+using System.Diagnostics;
 
 namespace BitmapsPxDiff
 {
@@ -9,34 +10,47 @@ namespace BitmapsPxDiff
         { this.chunkX = chunkStartX; this.chunkY = chunkStartY; this.chunkLastX = chunkWidth; this.chunkLastY = chunkHeight; this.imageW = imageW; this.imageH = imageH; }
         public override string ToString() => $"chunkStartX={chunkX}\r\nchunkStartY={chunkY}\r\nchunkLastX={chunkLastX}\r\nchunkLastY={chunkLastY}\r\nimageW={imageW}\r\nimageH={imageH}\r\n";
     }
+
 	public class LuaScriptCalc
 	{
 		public LuaScriptCalc()
 		{
 		}
-        public bool LuaChangeColor(string dynamicCode, ref uint[] pixels1, ref uint[] pixels2, ref uint[] pixelsOut, ScriptEnvironmentVariables envVars, ref string errorMessage)
+        public bool LuaChangeColor(string dynamicCode, ref uint[] pixels1, ref uint[] pixels2, ref uint[] pixelsOut, List<string> logsOut, ScriptEnvironmentVariables envVars, ref string errorMessage)
         {
-            string script = "";
+            bool result = false;
+            string scriptText = envVars.ToString() + scriptBegin + dynamicCode + scriptEnd;
+            Script script = new Script();
             try
             {
-                script = envVars.ToString() + scriptBegin + dynamicCode + scriptEnd;
+                script.Globals["pixels1"] = pixels1;
+                script.Globals["pixels2"] = pixels2;
+                script.Globals["pixelsOut"] = pixelsOut;
 
-                Script s = new Script();
-                s.Globals["pixels1"] = pixels1;
-                s.Globals["pixels2"] = pixels2;
-                s.Globals["pixelsOut"] = pixelsOut;
-
-                DynValue res = s.DoString(script);
-                for (int p = 1; p <= res.Table.Length; p++)
+                DynValue res = script.DoString(scriptText);
+                for (int p = 1; p <= pixelsOut.Length; p++)
                     pixelsOut[p - 1] = Convert.ToUInt32(res.Table[p]);
+
+                result = true;
             }
             catch (Exception e)
             {
-                errorMessage = "Script error:\r\n" + e.Message + "\r\nGenerated script:\r\n" + script;
-                return false;
+                errorMessage = "Script error:\r\n" + e.Message + "\r\nGenerated script:\r\n" + scriptText;
             }
-
-            return true;
+            if (script.Globals["debug"] != null)
+            {
+                try
+                {
+                    MoonSharp.Interpreter.Table tab = (MoonSharp.Interpreter.Table)script.Globals["debug"];
+                    for (int t = 1; t <= tab.Length; t++)
+                        logsOut.Add(tab[t].ToString());
+                }
+                catch
+                {
+                    errorMessage += "\r\nUnable to extract thread logs.";
+                }
+            }
+            return result;
         }
         /* LUA functions sources:
          * https://stackoverflow.com/questions/5977654/how-do-i-use-the-bitwise-operator-xor-in-lua
@@ -68,10 +82,30 @@ function tablelength(T)
     for _ in pairs(T) do count = count + 1 end
     return count
 end
-
 imageX=chunkStartX
 imageY=chunkStartY
-for i=1,tablelength(pixelsOut) do
+debug={}
+function DebugEachPx(s)
+    table.insert(debug,tablelength(debug)+1,s)    
+end
+function DebugForPx(x,y,s)
+    if imageX==x and imageY==y then
+        table.insert(debug,tablelength(debug)+1,s)
+    end
+end
+function DebugChunkBegin(s)
+    DebugForPx(chunkStartX,chunkStartY,s)
+end
+function DebugChunkEnd(s)
+    DebugForPx(chunkLastX,chunkLastY,s)
+end
+function DebugImageBegin(s)
+    DebugForPx(0,0,s)
+end
+function DebugImageEnd(s)
+    DebugForPx(imageW-1,imageH-1,s)  
+end
+for i=1, tablelength(pixelsOut) do
     pixelsOut[i]=ChangeColor2(pixels1[i],pixels2[i])
     imageX=imageX+1
     if imageX>chunkLastX then

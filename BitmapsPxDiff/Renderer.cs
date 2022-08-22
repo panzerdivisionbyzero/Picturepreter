@@ -14,6 +14,7 @@ namespace BitmapsPxDiff
             public ImageChunk chunk;
             public bool errorOccurred;
             public string errorMessage;
+            public List<string> scriptLogs;
         }
 
         // threads variables:
@@ -39,6 +40,7 @@ namespace BitmapsPxDiff
         private Bitmap localResultImage = new Bitmap(1,1);
         private int localResultImageWidth, localResultImageHeight = 1;
         private string localScript = "";
+        private List<string> threadsLogs = new List<string>();
 
         // rendering events:
         private OnRefreshRenderingProgressEvent onRefreshRenderingProgress; // an event allowing mainRenderThread to update progress and return results
@@ -69,7 +71,7 @@ namespace BitmapsPxDiff
             localScript = script;
 
             // ready, steady, go:
-            mainRenderThread = new Thread(() => RenderResult());
+            mainRenderThread = new Thread(() => MainRenderThreadJob());
             mainRenderThreadSignal.Reset();
             mainRenderThread.Start();
         }
@@ -83,7 +85,7 @@ namespace BitmapsPxDiff
                 onRenderingFinished();
             }
         }
-        private bool RenderResult()
+        private bool MainRenderThreadJob()
         {
             if ((localSrc1 is null) || (localSrc2 is null))
             {
@@ -104,9 +106,11 @@ namespace BitmapsPxDiff
                 endOfWorkEvents[t] = new ManualResetEvent(true);
                 threadsParams[t].errorOccurred = false;
                 threadsParams[t].errorMessage = "";
+                threadsParams[t].scriptLogs = new List<string>();
             }
             // preparing chunks coords/dimensions:
             ImageChunk[] chunks = GenerateImageChunks(localResultImageWidth, localResultImageHeight);
+            threadsLogs.Clear();
 
             // calculating chunks by worker threads:
             for (int t = 0; t < chunks.Length; t++)
@@ -123,27 +127,33 @@ namespace BitmapsPxDiff
                 {
                     break; // if previous worker reported error, interrupt loop
                 }
+                TryGetAndClearThreadLogs(threadsParams[threadIndex].scriptLogs);
 
                 RefreshRenderingProgress("Processing...");
 
                 threadsParams[threadIndex].chunk = chunks[t]; // assign chunk to worker
                 endOfWorkEvents[threadIndex].Reset();
 
-                new Thread(() => ThreadMethod(threadIndex)).Start(); // create and start thread
+                new Thread(() => WorkerThreadJob(threadIndex)).Start(); // create and start thread
             }
             WaitHandle.WaitAll(endOfWorkEvents); // wait for all workers to terminate
 
-            // scanning workers results for errors:
+            // scanning workers results for errors, extracting logs:
             bool errorOcurred = false;
             string scriptStatus = "Script processed successfully";
             foreach (var tp in threadsParams)
             {
-                if (tp.errorOccurred)
+                TryGetAndClearThreadLogs(tp.scriptLogs);
+
+                if (tp.errorOccurred && !errorOcurred) // get first found thread error
                 {
                     errorOcurred = true;
                     scriptStatus = tp.errorMessage;
-                    break;
                 }
+            }
+            if (threadsLogs.Count>0)
+            {
+                scriptStatus += "\r\nThreads logs:\r\n" + string.Join("\r\n", threadsLogs.ToArray());
             }
             // render finish:
             stopwatch.Stop();
@@ -156,6 +166,14 @@ namespace BitmapsPxDiff
                 onRenderingFinished();
             }
             return !errorOcurred;
+        }
+        private void TryGetAndClearThreadLogs(List<string> threadLogs)
+        {
+            if (threadLogs.Count > 0)
+            {
+                threadsLogs.AddRange(threadLogs);
+                threadLogs.Clear();
+            }
         }
         private void RefreshRenderingProgress(string scriptStatus)
         {
@@ -190,7 +208,7 @@ namespace BitmapsPxDiff
             }
             return chunks;
         }
-        private void ThreadMethod(int threadIndex)
+        private void WorkerThreadJob(int threadIndex)
         {
             // setting up viariables and buffers:
             int index = Convert.ToInt32(threadIndex);
@@ -224,7 +242,7 @@ namespace BitmapsPxDiff
             }
 
             // LUA script operations:
-            if (!luaScriptCalc.LuaChangeColor(localScript, ref pixels1, ref pixels2, ref pixelsOut, envVars, ref errorMessage))
+            if (!luaScriptCalc.LuaChangeColor(localScript, ref pixels1, ref pixels2, ref pixelsOut, threadsParams[index].scriptLogs, envVars, ref errorMessage))
             {
                 threadsParams[index].errorMessage = errorMessage;
                 threadsParams[index].errorOccurred = true;

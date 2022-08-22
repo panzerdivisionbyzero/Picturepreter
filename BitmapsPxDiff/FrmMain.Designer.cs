@@ -62,7 +62,7 @@ namespace BitmapsPxDiff
             this.tbScriptOutput = new System.Windows.Forms.TextBox();
             this.tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
             this.gbPreviewMode = new System.Windows.Forms.GroupBox();
-            this.tbPreviewModeResult = new System.Windows.Forms.RadioButton();
+            this.rbPreviewModeResult = new System.Windows.Forms.RadioButton();
             this.rbPreviewModeImg2 = new System.Windows.Forms.RadioButton();
             this.rbPreviewModeImg1 = new System.Windows.Forms.RadioButton();
             this.gbInterpolationMode = new System.Windows.Forms.GroupBox();
@@ -274,7 +274,7 @@ namespace BitmapsPxDiff
             // 
             // gbPreviewMode
             // 
-            this.gbPreviewMode.Controls.Add(this.tbPreviewModeResult);
+            this.gbPreviewMode.Controls.Add(this.rbPreviewModeResult);
             this.gbPreviewMode.Controls.Add(this.rbPreviewModeImg2);
             this.gbPreviewMode.Controls.Add(this.rbPreviewModeImg1);
             this.gbPreviewMode.Dock = System.Windows.Forms.DockStyle.Top;
@@ -285,17 +285,17 @@ namespace BitmapsPxDiff
             this.gbPreviewMode.TabStop = false;
             this.gbPreviewMode.Text = "Preview mode";
             // 
-            // tbPreviewModeResult
+            // rbPreviewModeResult
             // 
-            this.tbPreviewModeResult.AutoSize = true;
-            this.tbPreviewModeResult.Location = new System.Drawing.Point(13, 72);
-            this.tbPreviewModeResult.Name = "tbPreviewModeResult";
-            this.tbPreviewModeResult.Size = new System.Drawing.Size(93, 19);
-            this.tbPreviewModeResult.TabIndex = 2;
-            this.tbPreviewModeResult.TabStop = true;
-            this.tbPreviewModeResult.Text = "Result image";
-            this.tbPreviewModeResult.UseVisualStyleBackColor = true;
-            this.tbPreviewModeResult.CheckedChanged += new System.EventHandler(this.rbPreviewModeImg_CheckedChanged);
+            this.rbPreviewModeResult.AutoSize = true;
+            this.rbPreviewModeResult.Location = new System.Drawing.Point(13, 72);
+            this.rbPreviewModeResult.Name = "rbPreviewModeResult";
+            this.rbPreviewModeResult.Size = new System.Drawing.Size(93, 19);
+            this.rbPreviewModeResult.TabIndex = 2;
+            this.rbPreviewModeResult.TabStop = true;
+            this.rbPreviewModeResult.Text = "Result image";
+            this.rbPreviewModeResult.UseVisualStyleBackColor = true;
+            this.rbPreviewModeResult.CheckedChanged += new System.EventHandler(this.rbPreviewModeImg_CheckedChanged);
             // 
             // rbPreviewModeImg2
             // 
@@ -456,7 +456,7 @@ namespace BitmapsPxDiff
         private TextBox tbScriptOutput;
         private TableLayoutPanel tableLayoutPanel4;
         private GroupBox gbPreviewMode;
-        private RadioButton tbPreviewModeResult;
+        private RadioButton rbPreviewModeResult;
         private RadioButton rbPreviewModeImg2;
         private RadioButton rbPreviewModeImg1;
         private GroupBox gbInterpolationMode;
