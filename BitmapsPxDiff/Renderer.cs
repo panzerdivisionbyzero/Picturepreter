@@ -130,7 +130,7 @@ namespace BitmapsPxDiff
                 }
                 TryGetAndClearThreadLogs(threadsParams[threadIndex].scriptLogs);
 
-                RefreshRenderingProgress("Processing...");
+                RefreshRenderingProgress("Processing... "+Math.Round((double)t/chunks.Length*100).ToString()+"%");
 
                 threadsParams[threadIndex].chunk = chunks[t]; // assign chunk to worker
                 endOfWorkEvents[threadIndex].Reset();

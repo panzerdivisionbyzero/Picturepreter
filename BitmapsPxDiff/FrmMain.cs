@@ -240,6 +240,10 @@ namespace BitmapsPxDiff
                 {
                     tbScriptOutput.Text = newStatus;
                 });
+                this.statusStrip.BeginInvoke((MethodInvoker)delegate
+                {
+                    tsslState.Text = newStatus.Replace("\r\n"," ");
+                });
                 if ((newImage != null) && (currentImageIndex == (int)ImagesIndexes.imageResult))
                 {
                     this.pb.BeginInvoke((MethodInvoker)delegate
@@ -257,6 +261,7 @@ namespace BitmapsPxDiff
                 this.btnRunStopScript.BeginInvoke((MethodInvoker)delegate
                 {
                     btnRunStopScript.Text = "Stop script execution";
+                    tsslState.Text = "Running script...";
                 });
             }
         }
@@ -267,6 +272,7 @@ namespace BitmapsPxDiff
                 this.btnRunStopScript.BeginInvoke((MethodInvoker)delegate
                 {
                     btnRunStopScript.Text = "Run script";
+                    tsslState.Text = "Idle";
                 });
             }
         }
