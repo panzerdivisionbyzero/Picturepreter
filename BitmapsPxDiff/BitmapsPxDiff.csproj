@@ -27,4 +27,11 @@
     </EmbeddedResource>
   </ItemGroup>
 
+    <ItemGroup>
+	    <AssemblyAttribute Include="BitmapsPxDiff.BuildDateTime">
+		    <_Parameter1>$([System.DateTime]::Now.ToString("s"))</_Parameter1>
+	    </AssemblyAttribute>
+    </ItemGroup>
+
+
 </Project>

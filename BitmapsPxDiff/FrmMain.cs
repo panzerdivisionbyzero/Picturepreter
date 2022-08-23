@@ -8,17 +8,30 @@ namespace BitmapsPxDiff
         private enum ImagesIndexes { image1, image2, imageResult };
         private enum ImagePointerPixelInfoFormat { argbHex, argbDec, rgbHex , rgbDec };
 
-        private int currentImageIndex = 0;
-        private Bitmap[] images = new Bitmap[3];
+        private int currentImageIndex = 0; // index of image chosen by radio buttons
+        private Bitmap[] images = new Bitmap[3]; // source bitmaps + result (indexes described by enum ImagesIndexes)
         private Renderer renderer;
         private ImagePointerPixelInfoFormat imagePointerPixelInfoFormat = ImagePointerPixelInfoFormat.argbHex;
         
-        private static readonly object controlsLocker = new object();
+        private static readonly object controlsLocker = new object(); // locks access to controls for threads
         public FrmMain()
         {
             InitializeComponent();
             renderer = new Renderer(RefreshRenderingProgress, UpdateControlsOnRenderingStarted, UpdateControls_OnRenderingFinished);
             RefreshImagesPixelInfo();
+            DateTime? dt = getAssemblyBuildDateTime();
+            if (dt != null)
+                this.Text += " (built "+((DateTime)dt).ToString("yyyyMMdd")+")";
+        }
+        // built version method:
+        public static DateTime? getAssemblyBuildDateTime()
+        { // https://stackoverflow.com/questions/1600962/displaying-the-build-date?answertab=modifieddesc#tab-top
+            var assembly = System.Reflection.Assembly.GetExecutingAssembly();
+            var attr = Attribute.GetCustomAttribute(assembly, typeof(BuildDateTimeAttribute)) as BuildDateTimeAttribute;
+            if (DateTime.TryParse(attr?.Date, out DateTime dt))
+                return dt;
+            else
+                return null;
         }
         // CONTROLS EVENTS METHODS: *****************************************************************************
         private void FrmMain_FormClosing(object sender, FormClosingEventArgs e)
