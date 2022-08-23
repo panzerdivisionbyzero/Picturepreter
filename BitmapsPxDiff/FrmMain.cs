@@ -378,5 +378,10 @@ namespace BitmapsPxDiff
             }
             return "";
         }
+
+        private void splitter_SplitterMoving(object sender, SplitterEventArgs e)
+        {
+            splitter.SplitPosition = splitter.SplitPosition; // refresh controls state
+        }
     }
 }

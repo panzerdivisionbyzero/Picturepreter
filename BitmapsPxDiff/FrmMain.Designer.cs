@@ -32,7 +32,6 @@ namespace BitmapsPxDiff
         /// </summary>
         private void InitializeComponent()
         {
-            this.tlbLeftRight = new System.Windows.Forms.TableLayoutPanel();
             this.pb = new BitmapsPxDiff.PictureBoxEx();
             this.tlbLeftPanels = new System.Windows.Forms.TableLayoutPanel();
             this.btnLoadImage2 = new System.Windows.Forms.Button();
@@ -59,7 +58,6 @@ namespace BitmapsPxDiff
             this.odLoadScript = new System.Windows.Forms.OpenFileDialog();
             this.sdSaveResultImage = new System.Windows.Forms.SaveFileDialog();
             this.sdSaveScript = new System.Windows.Forms.SaveFileDialog();
-            this.tlbUpDown = new System.Windows.Forms.TableLayoutPanel();
             this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.tsslState = new System.Windows.Forms.ToolStripStatusLabel();
             this.tsslCursorCoords = new System.Windows.Forms.ToolStripStatusLabel();
@@ -72,42 +70,30 @@ namespace BitmapsPxDiff
             this.tsslImage1argb = new System.Windows.Forms.ToolStripStatusLabel();
             this.tsslImage2argb = new System.Windows.Forms.ToolStripStatusLabel();
             this.tsslImageResultargb = new System.Windows.Forms.ToolStripStatusLabel();
-            this.tlbLeftRight.SuspendLayout();
+            this.panelLeft = new System.Windows.Forms.Panel();
+            this.splitter = new System.Windows.Forms.Splitter();
+            this.panelRight = new System.Windows.Forms.Panel();
             ((System.ComponentModel.ISupportInitialize)(this.pb)).BeginInit();
             this.tlbLeftPanels.SuspendLayout();
             this.tlbLoadSaveScript.SuspendLayout();
             this.tlbRadioButtonsGroups.SuspendLayout();
             this.gbPreviewMode.SuspendLayout();
             this.gbInterpolationMode.SuspendLayout();
-            this.tlbUpDown.SuspendLayout();
             this.statusStrip.SuspendLayout();
+            this.panelLeft.SuspendLayout();
+            this.panelRight.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // tlbLeftRight
-            // 
-            this.tlbLeftRight.ColumnCount = 2;
-            this.tlbLeftRight.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 370F));
-            this.tlbLeftRight.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tlbLeftRight.Controls.Add(this.pb, 1, 0);
-            this.tlbLeftRight.Controls.Add(this.tlbLeftPanels, 0, 0);
-            this.tlbLeftRight.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tlbLeftRight.Location = new System.Drawing.Point(3, 3);
-            this.tlbLeftRight.Name = "tlbLeftRight";
-            this.tlbLeftRight.RowCount = 1;
-            this.tlbLeftRight.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tlbLeftRight.Size = new System.Drawing.Size(1212, 664);
-            this.tlbLeftRight.TabIndex = 0;
             // 
             // pb
             // 
             this.pb.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pb.Image = null;
             this.pb.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.Default;
-            this.pb.Location = new System.Drawing.Point(386, 16);
-            this.pb.Margin = new System.Windows.Forms.Padding(16);
+            this.pb.Location = new System.Drawing.Point(16, 16);
+            this.pb.Margin = new System.Windows.Forms.Padding(0);
             this.pb.Name = "pb";
             this.pb.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.Half;
-            this.pb.Size = new System.Drawing.Size(810, 632);
+            this.pb.Size = new System.Drawing.Size(810, 638);
             this.pb.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pb.TabIndex = 1;
             this.pb.TabStop = false;
@@ -129,7 +115,7 @@ namespace BitmapsPxDiff
             this.tlbLeftPanels.Controls.Add(this.btnRunStopScript, 0, 6);
             this.tlbLeftPanels.Controls.Add(this.cbAutoRunScriptAfterChange, 0, 5);
             this.tlbLeftPanels.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tlbLeftPanels.Location = new System.Drawing.Point(3, 3);
+            this.tlbLeftPanels.Location = new System.Drawing.Point(0, 0);
             this.tlbLeftPanels.Name = "tlbLeftPanels";
             this.tlbLeftPanels.RowCount = 10;
             this.tlbLeftPanels.RowStyles.Add(new System.Windows.Forms.RowStyle());
@@ -142,7 +128,7 @@ namespace BitmapsPxDiff
             this.tlbLeftPanels.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 64F));
             this.tlbLeftPanels.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tlbLeftPanels.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tlbLeftPanels.Size = new System.Drawing.Size(364, 658);
+            this.tlbLeftPanels.Size = new System.Drawing.Size(370, 670);
             this.tlbLeftPanels.TabIndex = 2;
             // 
             // btnLoadImage2
@@ -151,7 +137,7 @@ namespace BitmapsPxDiff
             this.btnLoadImage2.Location = new System.Drawing.Point(4, 35);
             this.btnLoadImage2.Margin = new System.Windows.Forms.Padding(4);
             this.btnLoadImage2.Name = "btnLoadImage2";
-            this.btnLoadImage2.Size = new System.Drawing.Size(356, 23);
+            this.btnLoadImage2.Size = new System.Drawing.Size(362, 23);
             this.btnLoadImage2.TabIndex = 1;
             this.btnLoadImage2.Text = "Load image 2";
             this.btnLoadImage2.UseVisualStyleBackColor = true;
@@ -163,7 +149,7 @@ namespace BitmapsPxDiff
             this.btnLoadImage1.Location = new System.Drawing.Point(4, 4);
             this.btnLoadImage1.Margin = new System.Windows.Forms.Padding(4);
             this.btnLoadImage1.Name = "btnLoadImage1";
-            this.btnLoadImage1.Size = new System.Drawing.Size(356, 23);
+            this.btnLoadImage1.Size = new System.Drawing.Size(362, 23);
             this.btnLoadImage1.TabIndex = 0;
             this.btnLoadImage1.Text = "Load image 1";
             this.btnLoadImage1.UseVisualStyleBackColor = true;
@@ -175,7 +161,7 @@ namespace BitmapsPxDiff
             this.btnSwapImages.Location = new System.Drawing.Point(4, 66);
             this.btnSwapImages.Margin = new System.Windows.Forms.Padding(4);
             this.btnSwapImages.Name = "btnSwapImages";
-            this.btnSwapImages.Size = new System.Drawing.Size(356, 23);
+            this.btnSwapImages.Size = new System.Drawing.Size(362, 23);
             this.btnSwapImages.TabIndex = 4;
             this.btnSwapImages.Text = "Swap images";
             this.btnSwapImages.UseVisualStyleBackColor = true;
@@ -189,12 +175,12 @@ namespace BitmapsPxDiff
             this.tlbLoadSaveScript.Controls.Add(this.btnLoadScript, 0, 0);
             this.tlbLoadSaveScript.Controls.Add(this.btnSaveScript, 1, 0);
             this.tlbLoadSaveScript.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tlbLoadSaveScript.Location = new System.Drawing.Point(0, 595);
+            this.tlbLoadSaveScript.Location = new System.Drawing.Point(0, 607);
             this.tlbLoadSaveScript.Margin = new System.Windows.Forms.Padding(0);
             this.tlbLoadSaveScript.Name = "tlbLoadSaveScript";
             this.tlbLoadSaveScript.RowCount = 1;
             this.tlbLoadSaveScript.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tlbLoadSaveScript.Size = new System.Drawing.Size(364, 32);
+            this.tlbLoadSaveScript.Size = new System.Drawing.Size(370, 32);
             this.tlbLoadSaveScript.TabIndex = 5;
             // 
             // btnLoadScript
@@ -203,7 +189,7 @@ namespace BitmapsPxDiff
             this.btnLoadScript.Location = new System.Drawing.Point(4, 4);
             this.btnLoadScript.Margin = new System.Windows.Forms.Padding(4);
             this.btnLoadScript.Name = "btnLoadScript";
-            this.btnLoadScript.Size = new System.Drawing.Size(174, 23);
+            this.btnLoadScript.Size = new System.Drawing.Size(177, 23);
             this.btnLoadScript.TabIndex = 0;
             this.btnLoadScript.Text = "Load script";
             this.btnLoadScript.UseVisualStyleBackColor = true;
@@ -212,10 +198,10 @@ namespace BitmapsPxDiff
             // btnSaveScript
             // 
             this.btnSaveScript.Dock = System.Windows.Forms.DockStyle.Top;
-            this.btnSaveScript.Location = new System.Drawing.Point(186, 4);
+            this.btnSaveScript.Location = new System.Drawing.Point(189, 4);
             this.btnSaveScript.Margin = new System.Windows.Forms.Padding(4);
             this.btnSaveScript.Name = "btnSaveScript";
-            this.btnSaveScript.Size = new System.Drawing.Size(174, 23);
+            this.btnSaveScript.Size = new System.Drawing.Size(177, 23);
             this.btnSaveScript.TabIndex = 1;
             this.btnSaveScript.Text = "Save script";
             this.btnSaveScript.UseVisualStyleBackColor = true;
@@ -224,10 +210,10 @@ namespace BitmapsPxDiff
             // btnSaveResultImage
             // 
             this.btnSaveResultImage.Dock = System.Windows.Forms.DockStyle.Top;
-            this.btnSaveResultImage.Location = new System.Drawing.Point(4, 631);
+            this.btnSaveResultImage.Location = new System.Drawing.Point(4, 643);
             this.btnSaveResultImage.Margin = new System.Windows.Forms.Padding(4);
             this.btnSaveResultImage.Name = "btnSaveResultImage";
-            this.btnSaveResultImage.Size = new System.Drawing.Size(356, 23);
+            this.btnSaveResultImage.Size = new System.Drawing.Size(362, 23);
             this.btnSaveResultImage.TabIndex = 6;
             this.btnSaveResultImage.Text = "Save result image";
             this.btnSaveResultImage.UseVisualStyleBackColor = true;
@@ -241,7 +227,7 @@ namespace BitmapsPxDiff
             this.tbScriptInput.Multiline = true;
             this.tbScriptInput.Name = "tbScriptInput";
             this.tbScriptInput.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.tbScriptInput.Size = new System.Drawing.Size(358, 263);
+            this.tbScriptInput.Size = new System.Drawing.Size(364, 275);
             this.tbScriptInput.TabIndex = 7;
             this.tbScriptInput.Text = "resultA = 255\r\nresultR = image1R + 1\r\nresultG = image1G + 1\r\nresultB = image1B + " +
     "1";
@@ -250,11 +236,11 @@ namespace BitmapsPxDiff
             // tbScriptOutput
             // 
             this.tbScriptOutput.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tbScriptOutput.Location = new System.Drawing.Point(3, 534);
+            this.tbScriptOutput.Location = new System.Drawing.Point(3, 546);
             this.tbScriptOutput.Multiline = true;
             this.tbScriptOutput.Name = "tbScriptOutput";
             this.tbScriptOutput.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.tbScriptOutput.Size = new System.Drawing.Size(358, 58);
+            this.tbScriptOutput.Size = new System.Drawing.Size(364, 58);
             this.tbScriptOutput.TabIndex = 8;
             this.tbScriptOutput.Text = " \r\n";
             // 
@@ -271,7 +257,7 @@ namespace BitmapsPxDiff
             this.tlbRadioButtonsGroups.Name = "tlbRadioButtonsGroups";
             this.tlbRadioButtonsGroups.RowCount = 1;
             this.tlbRadioButtonsGroups.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tlbRadioButtonsGroups.Size = new System.Drawing.Size(364, 111);
+            this.tlbRadioButtonsGroups.Size = new System.Drawing.Size(370, 111);
             this.tlbRadioButtonsGroups.TabIndex = 9;
             // 
             // gbPreviewMode
@@ -282,7 +268,7 @@ namespace BitmapsPxDiff
             this.gbPreviewMode.Dock = System.Windows.Forms.DockStyle.Top;
             this.gbPreviewMode.Location = new System.Drawing.Point(3, 3);
             this.gbPreviewMode.Name = "gbPreviewMode";
-            this.gbPreviewMode.Size = new System.Drawing.Size(176, 105);
+            this.gbPreviewMode.Size = new System.Drawing.Size(179, 105);
             this.gbPreviewMode.TabIndex = 4;
             this.gbPreviewMode.TabStop = false;
             this.gbPreviewMode.Text = "Preview mode";
@@ -330,9 +316,9 @@ namespace BitmapsPxDiff
             this.gbInterpolationMode.Controls.Add(this.rbimNearestNeighbour);
             this.gbInterpolationMode.Controls.Add(this.rbimDefault);
             this.gbInterpolationMode.Dock = System.Windows.Forms.DockStyle.Top;
-            this.gbInterpolationMode.Location = new System.Drawing.Point(185, 3);
+            this.gbInterpolationMode.Location = new System.Drawing.Point(188, 3);
             this.gbInterpolationMode.Name = "gbInterpolationMode";
-            this.gbInterpolationMode.Size = new System.Drawing.Size(176, 105);
+            this.gbInterpolationMode.Size = new System.Drawing.Size(179, 105);
             this.gbInterpolationMode.TabIndex = 5;
             this.gbInterpolationMode.TabStop = false;
             this.gbInterpolationMode.Text = "Interpolation mode";
@@ -375,10 +361,10 @@ namespace BitmapsPxDiff
             // btnRunStopScript
             // 
             this.btnRunStopScript.Dock = System.Windows.Forms.DockStyle.Top;
-            this.btnRunStopScript.Location = new System.Drawing.Point(4, 504);
+            this.btnRunStopScript.Location = new System.Drawing.Point(4, 516);
             this.btnRunStopScript.Margin = new System.Windows.Forms.Padding(4);
             this.btnRunStopScript.Name = "btnRunStopScript";
-            this.btnRunStopScript.Size = new System.Drawing.Size(356, 23);
+            this.btnRunStopScript.Size = new System.Drawing.Size(362, 23);
             this.btnRunStopScript.TabIndex = 10;
             this.btnRunStopScript.Text = "Run script";
             this.btnRunStopScript.UseVisualStyleBackColor = true;
@@ -390,10 +376,10 @@ namespace BitmapsPxDiff
             this.cbAutoRunScriptAfterChange.Checked = true;
             this.cbAutoRunScriptAfterChange.CheckState = System.Windows.Forms.CheckState.Checked;
             this.cbAutoRunScriptAfterChange.Dock = System.Windows.Forms.DockStyle.Top;
-            this.cbAutoRunScriptAfterChange.Location = new System.Drawing.Point(16, 477);
+            this.cbAutoRunScriptAfterChange.Location = new System.Drawing.Point(16, 489);
             this.cbAutoRunScriptAfterChange.Margin = new System.Windows.Forms.Padding(16, 4, 16, 4);
             this.cbAutoRunScriptAfterChange.Name = "cbAutoRunScriptAfterChange";
-            this.cbAutoRunScriptAfterChange.Size = new System.Drawing.Size(332, 19);
+            this.cbAutoRunScriptAfterChange.Size = new System.Drawing.Size(338, 19);
             this.cbAutoRunScriptAfterChange.TabIndex = 11;
             this.cbAutoRunScriptAfterChange.Text = "Automatically run script after change";
             this.cbAutoRunScriptAfterChange.UseVisualStyleBackColor = true;
@@ -414,21 +400,6 @@ namespace BitmapsPxDiff
             // sdSaveScript
             // 
             this.sdSaveScript.Filter = "LUA script (*.lua)|*.lua|Text file (*.txt)|*.txt";
-            // 
-            // tlbUpDown
-            // 
-            this.tlbUpDown.ColumnCount = 1;
-            this.tlbUpDown.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tlbUpDown.Controls.Add(this.tlbLeftRight, 0, 0);
-            this.tlbUpDown.Controls.Add(this.statusStrip, 0, 1);
-            this.tlbUpDown.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tlbUpDown.Location = new System.Drawing.Point(0, 0);
-            this.tlbUpDown.Name = "tlbUpDown";
-            this.tlbUpDown.RowCount = 2;
-            this.tlbUpDown.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tlbUpDown.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tlbUpDown.Size = new System.Drawing.Size(1218, 692);
-            this.tlbUpDown.TabIndex = 1;
             // 
             // statusStrip
             // 
@@ -466,7 +437,7 @@ namespace BitmapsPxDiff
             // tsslEmpty
             // 
             this.tsslEmpty.Name = "tsslEmpty";
-            this.tsslEmpty.Size = new System.Drawing.Size(50, 17);
+            this.tsslEmpty.Size = new System.Drawing.Size(81, 17);
             this.tsslEmpty.Spring = true;
             // 
             // tsddbSwitchPixelInfoFormat
@@ -486,28 +457,28 @@ namespace BitmapsPxDiff
             // argbHexToolStripMenuItem
             // 
             this.argbHexToolStripMenuItem.Name = "argbHexToolStripMenuItem";
-            this.argbHexToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.argbHexToolStripMenuItem.Size = new System.Drawing.Size(130, 22);
             this.argbHexToolStripMenuItem.Text = "ARGB Hex";
             this.argbHexToolStripMenuItem.Click += new System.EventHandler(this.argbHexToolStripMenuItem_Click);
             // 
             // argbDecToolStripMenuItem
             // 
             this.argbDecToolStripMenuItem.Name = "argbDecToolStripMenuItem";
-            this.argbDecToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.argbDecToolStripMenuItem.Size = new System.Drawing.Size(130, 22);
             this.argbDecToolStripMenuItem.Text = "ARGB Dec";
             this.argbDecToolStripMenuItem.Click += new System.EventHandler(this.argbDecToolStripMenuItem_Click);
             // 
             // rgbHexToolStripMenuItem
             // 
             this.rgbHexToolStripMenuItem.Name = "rgbHexToolStripMenuItem";
-            this.rgbHexToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.rgbHexToolStripMenuItem.Size = new System.Drawing.Size(130, 22);
             this.rgbHexToolStripMenuItem.Text = "RGB Hex";
             this.rgbHexToolStripMenuItem.Click += new System.EventHandler(this.rgbHexToolStripMenuItem_Click);
             // 
             // rgbDecToolStripMenuItem
             // 
             this.rgbDecToolStripMenuItem.Name = "rgbDecToolStripMenuItem";
-            this.rgbDecToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.rgbDecToolStripMenuItem.Size = new System.Drawing.Size(130, 22);
             this.rgbDecToolStripMenuItem.Text = "RGB Dec";
             this.rgbDecToolStripMenuItem.Click += new System.EventHandler(this.rgbDecToolStripMenuItem_Click);
             // 
@@ -535,16 +506,47 @@ namespace BitmapsPxDiff
             this.tsslImageResultargb.Text = "result: FFFFFFFF";
             this.tsslImageResultargb.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
+            // panelLeft
+            // 
+            this.panelLeft.Controls.Add(this.tlbLeftPanels);
+            this.panelLeft.Dock = System.Windows.Forms.DockStyle.Left;
+            this.panelLeft.Location = new System.Drawing.Point(0, 0);
+            this.panelLeft.Name = "panelLeft";
+            this.panelLeft.Size = new System.Drawing.Size(370, 670);
+            this.panelLeft.TabIndex = 2;
+            // 
+            // splitter
+            // 
+            this.splitter.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.splitter.Location = new System.Drawing.Point(370, 0);
+            this.splitter.Name = "splitter";
+            this.splitter.Size = new System.Drawing.Size(6, 670);
+            this.splitter.TabIndex = 3;
+            this.splitter.TabStop = false;
+            this.splitter.SplitterMoving += new System.Windows.Forms.SplitterEventHandler(this.splitter_SplitterMoving);
+            // 
+            // panelRight
+            // 
+            this.panelRight.Controls.Add(this.pb);
+            this.panelRight.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panelRight.Location = new System.Drawing.Point(376, 0);
+            this.panelRight.Name = "panelRight";
+            this.panelRight.Padding = new System.Windows.Forms.Padding(16);
+            this.panelRight.Size = new System.Drawing.Size(842, 670);
+            this.panelRight.TabIndex = 4;
+            // 
             // FrmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1218, 692);
-            this.Controls.Add(this.tlbUpDown);
+            this.Controls.Add(this.panelRight);
+            this.Controls.Add(this.splitter);
+            this.Controls.Add(this.panelLeft);
+            this.Controls.Add(this.statusStrip);
             this.Name = "FrmMain";
             this.Text = "Picturepreter";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FrmMain_FormClosing);
-            this.tlbLeftRight.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.pb)).EndInit();
             this.tlbLeftPanels.ResumeLayout(false);
             this.tlbLeftPanels.PerformLayout();
@@ -554,17 +556,16 @@ namespace BitmapsPxDiff
             this.gbPreviewMode.PerformLayout();
             this.gbInterpolationMode.ResumeLayout(false);
             this.gbInterpolationMode.PerformLayout();
-            this.tlbUpDown.ResumeLayout(false);
-            this.tlbUpDown.PerformLayout();
             this.statusStrip.ResumeLayout(false);
             this.statusStrip.PerformLayout();
+            this.panelLeft.ResumeLayout(false);
+            this.panelRight.ResumeLayout(false);
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
         #endregion
-
-        private TableLayoutPanel tlbLeftRight;
         private PictureBoxEx pb;
         private OpenFileDialog odLoadImage;
         private TableLayoutPanel tlbLeftPanels;
@@ -591,7 +592,6 @@ namespace BitmapsPxDiff
         private RadioButton rbimDefault;
         private Button btnRunStopScript;
         private CheckBox cbAutoRunScriptAfterChange;
-        private TableLayoutPanel tlbUpDown;
         private StatusStrip statusStrip;
         private ToolStripStatusLabel tsslState;
         private ToolStripStatusLabel tsslCursorCoords;
@@ -604,5 +604,8 @@ namespace BitmapsPxDiff
         private ToolStripMenuItem argbHexToolStripMenuItem;
         private ToolStripMenuItem rgbHexToolStripMenuItem;
         private ToolStripMenuItem rgbDecToolStripMenuItem;
+        private Panel panelLeft;
+        private Splitter splitter;
+        private Panel panelRight;
     }
 }
