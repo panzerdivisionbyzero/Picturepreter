@@ -1,7 +1,7 @@
-﻿using System.Drawing.Drawing2D;
-using System.Windows.Forms;
+﻿using System.Windows.Forms;
 using System.ComponentModel;
 using System.Diagnostics;
+//using PictureBoxEx;
 namespace BitmapsPxDiff
 {
     partial class FrmMain
@@ -24,188 +24,6 @@ namespace BitmapsPxDiff
             base.Dispose(disposing);
         }
 
-
-        // TODO: wylaczyc klase z tego pliku
-        /// <summary>
-        /// Inherits from PictureBox; adds Interpolation Mode Setting
-        /// https://stackoverflow.com/questions/29157/how-do-i-make-a-picturebox-use-nearest-neighbor-resampling
-        /// </summary>
-        public class PictureBoxWithInterpolationMode : PictureBox
-        {
-            // https://www.codeproject.com/messages/3182303/re-image-changed-in-picturebox-event-question.aspx
-            //event raised when image changed:
-            public event EventHandler OnImageChange;
-            //overridden/hidden Image property with event hooked up:
-            private Image _imageBackup;
-            private bool disablePrintImagePointer = false;
-            public new Image Image
-            {
-                get { return _imageBackup; }
-                set
-                {
-                    base.Image = value;
-                    if (value is null)
-                    {
-                        _imageBackup = null;
-                    }
-                    else
-                    {
-                        _imageBackup = (Image)value.Clone();
-                    }
-                    if (OnImageChange != null)
-                    {
-                        OnImageChange(this, new EventArgs());
-                    }
-                    if (!disablePrintImagePointer)
-                    {
-                        PaintImagePointer();
-                    }
-                }
-            }
-
-            public InterpolationMode InterpolationMode { get; set; }
-            public PixelOffsetMode PixelOffsetMode { get; set; }
-            private bool imagePointerSet = false;
-            private Point _imagePointer;
-            public Point? currentMouseImagePos;
-            public Point? ImagePointer 
-            { 
-                get 
-                {
-                    if (imagePointerSet)
-                    {
-                        return _imagePointer;
-                    }
-                    return null;
-                } 
-            }
-            protected override void OnPaint(PaintEventArgs paintEventArgs)
-            {
-                paintEventArgs.Graphics.InterpolationMode = InterpolationMode;
-                paintEventArgs.Graphics.PixelOffsetMode = PixelOffsetMode;
-
-                base.OnPaint(paintEventArgs);
-            }
-
-            private void PaintImagePointer()
-            {
-                if (disablePrintImagePointer || (Image is null))
-                {
-                    return;
-                }
-                disablePrintImagePointer = true;
-                if (imagePointerSet && (_imageBackup != null))
-                {
-                    Bitmap map = new Bitmap(_imageBackup.Width, _imageBackup.Height);
-                    Graphics g = Graphics.FromImage(map);
-                    g.DrawImage(_imageBackup, 0, 0);
-                    Pen pen = new Pen(Color.Red, 1.0f);
-                    int size = (int)Math.Round(Math.Max(2,Math.Max(_imageBackup.Width,_imageBackup.Height)*0.025));
-                    g.DrawRectangle(pen, _imagePointer.X - 1, _imagePointer.Y - 1, 2, 2);
-                    g.DrawLine(pen, _imagePointer.X - 1, _imagePointer.Y, _imagePointer.X - size, _imagePointer.Y); // left line
-                    g.DrawLine(pen, _imagePointer.X + 1, _imagePointer.Y, _imagePointer.X + size, _imagePointer.Y); // right line
-                    g.DrawLine(pen, _imagePointer.X, _imagePointer.Y - 1, _imagePointer.X, _imagePointer.Y - size); // top line
-                    g.DrawLine(pen, _imagePointer.X, _imagePointer.Y + 1, _imagePointer.X, _imagePointer.Y + size); // bottom line
-
-                    base.Image = map;
-
-                    pen.Dispose();
-                    g.Dispose();
-                }
-                disablePrintImagePointer = false;
-            }
-            protected override void OnMouseMove(MouseEventArgs e)
-            {
-                currentMouseImagePos = TranslateZoomMousePosition(new Point(e.X, e.Y));
-                base.OnMouseMove(e);
-            }
-            protected override void OnMouseLeave(EventArgs e)
-            {
-                currentMouseImagePos = null;
-                base.OnMouseLeave(e);
-            }
-            protected override void OnMouseClick(MouseEventArgs e)
-            {
-                base.OnMouseClick(e);
-                if (Image is null)
-                {
-                    return;
-                }
-                Point p = TranslateZoomMousePosition(new Point(e.X, e.Y));
-                if (!new Rectangle(0, 0, Image.Width, Image.Height).Contains(p))
-                {
-                    return;
-                }
-                if (e.Button == MouseButtons.Left)
-                {
-                    DefinePointer(p);
-                }
-                else if (e.Button == MouseButtons.Right)
-                {
-                    ClearPointer();
-                }
-            }
-            private void ClearPointer()
-            {
-                if (!imagePointerSet)
-                {
-                    return;
-                }
-                imagePointerSet = false;
-                base.Image = _imageBackup;
-            }
-            private void DefinePointer(Point p)
-            {
-                _imagePointer = p;
-                imagePointerSet = true;
-                PaintImagePointer();
-            }
-
-            // https://www.codeproject.com/Articles/20923/Mouse-Position-over-Image-in-a-PictureBox
-            public Point TranslateZoomMousePosition(Point coordinates)
-            {
-                // test to make sure our image is not null
-                if (Image == null) return coordinates;
-                // Make sure our control width and height are not 0 and our 
-                // image width and height are not 0
-                if (Width == 0 || Height == 0 || Image.Width == 0 || Image.Height == 0) return coordinates;
-                // This is the one that gets a little tricky. Essentially, need to check 
-                // the aspect ratio of the image to the aspect ratio of the control
-                // to determine how it is being rendered
-                float imageAspect = (float)Image.Width / Image.Height;
-                float controlAspect = (float)Width / Height;
-                float newX = coordinates.X;
-                float newY = coordinates.Y;
-                if (imageAspect > controlAspect)
-                {
-                    // This means that we are limited by width, 
-                    // meaning the image fills up the entire control from left to right
-                    float ratioWidth = (float)Image.Width / Width;
-                    newX *= ratioWidth;
-                    float scale = (float)Width / Image.Width;
-                    float displayHeight = scale * Image.Height;
-                    float diffHeight = Height - displayHeight;
-                    diffHeight /= 2;
-                    newY -= diffHeight;
-                    newY /= scale;
-                }
-                else
-                {
-                    // This means that we are limited by height, 
-                    // meaning the image fills up the entire control from top to bottom
-                    float ratioHeight = (float)Image.Height / Height;
-                    newY *= ratioHeight;
-                    float scale = (float)Height / Image.Height;
-                    float displayWidth = scale * Image.Width;
-                    float diffWidth = Width - displayWidth;
-                    diffWidth /= 2;
-                    newX -= diffWidth;
-                    newX /= scale;
-                }
-                return new Point((int)newX, (int)newY);
-            }
-        }
-
         #region Windows Form Designer generated code
 
         /// <summary>
@@ -215,7 +33,7 @@ namespace BitmapsPxDiff
         private void InitializeComponent()
         {
             this.tlbLeftRight = new System.Windows.Forms.TableLayoutPanel();
-            this.pb = new BitmapsPxDiff.FrmMain.PictureBoxWithInterpolationMode();
+            this.pb = new BitmapsPxDiff.PictureBoxEx();
             this.tlbLeftPanels = new System.Windows.Forms.TableLayoutPanel();
             this.btnLoadImage2 = new System.Windows.Forms.Button();
             this.btnLoadImage1 = new System.Windows.Forms.Button();
@@ -699,7 +517,7 @@ namespace BitmapsPxDiff
         #endregion
 
         private TableLayoutPanel tlbLeftRight;
-        private PictureBoxWithInterpolationMode pb;
+        private PictureBoxEx pb;
         private OpenFileDialog odLoadImage;
         private TableLayoutPanel tlbLeftPanels;
         private Button btnLoadImage2;

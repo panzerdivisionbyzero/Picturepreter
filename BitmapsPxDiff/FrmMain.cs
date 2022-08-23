@@ -14,15 +14,25 @@ namespace BitmapsPxDiff
         public FrmMain()
         {
             InitializeComponent();
-            renderer = new Renderer(OnRefreshRenderingProgress, OnRenderingStarted, OnRenderingFinished);
+            renderer = new Renderer(RefreshRenderingProgress, UpdateControlsOnRenderingStarted, UpdateControls_OnRenderingFinished);
             RefreshImagesPixelInfo();
         }
+        // CONTROLS EVENTS METHODS: *****************************************************************************
         private void FrmMain_FormClosing(object sender, FormClosingEventArgs e)
         {
             if ((renderer != null) && (renderer.Running))
             {
                 renderer.StopRendering();
             }
+        }
+        private void pb_MouseLeave(object sender, EventArgs e)
+        {
+            RefreshImagesPixelInfo();
+        }
+
+        private void pb_MouseMove(object sender, MouseEventArgs e)
+        {
+            RefreshImagesPixelInfo();
         }
         private void btnLoadImage_Click(object sender, EventArgs e)
         {
@@ -120,37 +130,6 @@ namespace BitmapsPxDiff
             }
             pb.Refresh();
         }
-        private void RefreshPreview(bool startRendering)
-        {
-            if (0 > currentImageIndex || currentImageIndex > images.Length)
-            {
-                return;
-            }
-
-            if (currentImageIndex == (int)ImagesIndexes.imageResult)
-            {
-                if (startRendering)
-                {
-                    if ((images[0] is null) || (images[1] is null))
-                    {
-                        MessageBox.Show("Source images cannot be empty.");
-                        return;
-                    }
-                    renderer.StartRendering(images[0], images[1], tbScriptInput.Text);
-                }
-                else 
-                {
-                    pb.Image = images[2];
-                }
-            }
-            else
-            {
-                lock (controlsLocker)
-                {
-                    pb.Image = images[currentImageIndex];
-                }
-            }
-        }
         private void tbScriptInput_TextChanged(object sender, EventArgs e)
         {
             if (currentImageIndex != (int)ImagesIndexes.imageResult)
@@ -234,7 +213,69 @@ namespace BitmapsPxDiff
             images[2].Save(sdSaveResultImage.FileName, imgFormat);
             MessageBox.Show("File saved.");
         }
-        private void OnRefreshRenderingProgress(Bitmap newImage, string newStatus)
+        // THREADS EVENTS METHODS: *****************************************************************************
+        private void UpdateControlsOnRenderingStarted()
+        {
+            lock (controlsLocker)
+            {
+                this.btnRunStopScript.BeginInvoke((MethodInvoker)delegate
+                {
+                    btnRunStopScript.Text = "Stop script execution";
+                });
+                this.statusStrip.BeginInvoke((MethodInvoker)delegate
+                {
+                    tsslState.Text = "Running script...";
+                });
+            }
+        }
+        private void UpdateControls_OnRenderingFinished()
+        {
+            lock (controlsLocker)
+            {
+                this.btnRunStopScript.BeginInvoke((MethodInvoker)delegate
+                {
+                    btnRunStopScript.Text = "Run script";
+
+                });
+                this.statusStrip.BeginInvoke((MethodInvoker)delegate
+                {
+                    tsslState.Text = "Idle";
+                });
+            }
+        }
+        // OTHER METHODS: *****************************************************************************
+        private void RefreshPreview(bool startRendering)
+        {
+            if (0 > currentImageIndex || currentImageIndex > images.Length)
+            {
+                return;
+            }
+
+            if (currentImageIndex == (int)ImagesIndexes.imageResult)
+            {
+                if (startRendering)
+                {
+                    if ((images[0] is null) || (images[1] is null))
+                    {
+                        MessageBox.Show("Source images cannot be empty.");
+                        return;
+                    }
+                    renderer.StartRendering(images[0], images[1], tbScriptInput.Text);
+                }
+                else
+                {
+                    pb.Image = images[2];
+                }
+            }
+            else
+            {
+                lock (controlsLocker)
+                {
+                    pb.Image = images[currentImageIndex];
+                }
+            }
+        }
+        private void RefreshRenderingProgress(Bitmap newImage, string newStatus)
         {
             lock (controlsLocker)
             {
@@ -256,45 +297,7 @@ namespace BitmapsPxDiff
                     RefreshImagesPixelInfo();
                 });                
             }
-        }
-        private void OnRenderingStarted()
-        {
-            lock (controlsLocker)
-            {
-                this.btnRunStopScript.BeginInvoke((MethodInvoker)delegate
-                {
-                    btnRunStopScript.Text = "Stop script execution";
-                });
-                this.statusStrip.BeginInvoke((MethodInvoker)delegate
-                {
-                    tsslState.Text = "Running script...";
-                });
-            }
-        }
-        private void OnRenderingFinished()
-        {
-            lock (controlsLocker)
-            {
-                this.btnRunStopScript.BeginInvoke((MethodInvoker)delegate
-                {
-                    btnRunStopScript.Text = "Run script";
-                    
-                });
-                this.statusStrip.BeginInvoke((MethodInvoker)delegate
-                {
-                    tsslState.Text = "Idle";
-                });
-            }
-        }
-        private void pb_MouseLeave(object sender, EventArgs e)
-        {
-            RefreshImagesPixelInfo();
-        }
-
-        private void pb_MouseMove(object sender, MouseEventArgs e)
-        {
-            RefreshImagesPixelInfo();
-        }
+        }        
         private void RefreshImagesPixelInfo()
         {
             if ((pb.ImagePointer is null) && (pb.currentMouseImagePos is null))

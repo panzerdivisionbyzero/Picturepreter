@@ -5,11 +5,18 @@ namespace BitmapsPxDiff
     public struct ScriptEnvironmentVariables
     {
         public int chunkX, chunkY, chunkLastX, chunkLastY, imageW, imageH;
-        public ScriptEnvironmentVariables (int chunkStartX, int chunkStartY, int chunkWidth, int chunkHeight, int imageW, int imageH)
-        { this.chunkX = chunkStartX; this.chunkY = chunkStartY; this.chunkLastX = chunkWidth; this.chunkLastY = chunkHeight; this.imageW = imageW; this.imageH = imageH; }
+        public ScriptEnvironmentVariables(int chunkStartX, int chunkStartY, int chunkWidth, int chunkHeight, int imageW, int imageH)
+        {
+            this.chunkX = chunkStartX; 
+            this.chunkY = chunkStartY;
+            this.chunkLastX = chunkWidth;
+            this.chunkLastY = chunkHeight;
+            this.imageW = imageW;
+            this.imageH = imageH;
+        }
         public override string ToString() => $"chunkStartX={chunkX}\r\nchunkStartY={chunkY}\r\nchunkLastX={chunkLastX}\r\nchunkLastY={chunkLastY}\r\nimageW={imageW}\r\nimageH={imageH}\r\n";
     }
-	public class LuaScriptCalc
+    public class LuaScriptCalc
 	{
 		public LuaScriptCalc()
 		{
