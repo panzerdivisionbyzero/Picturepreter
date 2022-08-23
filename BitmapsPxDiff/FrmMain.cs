@@ -10,18 +10,21 @@ namespace BitmapsPxDiff
 
         private int currentImageIndex = 0; // index of image chosen by radio buttons
         private Bitmap[] images = new Bitmap[3]; // source bitmaps + result (indexes described by enum ImagesIndexes)
-        private Renderer renderer;
-        private ImagePointerPixelInfoFormat imagePointerPixelInfoFormat = ImagePointerPixelInfoFormat.argbHex;
+        private ScriptRenderer scriptRenderer; // performs processing source images by script
+        private ImagePointerPixelInfoFormat imagePointerPixelInfoFormat = ImagePointerPixelInfoFormat.argbHex; // chosen image pointed pixel info format (displayed on statusStrip)
         
         private static readonly object controlsLocker = new object(); // locks access to controls for threads
         public FrmMain()
         {
             InitializeComponent();
-            renderer = new Renderer(RefreshRenderingProgress, UpdateControlsOnRenderingStarted, UpdateControls_OnRenderingFinished);
-            RefreshImagesPixelInfo();
+            scriptRenderer = new ScriptRenderer(RefreshRenderingProgress, UpdateControlsOnRenderingStarted, UpdateControls_OnRenderingFinished);
+            RefreshImagesPixelInfo(); // refresh components text
+            // display built date:
             DateTime? dt = getAssemblyBuildDateTime();
             if (dt != null)
-                this.Text += " (built "+((DateTime)dt).ToString("yyyyMMdd")+")";
+            {
+                this.Text += " (built " + ((DateTime)dt).ToString("yyyyMMdd") + ")";
+            }
         }
         // built version method:
         public static DateTime? getAssemblyBuildDateTime()
@@ -36,9 +39,9 @@ namespace BitmapsPxDiff
         // CONTROLS EVENTS METHODS: *****************************************************************************
         private void FrmMain_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if ((renderer != null) && (renderer.Running))
+            if ((scriptRenderer != null) && (scriptRenderer.Running))
             {
-                renderer.StopRendering();
+                scriptRenderer.StopRendering();
             }
         }
         private void pb_MouseLeave(object sender, EventArgs e)
@@ -64,9 +67,9 @@ namespace BitmapsPxDiff
                 return;
             }
 
-            if (renderer.Running)
+            if (scriptRenderer.Running)
             {
-                renderer.StopRendering(); 
+                scriptRenderer.StopRendering(); 
             }
 
             btn.Text = Path.GetFileName(odLoadImage.FileName);
@@ -103,7 +106,7 @@ namespace BitmapsPxDiff
             images[1] = img;
 
             RefreshImagesPixelInfo();
-            RefreshPreview(renderer.Running);
+            RefreshPreview(scriptRenderer.Running);
         }
         private void rbPreviewModeImg_CheckedChanged(object sender, EventArgs e)
         {
@@ -117,9 +120,9 @@ namespace BitmapsPxDiff
             currentImageIndex = rb.TabIndex;
 
             if ((currentImageIndex != (int)ImagesIndexes.imageResult)
-                && (renderer.Running))
+                && (scriptRenderer.Running))
             {
-                renderer.StopRendering();
+                scriptRenderer.StopRendering();
             }
             RefreshPreview(false);
         }
@@ -161,9 +164,9 @@ namespace BitmapsPxDiff
             {
                 rbPreviewModeResult.Checked = true;
             }
-            if (renderer.Running)
+            if (scriptRenderer.Running)
             {
-                renderer.StopRendering();
+                scriptRenderer.StopRendering();
             }
             else
             {
@@ -176,9 +179,9 @@ namespace BitmapsPxDiff
             {
                 return;
             }
-            if (renderer.Running)
+            if (scriptRenderer.Running)
             {
-                renderer.StopRendering();
+                scriptRenderer.StopRendering();
             }
             tbScriptInput.Text = File.ReadAllText(odLoadScript.FileName);
         }
@@ -296,7 +299,7 @@ namespace BitmapsPxDiff
                         MessageBox.Show("Source images cannot be empty.");
                         return;
                     }
-                    renderer.StartRendering(images[0], images[1], tbScriptInput.Text);
+                    scriptRenderer.StartRendering(images[0], images[1], tbScriptInput.Text);
                 }
                 else
                 {

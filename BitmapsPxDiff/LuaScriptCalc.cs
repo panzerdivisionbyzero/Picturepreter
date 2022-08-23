@@ -2,7 +2,7 @@
 
 namespace BitmapsPxDiff
 {
-    public struct ScriptEnvironmentVariables
+    public struct ScriptEnvironmentVariables // carries thread chunk info (script "work environment")
     {
         public int chunkX, chunkY, chunkLastX, chunkLastY, imageW, imageH;
         public ScriptEnvironmentVariables(int chunkStartX, int chunkStartY, int chunkWidth, int chunkHeight, int imageW, int imageH)

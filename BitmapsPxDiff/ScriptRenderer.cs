@@ -4,7 +4,7 @@ using System.Drawing.Imaging;
 namespace BitmapsPxDiff
 {
     public delegate void OnRefreshRenderingProgressEvent(Bitmap newImage, string newStatus);
-    public class Renderer
+    public class ScriptRenderer
 	{
         // structs:
         private struct ImageChunk { public int startX, lastX, startY, lastY, width, height; }
@@ -31,7 +31,7 @@ namespace BitmapsPxDiff
         private ManualResetEvent mainRenderThreadSignal = new ManualResetEvent(true); // blocks creating new thread until terminating previous calculations
         private bool interruptRendering = false; // signal for worker threads to interrupt
 
-        private LuaScriptCalc luaScriptCalc = new LuaScriptCalc();
+        private LuaScriptCalc luaScriptCalc = new LuaScriptCalc(); // LUA script interpreter
 
         // local copy of given resources, independent from the form thread
         private Bitmap localSrc1 = new Bitmap(1, 1);
@@ -51,7 +51,7 @@ namespace BitmapsPxDiff
         private bool _running = false; 
         public bool Running { get => _running; }
 
-        public Renderer(OnRefreshRenderingProgressEvent onRefreshRenderingProgress, Action onRenderingStarted, Action onRenderingFinished)
+        public ScriptRenderer(OnRefreshRenderingProgressEvent onRefreshRenderingProgress, Action onRenderingStarted, Action onRenderingFinished)
         {
             _running = false;
             this.onRefreshRenderingProgress = onRefreshRenderingProgress;
