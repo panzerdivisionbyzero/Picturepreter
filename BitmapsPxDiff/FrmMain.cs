@@ -6,9 +6,12 @@ namespace BitmapsPxDiff
     public partial class FrmMain : Form
     {
         private enum ImagesIndexes { image1, image2, imageResult };
+        private enum ImagePointerPixelInfoFormat { argbHex, argbDec, rgbHex , rgbDec };
+
         private int currentImageIndex = 0;
         private Bitmap[] images = new Bitmap[3];
         private Renderer renderer;
+        private ImagePointerPixelInfoFormat imagePointerPixelInfoFormat = ImagePointerPixelInfoFormat.argbHex;
         
         private static readonly object controlsLocker = new object();
         public FrmMain()
@@ -213,6 +216,26 @@ namespace BitmapsPxDiff
             images[2].Save(sdSaveResultImage.FileName, imgFormat);
             MessageBox.Show("File saved.");
         }
+        private void argbHexToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            imagePointerPixelInfoFormat = ImagePointerPixelInfoFormat.argbHex;
+            RefreshImagesPixelInfo();
+        }
+        private void argbDecToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            imagePointerPixelInfoFormat = ImagePointerPixelInfoFormat.argbDec;
+            RefreshImagesPixelInfo();
+        }
+        private void rgbHexToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            imagePointerPixelInfoFormat = ImagePointerPixelInfoFormat.rgbHex;
+            RefreshImagesPixelInfo();
+        }
+        private void rgbDecToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            imagePointerPixelInfoFormat = ImagePointerPixelInfoFormat.rgbDec;
+            RefreshImagesPixelInfo();
+        }
         // THREADS EVENTS METHODS: *****************************************************************************
         private void UpdateControlsOnRenderingStarted()
         {
@@ -311,9 +334,27 @@ namespace BitmapsPxDiff
             {
                 Point p = (pb.ImagePointer != null) ? (Point)pb.ImagePointer : (Point)pb.currentMouseImagePos;
                 tsslCursorCoords.Text = $"({p.X}; {p.Y})";
-                tsslImage1argb.Text = FormatBitmapPixelInfo("Image1 ARGB: ", images[0], p);
-                tsslImage2argb.Text = FormatBitmapPixelInfo("Image2 ARGB: ", images[1], p);
-                tsslImageResultargb.Text = FormatBitmapPixelInfo("Result ARGB: ", images[2], p);
+                tsslImage1argb.Text = FormatBitmapPixelInfo("Image1: ", images[0], p);
+                tsslImage2argb.Text = FormatBitmapPixelInfo("Image2: ", images[1], p);
+                tsslImageResultargb.Text = FormatBitmapPixelInfo("Result: ", images[2], p);
+            }
+            switch (imagePointerPixelInfoFormat)
+            {
+                case ImagePointerPixelInfoFormat.argbHex:
+                    tsddbSwitchPixelInfoFormat.Text = "ARGB Hex";
+                    break;
+                case ImagePointerPixelInfoFormat.argbDec:
+                    tsddbSwitchPixelInfoFormat.Text = "ARGB Dec";
+                    break;
+                case ImagePointerPixelInfoFormat.rgbHex:
+                    tsddbSwitchPixelInfoFormat.Text = "RGB Hex";
+                    break;
+                case ImagePointerPixelInfoFormat.rgbDec:
+                    tsddbSwitchPixelInfoFormat.Text = "RGB Dec";
+                    break;
+                default:
+                    tsddbSwitchPixelInfoFormat.Text = "Unknown";
+                    break;
             }
         }
         private string FormatBitmapPixelInfo(string description, Bitmap bmp, Point p)
@@ -321,8 +362,19 @@ namespace BitmapsPxDiff
             if ((bmp != null) && (new Rectangle(0, 0, bmp.Width, bmp.Height).Contains(p)))
             {
                 Color c = bmp.GetPixel(p.X, p.Y);
-                // https://stackoverflow.com/questions/12078942/how-to-convert-from-argb-to-hex-aarrggbb
-                return string.Format("{0}{1:X2} {2:X2} {3:X2} {4:X2}", description, c.A, c.R, c.G, c.B);
+                switch (imagePointerPixelInfoFormat)
+                {
+                    case ImagePointerPixelInfoFormat.argbHex:
+                        return string.Format("{0}({1:X2} {2:X2} {3:X2} {4:X2})", description, c.A, c.R, c.G, c.B);
+                    case ImagePointerPixelInfoFormat.argbDec:
+                        return string.Format("{0}({1:D3} {2:D3} {3:D3} {4:D3})", description, c.A, c.R, c.G, c.B);
+                    case ImagePointerPixelInfoFormat.rgbHex:
+                        return string.Format("{0}({1:X2} {2:X2} {3:X2})", description, c.R, c.G, c.B);
+                    case ImagePointerPixelInfoFormat.rgbDec:
+                        return string.Format("{0}({1:D3} {2:D3} {3:D3})", description, c.R, c.G, c.B);
+                    default:
+                        return string.Format("{0}(Unknown pixel format)", description);
+                }
             }
             return "";
         }

@@ -64,6 +64,11 @@ namespace BitmapsPxDiff
             this.tsslState = new System.Windows.Forms.ToolStripStatusLabel();
             this.tsslCursorCoords = new System.Windows.Forms.ToolStripStatusLabel();
             this.tsslEmpty = new System.Windows.Forms.ToolStripStatusLabel();
+            this.tsddbSwitchPixelInfoFormat = new System.Windows.Forms.ToolStripDropDownButton();
+            this.argbHexToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.argbDecToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.rgbHexToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.rgbDecToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tsslImage1argb = new System.Windows.Forms.ToolStripStatusLabel();
             this.tsslImage2argb = new System.Windows.Forms.ToolStripStatusLabel();
             this.tsslImageResultargb = new System.Windows.Forms.ToolStripStatusLabel();
@@ -90,24 +95,24 @@ namespace BitmapsPxDiff
             this.tlbLeftRight.Name = "tlbLeftRight";
             this.tlbLeftRight.RowCount = 1;
             this.tlbLeftRight.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tlbLeftRight.Size = new System.Drawing.Size(1171, 664);
+            this.tlbLeftRight.Size = new System.Drawing.Size(1212, 664);
             this.tlbLeftRight.TabIndex = 0;
             // 
             // pb
             // 
             this.pb.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pb.Image = null;
             this.pb.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.Default;
             this.pb.Location = new System.Drawing.Point(386, 16);
             this.pb.Margin = new System.Windows.Forms.Padding(16);
             this.pb.Name = "pb";
             this.pb.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.Half;
-            this.pb.Size = new System.Drawing.Size(769, 632);
+            this.pb.Size = new System.Drawing.Size(810, 632);
             this.pb.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pb.TabIndex = 1;
             this.pb.TabStop = false;
             this.pb.MouseLeave += new System.EventHandler(this.pb_MouseLeave);
             this.pb.MouseMove += new System.Windows.Forms.MouseEventHandler(this.pb_MouseMove);
-            //this.pb.OnImageChange += new System.EventHandler(this.pb_ImageChanged);
             // 
             // tlbLeftPanels
             // 
@@ -422,7 +427,7 @@ namespace BitmapsPxDiff
             this.tlbUpDown.RowCount = 2;
             this.tlbUpDown.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tlbUpDown.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tlbUpDown.Size = new System.Drawing.Size(1177, 692);
+            this.tlbUpDown.Size = new System.Drawing.Size(1218, 692);
             this.tlbUpDown.TabIndex = 1;
             // 
             // statusStrip
@@ -432,12 +437,13 @@ namespace BitmapsPxDiff
             this.tsslState,
             this.tsslCursorCoords,
             this.tsslEmpty,
+            this.tsddbSwitchPixelInfoFormat,
             this.tsslImage1argb,
             this.tsslImage2argb,
             this.tsslImageResultargb});
             this.statusStrip.Location = new System.Drawing.Point(0, 670);
             this.statusStrip.Name = "statusStrip";
-            this.statusStrip.Size = new System.Drawing.Size(1177, 22);
+            this.statusStrip.Size = new System.Drawing.Size(1218, 22);
             this.statusStrip.TabIndex = 1;
             this.statusStrip.Text = "statusStrip1";
             // 
@@ -460,8 +466,50 @@ namespace BitmapsPxDiff
             // tsslEmpty
             // 
             this.tsslEmpty.Name = "tsslEmpty";
-            this.tsslEmpty.Size = new System.Drawing.Size(120, 17);
+            this.tsslEmpty.Size = new System.Drawing.Size(50, 17);
             this.tsslEmpty.Spring = true;
+            // 
+            // tsddbSwitchPixelInfoFormat
+            // 
+            this.tsddbSwitchPixelInfoFormat.AutoSize = false;
+            this.tsddbSwitchPixelInfoFormat.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.tsddbSwitchPixelInfoFormat.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.argbHexToolStripMenuItem,
+            this.argbDecToolStripMenuItem,
+            this.rgbHexToolStripMenuItem,
+            this.rgbDecToolStripMenuItem});
+            this.tsddbSwitchPixelInfoFormat.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsddbSwitchPixelInfoFormat.Name = "tsddbSwitchPixelInfoFormat";
+            this.tsddbSwitchPixelInfoFormat.Size = new System.Drawing.Size(80, 20);
+            this.tsddbSwitchPixelInfoFormat.Text = "ARGB fmt";
+            // 
+            // argbHexToolStripMenuItem
+            // 
+            this.argbHexToolStripMenuItem.Name = "argbHexToolStripMenuItem";
+            this.argbHexToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.argbHexToolStripMenuItem.Text = "ARGB Hex";
+            this.argbHexToolStripMenuItem.Click += new System.EventHandler(this.argbHexToolStripMenuItem_Click);
+            // 
+            // argbDecToolStripMenuItem
+            // 
+            this.argbDecToolStripMenuItem.Name = "argbDecToolStripMenuItem";
+            this.argbDecToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.argbDecToolStripMenuItem.Text = "ARGB Dec";
+            this.argbDecToolStripMenuItem.Click += new System.EventHandler(this.argbDecToolStripMenuItem_Click);
+            // 
+            // rgbHexToolStripMenuItem
+            // 
+            this.rgbHexToolStripMenuItem.Name = "rgbHexToolStripMenuItem";
+            this.rgbHexToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.rgbHexToolStripMenuItem.Text = "RGB Hex";
+            this.rgbHexToolStripMenuItem.Click += new System.EventHandler(this.rgbHexToolStripMenuItem_Click);
+            // 
+            // rgbDecToolStripMenuItem
+            // 
+            this.rgbDecToolStripMenuItem.Name = "rgbDecToolStripMenuItem";
+            this.rgbDecToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.rgbDecToolStripMenuItem.Text = "RGB Dec";
+            this.rgbDecToolStripMenuItem.Click += new System.EventHandler(this.rgbDecToolStripMenuItem_Click);
             // 
             // tsslImage1argb
             // 
@@ -491,7 +539,7 @@ namespace BitmapsPxDiff
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1177, 692);
+            this.ClientSize = new System.Drawing.Size(1218, 692);
             this.Controls.Add(this.tlbUpDown);
             this.Name = "FrmMain";
             this.Text = "Picturepreter";
@@ -551,5 +599,10 @@ namespace BitmapsPxDiff
         private ToolStripStatusLabel tsslImage2argb;
         private ToolStripStatusLabel tsslImageResultargb;
         private ToolStripStatusLabel tsslEmpty;
+        private ToolStripDropDownButton tsddbSwitchPixelInfoFormat;
+        private ToolStripMenuItem argbDecToolStripMenuItem;
+        private ToolStripMenuItem argbHexToolStripMenuItem;
+        private ToolStripMenuItem rgbHexToolStripMenuItem;
+        private ToolStripMenuItem rgbDecToolStripMenuItem;
     }
 }
