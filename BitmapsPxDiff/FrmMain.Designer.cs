@@ -67,6 +67,7 @@ namespace BitmapsPxDiff
             public PixelOffsetMode PixelOffsetMode { get; set; }
             private bool imagePointerSet = false;
             private Point _imagePointer;
+            public Point? currentMouseImagePos;
             public Point? ImagePointer 
             { 
                 get 
@@ -113,7 +114,16 @@ namespace BitmapsPxDiff
                 }
                 disablePrintImagePointer = false;
             }
-
+            protected override void OnMouseMove(MouseEventArgs e)
+            {
+                currentMouseImagePos = TranslateZoomMousePosition(new Point(e.X, e.Y));
+                base.OnMouseMove(e);
+            }
+            protected override void OnMouseLeave(EventArgs e)
+            {
+                currentMouseImagePos = null;
+                base.OnMouseLeave(e);
+            }
             protected override void OnMouseClick(MouseEventArgs e)
             {
                 base.OnMouseClick(e);

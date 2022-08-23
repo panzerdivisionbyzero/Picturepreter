@@ -15,10 +15,7 @@ namespace BitmapsPxDiff
         {
             InitializeComponent();
             renderer = new Renderer(OnRefreshRenderingProgress, OnRenderingStarted, OnRenderingFinished);
-            tsslCursorCoords.Text = "";
-            tsslImage1argb.Text = "";
-            tsslImage2argb.Text = "";
-            tsslImageResultargb.Text = "";
+            RefreshImagesPixelInfo();
         }
         private void FrmMain_FormClosing(object sender, FormClosingEventArgs e)
         {
@@ -65,7 +62,7 @@ namespace BitmapsPxDiff
                                        Math.Min(images[0].Height, images[1].Height),
                                        System.Drawing.Imaging.PixelFormat.Format32bppArgb);
             }
-
+            RefreshImagesPixelInfo();
             RefreshPreview(false);
         }
         private void btnSwapImages_Click(object sender, EventArgs e)
@@ -79,6 +76,7 @@ namespace BitmapsPxDiff
             btnLoadImage2.Text = s;
             images[1] = img;
 
+            RefreshImagesPixelInfo();
             RefreshPreview(renderer.Running);
         }
         private void rbPreviewModeImg_CheckedChanged(object sender, EventArgs e)
@@ -240,14 +238,6 @@ namespace BitmapsPxDiff
         {
             lock (controlsLocker)
             {
-                this.tbScriptOutput.BeginInvoke((MethodInvoker)delegate
-                {
-                    tbScriptOutput.Text = newStatus;
-                });
-                this.statusStrip.BeginInvoke((MethodInvoker)delegate
-                {
-                    tsslState.Text = newStatus.Replace("\r\n"," ");
-                });
                 if ((newImage != null) && (currentImageIndex == (int)ImagesIndexes.imageResult))
                 {
                     this.pb.BeginInvoke((MethodInvoker)delegate
@@ -256,6 +246,15 @@ namespace BitmapsPxDiff
                         RefreshPreview(false);
                     });
                 }
+                this.tbScriptOutput.BeginInvoke((MethodInvoker)delegate
+                {
+                    tbScriptOutput.Text = newStatus;
+                });
+                this.statusStrip.BeginInvoke((MethodInvoker)delegate
+                {
+                    tsslState.Text = newStatus.Replace("\r\n"," ");
+                    RefreshImagesPixelInfo();
+                });                
             }
         }
         private void OnRenderingStarted()
@@ -265,6 +264,9 @@ namespace BitmapsPxDiff
                 this.btnRunStopScript.BeginInvoke((MethodInvoker)delegate
                 {
                     btnRunStopScript.Text = "Stop script execution";
+                });
+                this.statusStrip.BeginInvoke((MethodInvoker)delegate
+                {
                     tsslState.Text = "Running script...";
                 });
             }
@@ -276,37 +278,40 @@ namespace BitmapsPxDiff
                 this.btnRunStopScript.BeginInvoke((MethodInvoker)delegate
                 {
                     btnRunStopScript.Text = "Run script";
+                    
+                });
+                this.statusStrip.BeginInvoke((MethodInvoker)delegate
+                {
                     tsslState.Text = "Idle";
                 });
             }
         }
         private void pb_MouseLeave(object sender, EventArgs e)
         {
-            if (pb.ImagePointer is null)
+            RefreshImagesPixelInfo();
+        }
+
+        private void pb_MouseMove(object sender, MouseEventArgs e)
+        {
+            RefreshImagesPixelInfo();
+        }
+        private void RefreshImagesPixelInfo()
+        {
+            if ((pb.ImagePointer is null) && (pb.currentMouseImagePos is null))
             {
                 tsslCursorCoords.Text = "";
                 tsslImage1argb.Text = "";
                 tsslImage2argb.Text = "";
                 tsslImageResultargb.Text = "";
             }
-        }
-
-        private void pb_MouseMove(object sender, MouseEventArgs e)
-        {
-            Point p;
-            if (pb.ImagePointer != null)
-            {
-                p = (Point)pb.ImagePointer;
-            }
             else
             {
-                p = pb.TranslateZoomMousePosition(new Point(e.X, e.Y));
+                Point p = (pb.ImagePointer != null) ? (Point)pb.ImagePointer : (Point)pb.currentMouseImagePos;
+                tsslCursorCoords.Text = $"({p.X}; {p.Y})";
+                tsslImage1argb.Text = FormatBitmapPixelInfo("Image1 ARGB: ", images[0], p);
+                tsslImage2argb.Text = FormatBitmapPixelInfo("Image2 ARGB: ", images[1], p);
+                tsslImageResultargb.Text = FormatBitmapPixelInfo("Result ARGB: ", images[2], p);
             }
-            // TODO: zrobic odswiezenie przy zmianie stanu obrazow
-            tsslCursorCoords.Text = $"({p.X}; {p.Y})";
-            tsslImage1argb.Text = FormatBitmapPixelInfo("Image1 ARGB: ", images[0], p);
-            tsslImage2argb.Text = FormatBitmapPixelInfo("Image2 ARGB: ", images[1], p);
-            tsslImageResultargb.Text = FormatBitmapPixelInfo("Result ARGB: ", images[2], p);
         }
         private string FormatBitmapPixelInfo(string description, Bitmap bmp, Point p)
         {
