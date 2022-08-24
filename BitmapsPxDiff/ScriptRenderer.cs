@@ -66,7 +66,11 @@ namespace BitmapsPxDiff
             stopwatch.Restart();
 
             // copying resources and event delegate:
-            localSourceImages = new List<Bitmap>(sourceImages);
+            localSourceImages.Clear();
+            foreach (Bitmap sourceImage in sourceImages)
+            {
+                localSourceImages.Add((Bitmap)sourceImage.Clone());
+            }
             localScript = script;
 
             // ready, steady, go:
@@ -228,7 +232,7 @@ namespace BitmapsPxDiff
                 {
                     thrSourceImages[i] = localSourceImages[i].Clone(new Rectangle(chunk.startX, chunk.startY, chunk.width, chunk.height), localSourceImages[i].PixelFormat);
                 }
-                BitmapToPixelsArray(ref thrSourceImages[i], ref chunk, ref pixelsImagesARGB, i);
+                BitmapToPixelsArray(ref thrSourceImages[i], ref chunk, ref pixelsImagesARGB, i, thrSourceImages.Length);
             }
             
             if (interruptRendering) // interrupt signal check
@@ -262,7 +266,7 @@ namespace BitmapsPxDiff
             }
             endOfWorkEvents[index].Set();
         }
-        private void BitmapToPixelsArray(ref Bitmap bmp, ref ImageChunk chunk, ref byte[] pixelsImagesARGB, int pixelsImageIndex)
+        private void BitmapToPixelsArray(ref Bitmap bmp, ref ImageChunk chunk, ref byte[] pixelsImagesARGB, int pixelsImageIndex, int imagesCount)
         {
             Color c;
             int pxIndex, imageColorPos;
@@ -271,8 +275,8 @@ namespace BitmapsPxDiff
                 for (int tx = 0; tx < chunk.width; tx++)
                 {
                     c = bmp.GetPixel(tx, ty);
-                    pxIndex = ty * chunk.width + tx;
-                    imageColorPos = pxIndex * pixelsImageIndex * 4 + pxIndex * 4;
+                    pxIndex = (ty * chunk.width + tx) * imagesCount;
+                    imageColorPos = (pxIndex+ pixelsImageIndex) * 4;
                     pixelsImagesARGB[imageColorPos + 0] = c.A;
                     pixelsImagesARGB[imageColorPos + 1] = c.R;
                     pixelsImagesARGB[imageColorPos + 2] = c.G;

@@ -1,11 +1,18 @@
 ﻿using System.Drawing.Drawing2D;
 
-/// <summary>
-/// Inherits from PictureBox; adds Interpolation Mode Setting
-/// https://stackoverflow.com/questions/29157/how-do-i-make-a-picturebox-use-nearest-neighbor-resampling
-/// </summary>
+
 namespace BitmapsPxDiff
 {
+    /// <summary>
+    /// Inherits from PictureBox; Added features:
+    /// - Interpolation Mode setting;
+    /// - Pixel Offset Mode setting;
+    /// - setting and displaying Image Pointer;
+    /// used code snippets:
+    /// https://stackoverflow.com/questions/29157/how-do-i-make-a-picturebox-use-nearest-neighbor-resampling
+    /// https://www.codeproject.com/messages/3182303/re-image-changed-in-picturebox-event-question.aspx
+    /// https://www.codeproject.com/Articles/20923/Mouse-Position-over-Image-in-a-PictureBox
+    /// </summary>
     public class PictureBoxEx : PictureBox
     {
         // stores original image assigned to component; needed to repaint image in ClearPointer():

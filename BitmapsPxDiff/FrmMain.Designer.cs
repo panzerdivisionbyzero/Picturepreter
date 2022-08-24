@@ -34,21 +34,19 @@ namespace BitmapsPxDiff
         {
             this.pb = new BitmapsPxDiff.PictureBoxEx();
             this.tlbLeftTopPanels = new System.Windows.Forms.TableLayoutPanel();
-            this.btnLoadImage1 = new System.Windows.Forms.Button();
-            this.btnLoadImage2 = new System.Windows.Forms.Button();
-            this.btnSwapImages = new System.Windows.Forms.Button();
-            this.tlbRadioButtonsGroups = new System.Windows.Forms.TableLayoutPanel();
-            this.gbPreviewMode = new System.Windows.Forms.GroupBox();
-            this.rbPreviewModeResult = new System.Windows.Forms.RadioButton();
-            this.rbPreviewModeImg2 = new System.Windows.Forms.RadioButton();
-            this.rbPreviewModeImg1 = new System.Windows.Forms.RadioButton();
+            this.tlbSettingsControlsGroups = new System.Windows.Forms.TableLayoutPanel();
             this.gbInterpolationMode = new System.Windows.Forms.GroupBox();
             this.rbimOther = new System.Windows.Forms.RadioButton();
             this.rbimNearestNeighbour = new System.Windows.Forms.RadioButton();
             this.rbimDefault = new System.Windows.Forms.RadioButton();
+            this.gbPixelInfoFormat = new System.Windows.Forms.GroupBox();
+            this.chbPixelInfoHex = new System.Windows.Forms.CheckBox();
+            this.chbPixelInfoDisplayAlpha = new System.Windows.Forms.CheckBox();
+            this.chbDisplayPixelInfo = new System.Windows.Forms.CheckBox();
             this.tbScriptInput = new System.Windows.Forms.TextBox();
             this.cbAutoRunScriptAfterChange = new System.Windows.Forms.CheckBox();
             this.btnRunStopScript = new System.Windows.Forms.Button();
+            this.imagesControlsPanel = new BitmapsPxDiff.ImagesControlsPanel();
             this.leftPanelSplitter = new System.Windows.Forms.Splitter();
             this.tlbLeftBottomPanels = new System.Windows.Forms.TableLayoutPanel();
             this.tbScriptOutput = new System.Windows.Forms.TextBox();
@@ -64,22 +62,14 @@ namespace BitmapsPxDiff
             this.tsslState = new System.Windows.Forms.ToolStripStatusLabel();
             this.tsslCursorCoords = new System.Windows.Forms.ToolStripStatusLabel();
             this.tsslEmpty = new System.Windows.Forms.ToolStripStatusLabel();
-            this.tsddbSwitchPixelInfoFormat = new System.Windows.Forms.ToolStripDropDownButton();
-            this.argbHexToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.argbDecToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.rgbHexToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.rgbDecToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.tsslImage1argb = new System.Windows.Forms.ToolStripStatusLabel();
-            this.tsslImage2argb = new System.Windows.Forms.ToolStripStatusLabel();
-            this.tsslImageResultargb = new System.Windows.Forms.ToolStripStatusLabel();
             this.panelLeft = new System.Windows.Forms.Panel();
             this.mainSplitter = new System.Windows.Forms.Splitter();
             this.panelRight = new System.Windows.Forms.Panel();
             ((System.ComponentModel.ISupportInitialize)(this.pb)).BeginInit();
             this.tlbLeftTopPanels.SuspendLayout();
-            this.tlbRadioButtonsGroups.SuspendLayout();
-            this.gbPreviewMode.SuspendLayout();
+            this.tlbSettingsControlsGroups.SuspendLayout();
             this.gbInterpolationMode.SuspendLayout();
+            this.gbPixelInfoFormat.SuspendLayout();
             this.tlbLeftBottomPanels.SuspendLayout();
             this.tlbLoadSaveScript.SuspendLayout();
             this.statusStrip.SuspendLayout();
@@ -107,19 +97,15 @@ namespace BitmapsPxDiff
             // 
             this.tlbLeftTopPanels.ColumnCount = 1;
             this.tlbLeftTopPanels.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tlbLeftTopPanels.Controls.Add(this.btnLoadImage1, 0, 0);
-            this.tlbLeftTopPanels.Controls.Add(this.btnLoadImage2, 0, 1);
-            this.tlbLeftTopPanels.Controls.Add(this.btnSwapImages, 0, 2);
-            this.tlbLeftTopPanels.Controls.Add(this.tlbRadioButtonsGroups, 0, 3);
-            this.tlbLeftTopPanels.Controls.Add(this.tbScriptInput, 0, 4);
-            this.tlbLeftTopPanels.Controls.Add(this.cbAutoRunScriptAfterChange, 0, 5);
-            this.tlbLeftTopPanels.Controls.Add(this.btnRunStopScript, 0, 6);
+            this.tlbLeftTopPanels.Controls.Add(this.tlbSettingsControlsGroups, 0, 1);
+            this.tlbLeftTopPanels.Controls.Add(this.tbScriptInput, 0, 2);
+            this.tlbLeftTopPanels.Controls.Add(this.cbAutoRunScriptAfterChange, 0, 3);
+            this.tlbLeftTopPanels.Controls.Add(this.btnRunStopScript, 0, 4);
+            this.tlbLeftTopPanels.Controls.Add(this.imagesControlsPanel, 0, 0);
             this.tlbLeftTopPanels.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tlbLeftTopPanels.Location = new System.Drawing.Point(0, 0);
             this.tlbLeftTopPanels.Name = "tlbLeftTopPanels";
-            this.tlbLeftTopPanels.RowCount = 7;
-            this.tlbLeftTopPanels.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tlbLeftTopPanels.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tlbLeftTopPanels.RowCount = 5;
             this.tlbLeftTopPanels.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tlbLeftTopPanels.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 111F));
             this.tlbLeftTopPanels.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
@@ -128,107 +114,21 @@ namespace BitmapsPxDiff
             this.tlbLeftTopPanels.Size = new System.Drawing.Size(370, 490);
             this.tlbLeftTopPanels.TabIndex = 2;
             // 
-            // btnLoadImage1
+            // tlbSettingsControlsGroups
             // 
-            this.btnLoadImage1.Dock = System.Windows.Forms.DockStyle.Top;
-            this.btnLoadImage1.Location = new System.Drawing.Point(4, 4);
-            this.btnLoadImage1.Margin = new System.Windows.Forms.Padding(4);
-            this.btnLoadImage1.Name = "btnLoadImage1";
-            this.btnLoadImage1.Size = new System.Drawing.Size(362, 23);
-            this.btnLoadImage1.TabIndex = 0;
-            this.btnLoadImage1.Text = "Load image 1";
-            this.btnLoadImage1.UseVisualStyleBackColor = true;
-            this.btnLoadImage1.Click += new System.EventHandler(this.btnLoadImage_Click);
-            // 
-            // btnLoadImage2
-            // 
-            this.btnLoadImage2.Dock = System.Windows.Forms.DockStyle.Top;
-            this.btnLoadImage2.Location = new System.Drawing.Point(4, 35);
-            this.btnLoadImage2.Margin = new System.Windows.Forms.Padding(4);
-            this.btnLoadImage2.Name = "btnLoadImage2";
-            this.btnLoadImage2.Size = new System.Drawing.Size(362, 23);
-            this.btnLoadImage2.TabIndex = 1;
-            this.btnLoadImage2.Text = "Load image 2";
-            this.btnLoadImage2.UseVisualStyleBackColor = true;
-            this.btnLoadImage2.Click += new System.EventHandler(this.btnLoadImage_Click);
-            // 
-            // btnSwapImages
-            // 
-            this.btnSwapImages.Dock = System.Windows.Forms.DockStyle.Top;
-            this.btnSwapImages.Location = new System.Drawing.Point(4, 66);
-            this.btnSwapImages.Margin = new System.Windows.Forms.Padding(4);
-            this.btnSwapImages.Name = "btnSwapImages";
-            this.btnSwapImages.Size = new System.Drawing.Size(362, 23);
-            this.btnSwapImages.TabIndex = 4;
-            this.btnSwapImages.Text = "Swap images";
-            this.btnSwapImages.UseVisualStyleBackColor = true;
-            this.btnSwapImages.Click += new System.EventHandler(this.btnSwapImages_Click);
-            // 
-            // tlbRadioButtonsGroups
-            // 
-            this.tlbRadioButtonsGroups.ColumnCount = 2;
-            this.tlbRadioButtonsGroups.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tlbRadioButtonsGroups.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tlbRadioButtonsGroups.Controls.Add(this.gbPreviewMode, 0, 0);
-            this.tlbRadioButtonsGroups.Controls.Add(this.gbInterpolationMode, 1, 0);
-            this.tlbRadioButtonsGroups.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tlbRadioButtonsGroups.Location = new System.Drawing.Point(0, 93);
-            this.tlbRadioButtonsGroups.Margin = new System.Windows.Forms.Padding(0);
-            this.tlbRadioButtonsGroups.Name = "tlbRadioButtonsGroups";
-            this.tlbRadioButtonsGroups.RowCount = 1;
-            this.tlbRadioButtonsGroups.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tlbRadioButtonsGroups.Size = new System.Drawing.Size(370, 111);
-            this.tlbRadioButtonsGroups.TabIndex = 9;
-            // 
-            // gbPreviewMode
-            // 
-            this.gbPreviewMode.Controls.Add(this.rbPreviewModeResult);
-            this.gbPreviewMode.Controls.Add(this.rbPreviewModeImg2);
-            this.gbPreviewMode.Controls.Add(this.rbPreviewModeImg1);
-            this.gbPreviewMode.Dock = System.Windows.Forms.DockStyle.Top;
-            this.gbPreviewMode.Location = new System.Drawing.Point(3, 3);
-            this.gbPreviewMode.Name = "gbPreviewMode";
-            this.gbPreviewMode.Size = new System.Drawing.Size(179, 105);
-            this.gbPreviewMode.TabIndex = 4;
-            this.gbPreviewMode.TabStop = false;
-            this.gbPreviewMode.Text = "Preview mode";
-            // 
-            // rbPreviewModeResult
-            // 
-            this.rbPreviewModeResult.AutoSize = true;
-            this.rbPreviewModeResult.Location = new System.Drawing.Point(13, 72);
-            this.rbPreviewModeResult.Name = "rbPreviewModeResult";
-            this.rbPreviewModeResult.Size = new System.Drawing.Size(93, 19);
-            this.rbPreviewModeResult.TabIndex = 2;
-            this.rbPreviewModeResult.TabStop = true;
-            this.rbPreviewModeResult.Text = "Result image";
-            this.rbPreviewModeResult.UseVisualStyleBackColor = true;
-            this.rbPreviewModeResult.CheckedChanged += new System.EventHandler(this.rbPreviewModeImg_CheckedChanged);
-            // 
-            // rbPreviewModeImg2
-            // 
-            this.rbPreviewModeImg2.AutoSize = true;
-            this.rbPreviewModeImg2.Location = new System.Drawing.Point(13, 47);
-            this.rbPreviewModeImg2.Name = "rbPreviewModeImg2";
-            this.rbPreviewModeImg2.Size = new System.Drawing.Size(67, 19);
-            this.rbPreviewModeImg2.TabIndex = 1;
-            this.rbPreviewModeImg2.TabStop = true;
-            this.rbPreviewModeImg2.Text = "Image 2";
-            this.rbPreviewModeImg2.UseVisualStyleBackColor = true;
-            this.rbPreviewModeImg2.CheckedChanged += new System.EventHandler(this.rbPreviewModeImg_CheckedChanged);
-            // 
-            // rbPreviewModeImg1
-            // 
-            this.rbPreviewModeImg1.AutoSize = true;
-            this.rbPreviewModeImg1.Checked = true;
-            this.rbPreviewModeImg1.Location = new System.Drawing.Point(13, 22);
-            this.rbPreviewModeImg1.Name = "rbPreviewModeImg1";
-            this.rbPreviewModeImg1.Size = new System.Drawing.Size(67, 19);
-            this.rbPreviewModeImg1.TabIndex = 0;
-            this.rbPreviewModeImg1.TabStop = true;
-            this.rbPreviewModeImg1.Text = "Image 1";
-            this.rbPreviewModeImg1.UseVisualStyleBackColor = true;
-            this.rbPreviewModeImg1.CheckedChanged += new System.EventHandler(this.rbPreviewModeImg_CheckedChanged);
+            this.tlbSettingsControlsGroups.ColumnCount = 2;
+            this.tlbSettingsControlsGroups.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tlbSettingsControlsGroups.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tlbSettingsControlsGroups.Controls.Add(this.gbInterpolationMode, 0, 0);
+            this.tlbSettingsControlsGroups.Controls.Add(this.gbPixelInfoFormat, 1, 0);
+            this.tlbSettingsControlsGroups.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tlbSettingsControlsGroups.Location = new System.Drawing.Point(0, 128);
+            this.tlbSettingsControlsGroups.Margin = new System.Windows.Forms.Padding(0);
+            this.tlbSettingsControlsGroups.Name = "tlbSettingsControlsGroups";
+            this.tlbSettingsControlsGroups.RowCount = 1;
+            this.tlbSettingsControlsGroups.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tlbSettingsControlsGroups.Size = new System.Drawing.Size(370, 111);
+            this.tlbSettingsControlsGroups.TabIndex = 9;
             // 
             // gbInterpolationMode
             // 
@@ -236,7 +136,7 @@ namespace BitmapsPxDiff
             this.gbInterpolationMode.Controls.Add(this.rbimNearestNeighbour);
             this.gbInterpolationMode.Controls.Add(this.rbimDefault);
             this.gbInterpolationMode.Dock = System.Windows.Forms.DockStyle.Top;
-            this.gbInterpolationMode.Location = new System.Drawing.Point(188, 3);
+            this.gbInterpolationMode.Location = new System.Drawing.Point(3, 3);
             this.gbInterpolationMode.Name = "gbInterpolationMode";
             this.gbInterpolationMode.Size = new System.Drawing.Size(179, 105);
             this.gbInterpolationMode.TabIndex = 5;
@@ -278,15 +178,67 @@ namespace BitmapsPxDiff
             this.rbimDefault.UseVisualStyleBackColor = true;
             this.rbimDefault.CheckedChanged += new System.EventHandler(this.rbInterpolationMode_CheckedChanged);
             // 
+            // gbPixelInfoFormat
+            // 
+            this.gbPixelInfoFormat.Controls.Add(this.chbPixelInfoHex);
+            this.gbPixelInfoFormat.Controls.Add(this.chbPixelInfoDisplayAlpha);
+            this.gbPixelInfoFormat.Controls.Add(this.chbDisplayPixelInfo);
+            this.gbPixelInfoFormat.Dock = System.Windows.Forms.DockStyle.Top;
+            this.gbPixelInfoFormat.Location = new System.Drawing.Point(188, 3);
+            this.gbPixelInfoFormat.Name = "gbPixelInfoFormat";
+            this.gbPixelInfoFormat.Size = new System.Drawing.Size(179, 105);
+            this.gbPixelInfoFormat.TabIndex = 4;
+            this.gbPixelInfoFormat.TabStop = false;
+            this.gbPixelInfoFormat.Text = "Pixel info format";
+            // 
+            // chbPixelInfoHex
+            // 
+            this.chbPixelInfoHex.AutoSize = true;
+            this.chbPixelInfoHex.Checked = true;
+            this.chbPixelInfoHex.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chbPixelInfoHex.Location = new System.Drawing.Point(15, 73);
+            this.chbPixelInfoHex.Name = "chbPixelInfoHex";
+            this.chbPixelInfoHex.Size = new System.Drawing.Size(85, 19);
+            this.chbPixelInfoHex.TabIndex = 2;
+            this.chbPixelInfoHex.Text = "Hex format";
+            this.chbPixelInfoHex.UseVisualStyleBackColor = true;
+            this.chbPixelInfoHex.CheckedChanged += new System.EventHandler(this.chbPixelInfoHex_CheckedChanged);
+            // 
+            // chbPixelInfoDisplayAlpha
+            // 
+            this.chbPixelInfoDisplayAlpha.AutoSize = true;
+            this.chbPixelInfoDisplayAlpha.Checked = true;
+            this.chbPixelInfoDisplayAlpha.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chbPixelInfoDisplayAlpha.Location = new System.Drawing.Point(15, 48);
+            this.chbPixelInfoDisplayAlpha.Name = "chbPixelInfoDisplayAlpha";
+            this.chbPixelInfoDisplayAlpha.Size = new System.Drawing.Size(96, 19);
+            this.chbPixelInfoDisplayAlpha.TabIndex = 1;
+            this.chbPixelInfoDisplayAlpha.Text = "Display alpha";
+            this.chbPixelInfoDisplayAlpha.UseVisualStyleBackColor = true;
+            this.chbPixelInfoDisplayAlpha.CheckedChanged += new System.EventHandler(this.chbPixelInfoDisplayAlpha_CheckedChanged);
+            // 
+            // chbDisplayPixelInfo
+            // 
+            this.chbDisplayPixelInfo.AutoSize = true;
+            this.chbDisplayPixelInfo.Checked = true;
+            this.chbDisplayPixelInfo.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chbDisplayPixelInfo.Location = new System.Drawing.Point(15, 22);
+            this.chbDisplayPixelInfo.Name = "chbDisplayPixelInfo";
+            this.chbDisplayPixelInfo.Size = new System.Drawing.Size(115, 19);
+            this.chbDisplayPixelInfo.TabIndex = 0;
+            this.chbDisplayPixelInfo.Text = "Display pixel info";
+            this.chbDisplayPixelInfo.UseVisualStyleBackColor = true;
+            this.chbDisplayPixelInfo.CheckedChanged += new System.EventHandler(this.chbDisplayPixelInfo_CheckedChanged);
+            // 
             // tbScriptInput
             // 
             this.tbScriptInput.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tbScriptInput.Font = new System.Drawing.Font("Cascadia Mono", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.tbScriptInput.Location = new System.Drawing.Point(3, 207);
+            this.tbScriptInput.Location = new System.Drawing.Point(3, 242);
             this.tbScriptInput.Multiline = true;
             this.tbScriptInput.Name = "tbScriptInput";
             this.tbScriptInput.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.tbScriptInput.Size = new System.Drawing.Size(364, 222);
+            this.tbScriptInput.Size = new System.Drawing.Size(364, 187);
             this.tbScriptInput.TabIndex = 7;
             this.tbScriptInput.Text = "result[1] = 255\r\nresult[2] = colors[1][2] + 1\r\nresult[3] = colors[1][3] + 1\r\nresu" +
     "lt[4] = colors[1][4] + 1";
@@ -317,6 +269,19 @@ namespace BitmapsPxDiff
             this.btnRunStopScript.Text = "Run script";
             this.btnRunStopScript.UseVisualStyleBackColor = true;
             this.btnRunStopScript.Click += new System.EventHandler(this.btnRunStopScript_Click);
+            // 
+            // imagesControlsPanel
+            // 
+            this.imagesControlsPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.imagesControlsPanel.Location = new System.Drawing.Point(3, 3);
+            this.imagesControlsPanel.Name = "imagesControlsPanel";
+            this.imagesControlsPanel.Size = new System.Drawing.Size(364, 122);
+            this.imagesControlsPanel.TabIndex = 12;
+            this.imagesControlsPanel.OnImageSelected += new System.EventHandler(this.imagesControlsPanel_OnImageSelected);
+            this.imagesControlsPanel.OnAddImageClick += new System.EventHandler(this.imagesControlsPanel_OnAddImageClick);
+            this.imagesControlsPanel.OnLoadImageClick += new System.EventHandler(this.imagesControlsPanel_OnLoadImageClick);
+            this.imagesControlsPanel.OnRemoveImageClick += new System.EventHandler(this.imagesControlsPanel_OnRemoveImageClick);
+            this.imagesControlsPanel.OnSwitchImageClick += new System.EventHandler(this.imagesControlsPanel_OnSwitchImageClick);
             // 
             // leftPanelSplitter
             // 
@@ -433,11 +398,7 @@ namespace BitmapsPxDiff
             this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsslState,
             this.tsslCursorCoords,
-            this.tsslEmpty,
-            this.tsddbSwitchPixelInfoFormat,
-            this.tsslImage1argb,
-            this.tsslImage2argb,
-            this.tsslImageResultargb});
+            this.tsslEmpty});
             this.statusStrip.Location = new System.Drawing.Point(0, 670);
             this.statusStrip.Name = "statusStrip";
             this.statusStrip.Size = new System.Drawing.Size(1218, 22);
@@ -463,74 +424,8 @@ namespace BitmapsPxDiff
             // tsslEmpty
             // 
             this.tsslEmpty.Name = "tsslEmpty";
-            this.tsslEmpty.Size = new System.Drawing.Size(81, 17);
+            this.tsslEmpty.Size = new System.Drawing.Size(737, 17);
             this.tsslEmpty.Spring = true;
-            // 
-            // tsddbSwitchPixelInfoFormat
-            // 
-            this.tsddbSwitchPixelInfoFormat.AutoSize = false;
-            this.tsddbSwitchPixelInfoFormat.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            this.tsddbSwitchPixelInfoFormat.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.argbHexToolStripMenuItem,
-            this.argbDecToolStripMenuItem,
-            this.rgbHexToolStripMenuItem,
-            this.rgbDecToolStripMenuItem});
-            this.tsddbSwitchPixelInfoFormat.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsddbSwitchPixelInfoFormat.Name = "tsddbSwitchPixelInfoFormat";
-            this.tsddbSwitchPixelInfoFormat.Size = new System.Drawing.Size(80, 20);
-            this.tsddbSwitchPixelInfoFormat.Text = "ARGB fmt";
-            // 
-            // argbHexToolStripMenuItem
-            // 
-            this.argbHexToolStripMenuItem.Name = "argbHexToolStripMenuItem";
-            this.argbHexToolStripMenuItem.Size = new System.Drawing.Size(130, 22);
-            this.argbHexToolStripMenuItem.Text = "ARGB Hex";
-            this.argbHexToolStripMenuItem.Click += new System.EventHandler(this.argbHexToolStripMenuItem_Click);
-            // 
-            // argbDecToolStripMenuItem
-            // 
-            this.argbDecToolStripMenuItem.Name = "argbDecToolStripMenuItem";
-            this.argbDecToolStripMenuItem.Size = new System.Drawing.Size(130, 22);
-            this.argbDecToolStripMenuItem.Text = "ARGB Dec";
-            this.argbDecToolStripMenuItem.Click += new System.EventHandler(this.argbDecToolStripMenuItem_Click);
-            // 
-            // rgbHexToolStripMenuItem
-            // 
-            this.rgbHexToolStripMenuItem.Name = "rgbHexToolStripMenuItem";
-            this.rgbHexToolStripMenuItem.Size = new System.Drawing.Size(130, 22);
-            this.rgbHexToolStripMenuItem.Text = "RGB Hex";
-            this.rgbHexToolStripMenuItem.Click += new System.EventHandler(this.rgbHexToolStripMenuItem_Click);
-            // 
-            // rgbDecToolStripMenuItem
-            // 
-            this.rgbDecToolStripMenuItem.Name = "rgbDecToolStripMenuItem";
-            this.rgbDecToolStripMenuItem.Size = new System.Drawing.Size(130, 22);
-            this.rgbDecToolStripMenuItem.Text = "RGB Dec";
-            this.rgbDecToolStripMenuItem.Click += new System.EventHandler(this.rgbDecToolStripMenuItem_Click);
-            // 
-            // tsslImage1argb
-            // 
-            this.tsslImage1argb.AutoSize = false;
-            this.tsslImage1argb.Name = "tsslImage1argb";
-            this.tsslImage1argb.Size = new System.Drawing.Size(192, 17);
-            this.tsslImage1argb.Text = "FFFFFFFF";
-            this.tsslImage1argb.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // tsslImage2argb
-            // 
-            this.tsslImage2argb.AutoSize = false;
-            this.tsslImage2argb.Name = "tsslImage2argb";
-            this.tsslImage2argb.Size = new System.Drawing.Size(192, 17);
-            this.tsslImage2argb.Text = "FFFFFFFF";
-            this.tsslImage2argb.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // tsslImageResultargb
-            // 
-            this.tsslImageResultargb.AutoSize = false;
-            this.tsslImageResultargb.Name = "tsslImageResultargb";
-            this.tsslImageResultargb.Size = new System.Drawing.Size(192, 17);
-            this.tsslImageResultargb.Text = "result: FFFFFFFF";
-            this.tsslImageResultargb.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // panelLeft
             // 
@@ -578,11 +473,11 @@ namespace BitmapsPxDiff
             ((System.ComponentModel.ISupportInitialize)(this.pb)).EndInit();
             this.tlbLeftTopPanels.ResumeLayout(false);
             this.tlbLeftTopPanels.PerformLayout();
-            this.tlbRadioButtonsGroups.ResumeLayout(false);
-            this.gbPreviewMode.ResumeLayout(false);
-            this.gbPreviewMode.PerformLayout();
+            this.tlbSettingsControlsGroups.ResumeLayout(false);
             this.gbInterpolationMode.ResumeLayout(false);
             this.gbInterpolationMode.PerformLayout();
+            this.gbPixelInfoFormat.ResumeLayout(false);
+            this.gbPixelInfoFormat.PerformLayout();
             this.tlbLeftBottomPanels.ResumeLayout(false);
             this.tlbLeftBottomPanels.PerformLayout();
             this.tlbLoadSaveScript.ResumeLayout(false);
@@ -601,9 +496,6 @@ namespace BitmapsPxDiff
         private TableLayoutPanel tlbLeftTopPanels;
         private Splitter leftPanelSplitter;
         private TableLayoutPanel tlbLeftBottomPanels;
-        private Button btnLoadImage2;
-        private Button btnLoadImage1;
-        private Button btnSwapImages;
         private TableLayoutPanel tlbLoadSaveScript;
         private Button btnLoadScript;
         private Button btnSaveScript;
@@ -613,11 +505,8 @@ namespace BitmapsPxDiff
         private SaveFileDialog sdSaveScript;
         private TextBox tbScriptInput;
         private TextBox tbScriptOutput;
-        private TableLayoutPanel tlbRadioButtonsGroups;
-        private GroupBox gbPreviewMode;
-        private RadioButton rbPreviewModeResult;
-        private RadioButton rbPreviewModeImg2;
-        private RadioButton rbPreviewModeImg1;
+        private TableLayoutPanel tlbSettingsControlsGroups;
+        private GroupBox gbPixelInfoFormat;
         private GroupBox gbInterpolationMode;
         private RadioButton rbimOther;
         private RadioButton rbimNearestNeighbour;
@@ -627,17 +516,13 @@ namespace BitmapsPxDiff
         private StatusStrip statusStrip;
         private ToolStripStatusLabel tsslState;
         private ToolStripStatusLabel tsslCursorCoords;
-        private ToolStripStatusLabel tsslImage1argb;
-        private ToolStripStatusLabel tsslImage2argb;
-        private ToolStripStatusLabel tsslImageResultargb;
         private ToolStripStatusLabel tsslEmpty;
-        private ToolStripDropDownButton tsddbSwitchPixelInfoFormat;
-        private ToolStripMenuItem argbDecToolStripMenuItem;
-        private ToolStripMenuItem argbHexToolStripMenuItem;
-        private ToolStripMenuItem rgbHexToolStripMenuItem;
-        private ToolStripMenuItem rgbDecToolStripMenuItem;
         private Panel panelLeft;
         private Splitter mainSplitter;
         private Panel panelRight;
+        private ImagesControlsPanel imagesControlsPanel;
+        private CheckBox chbPixelInfoHex;
+        private CheckBox chbPixelInfoDisplayAlpha;
+        private CheckBox chbDisplayPixelInfo;
     }
 }

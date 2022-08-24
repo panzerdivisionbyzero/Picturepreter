@@ -5,38 +5,35 @@ namespace BitmapsPxDiff
 {
     public partial class FrmMain : Form
     {
-        private enum ImagePointerPixelInfoFormat { argbHex, argbDec, rgbHex , rgbDec };
         private const int resultImageFictionalIndex = -1;
         private int currentImageIndex = resultImageFictionalIndex; // index of image chosen by radio buttons;
         private List<Bitmap> sourceImages = new List<Bitmap>();
         private Bitmap resultImage = new Bitmap(1, 1);
         private ScriptRenderer scriptRenderer; // performs processing source images by script
-        private ImagePointerPixelInfoFormat imagePointerPixelInfoFormat = ImagePointerPixelInfoFormat.argbHex; // chosen image pointed pixel info format (displayed on statusStrip)
         
         private static readonly object controlsLocker = new object(); // locks access to controls for threads
         public FrmMain()
         {
             InitializeComponent();
             scriptRenderer = new ScriptRenderer(RefreshRenderingProgress, UpdateControlsOnRenderingStarted, UpdateControls_OnRenderingFinished);
-            sourceImages.Add(new Bitmap(1, 1)); // TODO: TEMP until dynamic GUI not ready
-            sourceImages.Add(new Bitmap(1, 1)); // TODO: TEMP until dynamic GUI not ready
-            RefreshImagesPixelInfo(); // refresh components text
+
             // display built date:
             DateTime? dt = getAssemblyBuildDateTime();
             if (dt != null)
             {
                 this.Text += " (built " + ((DateTime)dt).ToString("yyyyMMdd") + ")";
             }
+
+            CreateStartupBitmaps();
+            RefreshImagesPixelInfo(); // refresh pixel info components text
         }
-        // built version method:
-        public static DateTime? getAssemblyBuildDateTime()
-        { // https://stackoverflow.com/questions/1600962/displaying-the-build-date?answertab=modifieddesc#tab-top
-            var assembly = System.Reflection.Assembly.GetExecutingAssembly();
-            var attr = Attribute.GetCustomAttribute(assembly, typeof(BuildDateTimeAttribute)) as BuildDateTimeAttribute;
-            if (DateTime.TryParse(attr?.Date, out DateTime dt))
-                return dt;
-            else
-                return null;
+        private void CreateStartupBitmaps()
+        {
+            sourceImages.Add(new Bitmap(1, 1));
+            sourceImages.Add(new Bitmap(1, 1));
+            imagesControlsPanel.AddImageControlsSet();
+            imagesControlsPanel.CheckPanelWithIndex(0);
+            imagesControlsPanel.AddImageControlsSet();
         }
         // CONTROLS EVENTS METHODS: *****************************************************************************
         private void FrmMain_FormClosing(object sender, FormClosingEventArgs e)
@@ -55,7 +52,7 @@ namespace BitmapsPxDiff
         {
             RefreshImagesPixelInfo();
         }
-        private void btnLoadImage_Click(object sender, EventArgs e)
+        private void imagesControlsPanel_OnRemoveImageClick(object sender, EventArgs e)
         {
             if (!(sender is Button))
             {
@@ -63,7 +60,44 @@ namespace BitmapsPxDiff
             }
             Button btn = (Button)sender;
 
-            if ((0 > btn.TabIndex || btn.TabIndex > 1)
+            int index = (int)btn.Tag;
+
+            if ((index < 0) || (index >= sourceImages.Count))
+            {
+                return;
+            }
+
+            if (scriptRenderer.Running)
+            {
+                scriptRenderer.StopRendering();
+            }
+
+            sourceImages.RemoveAt(index);
+
+            // adjust result image dimensions:
+            Point newResultDimensions = Helpers.GetImagesSizeIntersection(sourceImages);
+            resultImage = new Bitmap(newResultDimensions.X, newResultDimensions.Y, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+
+            RefreshImagesPixelInfo();
+            RefreshPreview(false);
+        }
+        private void imagesControlsPanel_OnAddImageClick(object sender, EventArgs e)
+        {
+            sourceImages.Add(new Bitmap(1, 1));
+            RefreshImagesPixelInfo();
+            RefreshPreview(false);
+        }
+        private void imagesControlsPanel_OnLoadImageClick(object sender, EventArgs e)
+        {
+            if (!(sender is Button))
+            {
+                return;
+            }
+            Button btn = (Button)sender;
+
+            int index = (int)btn.Tag;
+
+            if ((index<0) || (index > imagesControlsPanel.GetPanelsCount() - 2)
                 || (odLoadImage.ShowDialog() != DialogResult.OK))
             {
                 return;
@@ -76,11 +110,9 @@ namespace BitmapsPxDiff
 
             btn.Text = Path.GetFileName(odLoadImage.FileName);
 
-            if (btn.TabIndex >= sourceImages.Count) { sourceImages.Add(new Bitmap(odLoadImage.FileName)); }
-                                               else { sourceImages[btn.TabIndex] = new Bitmap(odLoadImage.FileName); }
-
-            if (btn.TabIndex == 0) { rbPreviewModeImg1.Checked = true; }
-                              else { rbPreviewModeImg2.Checked = true; }
+            if (index >= sourceImages.Count) { sourceImages.Add(new Bitmap(odLoadImage.FileName)); }
+                                        else { sourceImages[index] = new Bitmap(odLoadImage.FileName); }
+            imagesControlsPanel.CheckPanelWithIndex(index);
 
             // adjust result image dimensions:
             Point newResultDimensions = Helpers.GetImagesSizeIntersection(sourceImages);
@@ -89,21 +121,27 @@ namespace BitmapsPxDiff
             RefreshImagesPixelInfo();
             RefreshPreview(false);
         }
-        private void btnSwapImages_Click(object sender, EventArgs e)
+        private void imagesControlsPanel_OnSwitchImageClick(object sender, EventArgs e)
         {
             if (sourceImages.Count < 2)
             {
                 return;
             }
-            sourceImages.Reverse(0, sourceImages.Count);
-            string s = btnLoadImage1.Text; // TODO: TEMP
-            btnLoadImage1.Text = btnLoadImage2.Text;
-            btnLoadImage2.Text = s;
+            if (!(sender is Button))
+            {
+                return;
+            }
+            Button btn = (Button)sender;
 
-            RefreshImagesPixelInfo();
-            RefreshPreview(scriptRenderer.Running);
+            int index = (int)btn.Tag;
+            if ((index >= 0) && (index < sourceImages.Count))
+            {
+                sourceImages.Reverse(index, 2);
+                RefreshImagesPixelInfo();
+                RefreshPreview(scriptRenderer.Running);
+            }
         }
-        private void rbPreviewModeImg_CheckedChanged(object sender, EventArgs e)
+        private void imagesControlsPanel_OnImageSelected(object sender, EventArgs e)
         {
             if (!(sender is RadioButton))
             {
@@ -114,14 +152,15 @@ namespace BitmapsPxDiff
             {
                 return;
             }
+            int index = (int)rb.Tag;
 
-            if ((rb.TabIndex < 0) || (rb.TabIndex >= sourceImages.Count))
+            if ((index < 0) || (index >= sourceImages.Count))
             { 
                 currentImageIndex = resultImageFictionalIndex; 
             }
             else 
             {
-                currentImageIndex = rb.TabIndex;
+                currentImageIndex = index;
                 if (scriptRenderer.Running)
                 {
                     scriptRenderer.StopRendering(); 
@@ -152,6 +191,19 @@ namespace BitmapsPxDiff
             }
             pb.Refresh();
         }
+        private void chbDisplayPixelInfo_CheckedChanged(object sender, EventArgs e)
+        {
+            chbPixelInfoDisplayAlpha.Enabled = chbPixelInfoHex.Enabled = chbDisplayPixelInfo.Checked;
+            RefreshImagesPixelInfo();
+        }
+        private void chbPixelInfoDisplayAlpha_CheckedChanged(object sender, EventArgs e)
+        {
+            RefreshImagesPixelInfo();
+        }
+        private void chbPixelInfoHex_CheckedChanged(object sender, EventArgs e)
+        {
+            RefreshImagesPixelInfo();
+        }
         private void tbScriptInput_TextChanged(object sender, EventArgs e)
         {
             if (currentImageIndex != resultImageFictionalIndex)
@@ -164,7 +216,7 @@ namespace BitmapsPxDiff
         {
             if (currentImageIndex != resultImageFictionalIndex)
             {
-                rbPreviewModeResult.Checked = true;
+                imagesControlsPanel.CheckPanelWithIndex(imagesControlsPanel.GetPanelsCount() - 1);
             }
             if (scriptRenderer.Running)
             {
@@ -234,29 +286,10 @@ namespace BitmapsPxDiff
             resultImage.Save(sdSaveResultImage.FileName, imgFormat);
             MessageBox.Show("File saved.");
         }
-        private void argbHexToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            imagePointerPixelInfoFormat = ImagePointerPixelInfoFormat.argbHex;
-            RefreshImagesPixelInfo();
-        }
-        private void argbDecToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            imagePointerPixelInfoFormat = ImagePointerPixelInfoFormat.argbDec;
-            RefreshImagesPixelInfo();
-        }
-        private void rgbHexToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            imagePointerPixelInfoFormat = ImagePointerPixelInfoFormat.rgbHex;
-            RefreshImagesPixelInfo();
-        }
-        private void rgbDecToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            imagePointerPixelInfoFormat = ImagePointerPixelInfoFormat.rgbDec;
-            RefreshImagesPixelInfo();
-        }
         private void splitter_SplitterMoving(object sender, SplitterEventArgs e)
         {
             mainSplitter.SplitPosition = mainSplitter.SplitPosition; // refresh controls state
+            tsslState.Width = mainSplitter.Left;
         }
         private void leftPanelSplitter_SplitterMoving(object sender, SplitterEventArgs e)
         {
@@ -293,6 +326,15 @@ namespace BitmapsPxDiff
             }
         }
         // OTHER METHODS: *****************************************************************************
+        public static DateTime? getAssemblyBuildDateTime() // build version method
+        { // https://stackoverflow.com/questions/1600962/displaying-the-build-date?answertab=modifieddesc#tab-top
+            var assembly = System.Reflection.Assembly.GetExecutingAssembly();
+            var attr = Attribute.GetCustomAttribute(assembly, typeof(BuildDateTimeAttribute)) as BuildDateTimeAttribute;
+            if (DateTime.TryParse(attr?.Date, out DateTime dt))
+                return dt;
+            else
+                return null;
+        }
         private void RefreshPreview(bool startRendering)
         {
             if ((currentImageIndex != resultImageFictionalIndex)
@@ -353,58 +395,52 @@ namespace BitmapsPxDiff
         }        
         private void RefreshImagesPixelInfo()
         {
+            if (this.chbDisplayPixelInfo.Checked)
+            {
+                if (!imagesControlsPanel.PixelFormatLabelsVisible())
+                {
+                    imagesControlsPanel.ShowPixelFormatLabels();
+                }
+            }
+            else
+            {
+                if (imagesControlsPanel.PixelFormatLabelsVisible())
+                {
+                    imagesControlsPanel.HidePixelFormatLabels();
+                }
+                return;
+            }
+            string pixelDigitFormat = (chbPixelInfoHex.Checked) ? "X2" : "D3";
+            string pixelStringFormat = (chbPixelInfoDisplayAlpha.Checked)
+                ? ("({0:XX} {1:XX} {2:XX} {3:XX})").Replace("XX", pixelDigitFormat)
+                : ("({1:XX} {2:XX} {3:XX})").Replace("XX", pixelDigitFormat);
+
             if ((pb.ImagePointer is null) && (pb.currentMouseImagePos is null))
             {
                 tsslCursorCoords.Text = "";
-                tsslImage1argb.Text = "";
-                tsslImage2argb.Text = "";
-                tsslImageResultargb.Text = "";
+                for (int i = 0; i < imagesControlsPanel.GetPanelsCount(); i++)
+                {
+                    imagesControlsPanel.SetPixelFormatLabelText(i, "");
+                }
             }
             else
             {
                 Point p = (pb.ImagePointer != null) ? (Point)pb.ImagePointer : (Point)pb.currentMouseImagePos;
                 tsslCursorCoords.Text = $"({p.X}; {p.Y})";
-                tsslImage1argb.Text = FormatBitmapPixelInfo("Image1: ", sourceImages[0], p); // TODO: TEMP
-                tsslImage2argb.Text = FormatBitmapPixelInfo("Image2: ", sourceImages[1], p); // TODO: TEMP
-                tsslImageResultargb.Text = FormatBitmapPixelInfo("Result: ", resultImage, p);
-            }
-            switch (imagePointerPixelInfoFormat)
-            {
-                case ImagePointerPixelInfoFormat.argbHex:
-                    tsddbSwitchPixelInfoFormat.Text = "ARGB Hex";
-                    break;
-                case ImagePointerPixelInfoFormat.argbDec:
-                    tsddbSwitchPixelInfoFormat.Text = "ARGB Dec";
-                    break;
-                case ImagePointerPixelInfoFormat.rgbHex:
-                    tsddbSwitchPixelInfoFormat.Text = "RGB Hex";
-                    break;
-                case ImagePointerPixelInfoFormat.rgbDec:
-                    tsddbSwitchPixelInfoFormat.Text = "RGB Dec";
-                    break;
-                default:
-                    tsddbSwitchPixelInfoFormat.Text = "Unknown";
-                    break;
+
+                for (int i = 0; i < sourceImages.Count; i++)
+                {
+                    imagesControlsPanel.SetPixelFormatLabelText(i, FormatBitmapPixelInfo(pixelStringFormat, sourceImages[i], p));
+                }
+                imagesControlsPanel.SetPixelFormatLabelText(imagesControlsPanel.GetPanelsCount() - 1, FormatBitmapPixelInfo(pixelStringFormat, resultImage, p));
             }
         }
-        private string FormatBitmapPixelInfo(string description, Bitmap bmp, Point p)
+        private string FormatBitmapPixelInfo(string pixelStringFormat, Bitmap bmp, Point p)
         {
             if ((bmp != null) && (new Rectangle(0, 0, bmp.Width, bmp.Height).Contains(p)))
             {
                 Color c = bmp.GetPixel(p.X, p.Y);
-                switch (imagePointerPixelInfoFormat)
-                {
-                    case ImagePointerPixelInfoFormat.argbHex:
-                        return string.Format("{0}({1:X2} {2:X2} {3:X2} {4:X2})", description, c.A, c.R, c.G, c.B);
-                    case ImagePointerPixelInfoFormat.argbDec:
-                        return string.Format("{0}({1:D3} {2:D3} {3:D3} {4:D3})", description, c.A, c.R, c.G, c.B);
-                    case ImagePointerPixelInfoFormat.rgbHex:
-                        return string.Format("{0}({1:X2} {2:X2} {3:X2})", description, c.R, c.G, c.B);
-                    case ImagePointerPixelInfoFormat.rgbDec:
-                        return string.Format("{0}({1:D3} {2:D3} {3:D3})", description, c.R, c.G, c.B);
-                    default:
-                        return string.Format("{0}(Unknown pixel format)", description);
-                }
+                return string.Format(pixelStringFormat, c.A, c.R, c.G, c.B);
             }
             return "";
         }
