@@ -1,7 +1,7 @@
 ﻿using System.Windows.Forms;
 using System.ComponentModel;
 using System.Diagnostics;
-//using PictureBoxEx;
+
 namespace BitmapsPxDiff
 {
     partial class FrmMain
@@ -34,6 +34,7 @@ namespace BitmapsPxDiff
         {
             this.pb = new BitmapsPxDiff.PictureBoxEx();
             this.tlbLeftTopPanels = new System.Windows.Forms.TableLayoutPanel();
+            this.leftPanelSplitter = new System.Windows.Forms.Splitter();
             this.btnLoadImage1 = new System.Windows.Forms.Button();
             this.btnLoadImage2 = new System.Windows.Forms.Button();
             this.btnSwapImages = new System.Windows.Forms.Button();
@@ -72,9 +73,6 @@ namespace BitmapsPxDiff
             this.tsslImage2argb = new System.Windows.Forms.ToolStripStatusLabel();
             this.tsslImageResultargb = new System.Windows.Forms.ToolStripStatusLabel();
             this.panelLeft = new System.Windows.Forms.Panel();
-            this.panelLeftTop = new System.Windows.Forms.Panel();
-            this.leftPanelSplitter = new System.Windows.Forms.Splitter();
-            this.panelLeftBottom = new System.Windows.Forms.Panel();
             this.mainSplitter = new System.Windows.Forms.Splitter();
             this.panelRight = new System.Windows.Forms.Panel();
             ((System.ComponentModel.ISupportInitialize)(this.pb)).BeginInit();
@@ -86,8 +84,6 @@ namespace BitmapsPxDiff
             this.tlbLoadSaveScript.SuspendLayout();
             this.statusStrip.SuspendLayout();
             this.panelLeft.SuspendLayout();
-            this.panelLeftTop.SuspendLayout();
-            this.panelLeftBottom.SuspendLayout();
             this.panelRight.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -329,7 +325,7 @@ namespace BitmapsPxDiff
             this.tlbLeftBottomPanels.Controls.Add(this.tbScriptOutput, 0, 0);
             this.tlbLeftBottomPanels.Controls.Add(this.tlbLoadSaveScript, 0, 1);
             this.tlbLeftBottomPanels.Controls.Add(this.btnSaveResultImage, 0, 2);
-            this.tlbLeftBottomPanels.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tlbLeftBottomPanels.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.tlbLeftBottomPanels.Location = new System.Drawing.Point(0, 0);
             this.tlbLeftBottomPanels.Name = "tlbLeftBottomPanels";
             this.tlbLeftBottomPanels.RowCount = 3;
@@ -337,7 +333,7 @@ namespace BitmapsPxDiff
             this.tlbLeftBottomPanels.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tlbLeftBottomPanels.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tlbLeftBottomPanels.Size = new System.Drawing.Size(370, 174);
-            this.tlbLeftBottomPanels.TabIndex = 2;
+            this.tlbLeftBottomPanels.TabIndex = 4;
             // 
             // tbScriptOutput
             // 
@@ -526,23 +522,14 @@ namespace BitmapsPxDiff
             // 
             // panelLeft
             // 
-            this.panelLeft.Controls.Add(this.panelLeftTop);
+            this.panelLeft.Controls.Add(this.tlbLeftTopPanels);
             this.panelLeft.Controls.Add(this.leftPanelSplitter);
-            this.panelLeft.Controls.Add(this.panelLeftBottom);
+            this.panelLeft.Controls.Add(this.tlbLeftBottomPanels);
             this.panelLeft.Dock = System.Windows.Forms.DockStyle.Left;
             this.panelLeft.Location = new System.Drawing.Point(0, 0);
             this.panelLeft.Name = "panelLeft";
             this.panelLeft.Size = new System.Drawing.Size(370, 670);
             this.panelLeft.TabIndex = 2;
-            // 
-            // panelLeftTop
-            // 
-            this.panelLeftTop.Controls.Add(this.tlbLeftTopPanels);
-            this.panelLeftTop.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panelLeftTop.Location = new System.Drawing.Point(0, 0);
-            this.panelLeftTop.Name = "panelLeftTop";
-            this.panelLeftTop.Size = new System.Drawing.Size(370, 490);
-            this.panelLeftTop.TabIndex = 4;
             // 
             // leftPanelSplitter
             // 
@@ -555,15 +542,6 @@ namespace BitmapsPxDiff
             this.leftPanelSplitter.TabIndex = 3;
             this.leftPanelSplitter.TabStop = false;
             this.leftPanelSplitter.SplitterMoving += new System.Windows.Forms.SplitterEventHandler(this.leftPanelSplitter_SplitterMoving);
-            // 
-            // panelLeftBottom
-            // 
-            this.panelLeftBottom.Controls.Add(this.tlbLeftBottomPanels);
-            this.panelLeftBottom.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panelLeftBottom.Location = new System.Drawing.Point(0, 496);
-            this.panelLeftBottom.Name = "panelLeftBottom";
-            this.panelLeftBottom.Size = new System.Drawing.Size(370, 174);
-            this.panelLeftBottom.TabIndex = 2;
             // 
             // mainSplitter
             // 
@@ -611,8 +589,6 @@ namespace BitmapsPxDiff
             this.statusStrip.ResumeLayout(false);
             this.statusStrip.PerformLayout();
             this.panelLeft.ResumeLayout(false);
-            this.panelLeftTop.ResumeLayout(false);
-            this.panelLeftBottom.ResumeLayout(false);
             this.panelRight.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -623,6 +599,7 @@ namespace BitmapsPxDiff
         private PictureBoxEx pb;
         private OpenFileDialog odLoadImage;
         private TableLayoutPanel tlbLeftTopPanels;
+        private Splitter leftPanelSplitter;
         private TableLayoutPanel tlbLeftBottomPanels;
         private Button btnLoadImage2;
         private Button btnLoadImage1;
@@ -662,8 +639,5 @@ namespace BitmapsPxDiff
         private Panel panelLeft;
         private Splitter mainSplitter;
         private Panel panelRight;
-        private Panel panelLeftTop;
-        private Splitter leftPanelSplitter;
-        private Panel panelLeftBottom;
     }
 }
