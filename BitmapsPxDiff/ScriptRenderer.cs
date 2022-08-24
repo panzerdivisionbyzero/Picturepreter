@@ -22,8 +22,8 @@ namespace BitmapsPxDiff
         ThreadParams[] threadsParams = new ThreadParams[maxChunksThreads];
 
         // worker threads shared resources lockers:
-        private static readonly object src1Locker = new object();
-        private static readonly object src2Locker = new object();
+        //private List<object> sourceImagesLockers = new List<object>;
+        private object[] sourceImagesLockers = new object[0];
         private static readonly object resultImgLocker = new object();
 
         // mainRenderThread variables:
@@ -34,10 +34,9 @@ namespace BitmapsPxDiff
         private LuaScriptCalc luaScriptCalc = new LuaScriptCalc(); // LUA script interpreter
 
         // local copy of given resources, independent from the form thread
-        private Bitmap localSrc1 = new Bitmap(1, 1);
-        private Bitmap localSrc2 = new Bitmap(1, 1);
-        private Bitmap localResultImage = new Bitmap(1,1);
-        private int localResultImageWidth, localResultImageHeight = 1;
+        private List<Bitmap> localSourceImages = new List<Bitmap> ();
+        private Bitmap localResultImage = new Bitmap(1, 1);
+        private Point localResultImageSize = new Point(1, 1);
         private string localScript = "";
         private List<string> threadsLogs = new List<string>();
 
@@ -58,7 +57,7 @@ namespace BitmapsPxDiff
             this.onRenderingStarted = onRenderingStarted;
             this.onRenderingFinished = onRenderingFinished;
         }
-        public void StartRendering(Bitmap src1, Bitmap src2, string script)
+        public void StartRendering(List<Bitmap> sourceImages, string script)
         {
             StopRendering(); // interrupt running rendering
             interruptRendering = false;
@@ -67,8 +66,7 @@ namespace BitmapsPxDiff
             stopwatch.Restart();
 
             // copying resources and event delegate:
-            localSrc1 = (Bitmap)src1.Clone();
-            localSrc2 = (Bitmap)src2.Clone();
+            localSourceImages = new List<Bitmap>(sourceImages);
             localScript = script;
 
             // ready, steady, go:
@@ -90,18 +88,21 @@ namespace BitmapsPxDiff
                 onRenderingStarted();
             }
 
-            if ((localSrc1 is null) || (localSrc2 is null))
+            if ((localSourceImages.Count==0) || (localSourceImages.Contains(null)))
             {
                 mainRenderThreadSignal.Set();
                 return false;
             }
             // defining source bitmaps intersection dimensions:
-            localResultImageWidth = Math.Min(localSrc1.Width, localSrc2.Width);
-            localResultImageHeight = Math.Min(localSrc1.Height, localSrc2.Height);
+            localResultImageSize = Helpers.GetImagesSizeIntersection(localSourceImages);
             lock (resultImgLocker)
             {
-                localResultImage = new Bitmap(localResultImageWidth, localResultImageHeight, System.Drawing.Imaging.PixelFormat.Format32bppArgb); // initializing render result bitmap
+                localResultImage = new Bitmap(localResultImageSize.X, localResultImageSize.Y, System.Drawing.Imaging.PixelFormat.Format32bppArgb); // initializing render result bitmap
             }
+
+            sourceImagesLockers = new object[localSourceImages.Count];
+            Array.Fill(sourceImagesLockers, new object());
+            //sourceImagesLockers = (List<object>)Enumerable.Repeat(new object(), localSourceImages.Count);
 
             // preparing worker threads:
             for (int t = 0; t < maxChunksThreads; t++)
@@ -112,7 +113,7 @@ namespace BitmapsPxDiff
                 threadsParams[t].scriptLogs = new List<string>();
             }
             // preparing chunks coords/dimensions:
-            ImageChunk[] chunks = GenerateImageChunks(localResultImageWidth, localResultImageHeight);
+            ImageChunk[] chunks = GenerateImageChunks(localResultImageSize.X, localResultImageSize.Y);
             threadsLogs.Clear();
 
             // calculating chunks by worker threads:
@@ -214,26 +215,24 @@ namespace BitmapsPxDiff
             int index = Convert.ToInt32(threadIndex);
             ImageChunk chunk = threadsParams[index].chunk;
             string errorMessage = "";
-            Bitmap thrSrc1;
-            Bitmap thrSrc2;
+            Bitmap[] thrSourceImages = new Bitmap[localSourceImages.Count];
             Bitmap thrResultImage = new Bitmap(chunk.width, chunk.height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-            uint[] pixels1 = new uint[chunk.width * chunk.height];
-            uint[] pixels2 = new uint[chunk.width * chunk.height];
+            uint[][] pixelsIn = new uint[chunk.width * chunk.height][]; // px / images
+            // pixelsIn[][] init:
+            for (int i = 0; i < pixelsIn.Length; i++)
+                pixelsIn[i] = new uint[localSourceImages.Count];
             uint[] pixelsOut = new uint[chunk.width * chunk.height];
-            ScriptEnvironmentVariables envVars = new ScriptEnvironmentVariables(chunk.startX, chunk.startY, chunk.lastX, chunk.lastY, localResultImageWidth, localResultImageHeight);
+            ScriptEnvironmentVariables envVars = new ScriptEnvironmentVariables(chunk.startX, chunk.startY, chunk.lastX, chunk.lastY, localResultImageSize.X, localResultImageSize.Y);
 
             // getting bitmaps chunks and converting them to pixels arrays:
-            lock (src1Locker)
+            for (int i = 0; i < thrSourceImages.Length; i++)
             {
-                thrSrc1 = localSrc1.Clone(new Rectangle(chunk.startX, chunk.startY, chunk.width, chunk.height), localSrc1.PixelFormat);
+                lock (sourceImagesLockers[i])
+                {
+                    thrSourceImages[i] = localSourceImages[i].Clone(new Rectangle(chunk.startX, chunk.startY, chunk.width, chunk.height), localSourceImages[i].PixelFormat);
+                }
+                BitmapToPixelsArray(ref thrSourceImages[i], ref chunk, ref pixelsIn, i);
             }
-            BitmapToPixelsArray(ref thrSrc1, ref chunk, ref pixels1);
-
-            lock (src2Locker)
-            {
-                thrSrc2 = localSrc2.Clone(new Rectangle(chunk.startX, chunk.startY, chunk.width, chunk.height), localSrc2.PixelFormat);
-            }
-            BitmapToPixelsArray(ref thrSrc2, ref chunk, ref pixels2);
             
             if (interruptRendering) // interrupt signal check
             { 
@@ -242,7 +241,7 @@ namespace BitmapsPxDiff
             }
 
             // LUA script operations:
-            if (!luaScriptCalc.LuaChangeColor(localScript, ref pixels1, ref pixels2, ref pixelsOut, threadsParams[index].scriptLogs, envVars, ref errorMessage))
+            if (!luaScriptCalc.LuaChangeColor(localScript, ref pixelsIn, ref pixelsOut, threadsParams[index].scriptLogs, envVars, ref errorMessage))
             {
                 threadsParams[index].errorMessage = errorMessage;
                 threadsParams[index].errorOccurred = true;
@@ -266,7 +265,7 @@ namespace BitmapsPxDiff
             }
             endOfWorkEvents[index].Set();
         }
-        private void BitmapToPixelsArray(ref Bitmap bmp, ref ImageChunk chunk, ref uint[] pixels)
+        private void BitmapToPixelsArray(ref Bitmap bmp, ref ImageChunk chunk, ref uint[][] pixelsImages, int pixelsImageIndex)
         {
             Color c;
             for (int ty = 0; ty < chunk.height; ty++)
@@ -274,7 +273,9 @@ namespace BitmapsPxDiff
                 for (int tx = 0; tx < chunk.width; tx++)
                 {
                     c = bmp.GetPixel(tx, ty);
-                    pixels[ty * chunk.width + tx] = (uint)(c.R + (c.G << 8) + (c.B << 16) + (c.A << 24));
+                    //Debug.WriteLine("pixelsImages.Length = "+pixelsImages.Length.ToString()+ "; (ty * chunk.width + tx) = "+(ty * chunk.width + tx).ToString());
+                    //Debug.WriteLine("pixelsImages["+ (ty * chunk.width + tx).ToString() + "].Length = " + pixelsImages[ty * chunk.width + tx].Length.ToString());
+                    pixelsImages[ty * chunk.width + tx][pixelsImageIndex] = (uint)(c.R + (c.G << 8) + (c.B << 16) + (c.A << 24));
                 }
             }
         }

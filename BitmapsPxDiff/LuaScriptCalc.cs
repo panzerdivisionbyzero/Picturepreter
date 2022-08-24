@@ -21,15 +21,18 @@ namespace BitmapsPxDiff
 		public LuaScriptCalc()
 		{
 		}
-        public bool LuaChangeColor(string dynamicCode, ref uint[] pixels1, ref uint[] pixels2, ref uint[] pixelsOut, List<string> logsOut, ScriptEnvironmentVariables envVars, ref string errorMessage)
+        public bool LuaChangeColor(string dynamicCode, ref uint[][] pixelsIn, ref uint[] pixelsOut, List<string> logsOut, ScriptEnvironmentVariables envVars, ref string errorMessage)
         {
             bool result = false;
             string scriptText = envVars.ToString() + scriptBegin + dynamicCode + scriptEnd;
             Script script = new Script();
             try
             {
-                script.Globals["pixels1"] = pixels1;
-                script.Globals["pixels2"] = pixels2;
+                script.Globals["pixelsIn"] = pixelsIn;
+                /*for (int i = 0; i < pixelsIn.Length; i++)
+                {
+                    script.Globals["pixels"+i.ToString()] = pixelsIn[i];
+                }*/
                 script.Globals["pixelsOut"] = pixelsOut;
 
                 DynValue res = script.DoString(scriptText);
@@ -70,7 +73,9 @@ end
 function rshift(x, by)
     return math.floor(x / 2 ^ by)
 end
-function ChangeColor2 (c1,c2)
+function ChangeColor2 (images)
+    c1 = images[1]
+    c2 = images[2]
     image1R = CastToByte(c1)
     image1G = CastToByte(rshift(c1,8))
     image1B = CastToByte(rshift(c1,16))
@@ -111,7 +116,7 @@ function DebugImageEnd(s)
     DebugForPx(imageW-1,imageH-1,s)  
 end
 for i=1, tablelength(pixelsOut) do
-    pixelsOut[i]=ChangeColor2(pixels1[i],pixels2[i])
+    pixelsOut[i]=ChangeColor2(pixelsIn[i])
     imageX=imageX+1
     if imageX>chunkLastX then
         imageX=chunkStartX

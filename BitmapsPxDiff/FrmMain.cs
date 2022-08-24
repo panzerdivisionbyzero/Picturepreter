@@ -83,7 +83,7 @@ namespace BitmapsPxDiff
                               else { rbPreviewModeImg2.Checked = true; }
 
             // adjust result image dimensions:
-            Point newResultDimensions = GetImagesSizeIntersection(sourceImages);
+            Point newResultDimensions = Helpers.GetImagesSizeIntersection(sourceImages);
             resultImage = new Bitmap(newResultDimensions.X, newResultDimensions.Y, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
 
             RefreshImagesPixelInfo();
@@ -293,20 +293,6 @@ namespace BitmapsPxDiff
             }
         }
         // OTHER METHODS: *****************************************************************************
-        private Point GetImagesSizeIntersection(List<Bitmap> images)
-        {
-            if ((images is null) || (images.Count == 0))
-            {
-                return new Point(1, 1);
-            }
-            Point result = new Point(int.MaxValue, int.MaxValue);
-            for (int i = 0; i < images.Count; i++)
-            {
-                if (images[i].Width < result.X) { result.X = images[i].Width; }
-                if (images[i].Height < result.Y) { result.Y = images[i].Height; }
-            }
-            return result;
-        }
         private void RefreshPreview(bool startRendering)
         {
             if ((currentImageIndex != resultImageFictionalIndex)
@@ -324,7 +310,7 @@ namespace BitmapsPxDiff
                         MessageBox.Show("No source images.");
                         return;
                     }
-                    scriptRenderer.StartRendering(sourceImages[0], sourceImages[1], tbScriptInput.Text); // TODO: TEMP
+                    scriptRenderer.StartRendering(sourceImages, tbScriptInput.Text); // TODO: TEMP
                 }
                 else
                 {
