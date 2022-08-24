@@ -217,12 +217,9 @@ namespace BitmapsPxDiff
             string errorMessage = "";
             Bitmap[] thrSourceImages = new Bitmap[localSourceImages.Count];
             Bitmap thrResultImage = new Bitmap(chunk.width, chunk.height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-            uint[][] pixelsIn = new uint[chunk.width * chunk.height][]; // px / images
-            // pixelsIn[][] init:
-            for (int i = 0; i < pixelsIn.Length; i++)
-                pixelsIn[i] = new uint[localSourceImages.Count];
+            byte[] pixelsImagesARGB = new byte[chunk.width * chunk.height * localSourceImages.Count * 4]; // px / images / ARGB
             uint[] pixelsOut = new uint[chunk.width * chunk.height];
-            ScriptEnvironmentVariables envVars = new ScriptEnvironmentVariables(chunk.startX, chunk.startY, chunk.lastX, chunk.lastY, localResultImageSize.X, localResultImageSize.Y);
+            ScriptEnvironmentVariables envVars = new ScriptEnvironmentVariables(chunk.startX, chunk.startY, chunk.lastX, chunk.lastY, localResultImageSize.X, localResultImageSize.Y, localSourceImages.Count);
 
             // getting bitmaps chunks and converting them to pixels arrays:
             for (int i = 0; i < thrSourceImages.Length; i++)
@@ -231,7 +228,7 @@ namespace BitmapsPxDiff
                 {
                     thrSourceImages[i] = localSourceImages[i].Clone(new Rectangle(chunk.startX, chunk.startY, chunk.width, chunk.height), localSourceImages[i].PixelFormat);
                 }
-                BitmapToPixelsArray(ref thrSourceImages[i], ref chunk, ref pixelsIn, i);
+                BitmapToPixelsArray(ref thrSourceImages[i], ref chunk, ref pixelsImagesARGB, i);
             }
             
             if (interruptRendering) // interrupt signal check
@@ -241,7 +238,7 @@ namespace BitmapsPxDiff
             }
 
             // LUA script operations:
-            if (!luaScriptCalc.LuaChangeColor(localScript, ref pixelsIn, ref pixelsOut, threadsParams[index].scriptLogs, envVars, ref errorMessage))
+            if (!luaScriptCalc.LuaChangeColor(localScript, ref pixelsImagesARGB, ref pixelsOut, threadsParams[index].scriptLogs, envVars, ref errorMessage))
             {
                 threadsParams[index].errorMessage = errorMessage;
                 threadsParams[index].errorOccurred = true;
@@ -265,17 +262,21 @@ namespace BitmapsPxDiff
             }
             endOfWorkEvents[index].Set();
         }
-        private void BitmapToPixelsArray(ref Bitmap bmp, ref ImageChunk chunk, ref uint[][] pixelsImages, int pixelsImageIndex)
+        private void BitmapToPixelsArray(ref Bitmap bmp, ref ImageChunk chunk, ref byte[] pixelsImagesARGB, int pixelsImageIndex)
         {
             Color c;
+            int pxIndex, imageColorPos;
             for (int ty = 0; ty < chunk.height; ty++)
             {
                 for (int tx = 0; tx < chunk.width; tx++)
                 {
                     c = bmp.GetPixel(tx, ty);
-                    //Debug.WriteLine("pixelsImages.Length = "+pixelsImages.Length.ToString()+ "; (ty * chunk.width + tx) = "+(ty * chunk.width + tx).ToString());
-                    //Debug.WriteLine("pixelsImages["+ (ty * chunk.width + tx).ToString() + "].Length = " + pixelsImages[ty * chunk.width + tx].Length.ToString());
-                    pixelsImages[ty * chunk.width + tx][pixelsImageIndex] = (uint)(c.R + (c.G << 8) + (c.B << 16) + (c.A << 24));
+                    pxIndex = ty * chunk.width + tx;
+                    imageColorPos = pxIndex * pixelsImageIndex * 4 + pxIndex * 4;
+                    pixelsImagesARGB[imageColorPos + 0] = c.A;
+                    pixelsImagesARGB[imageColorPos + 1] = c.R;
+                    pixelsImagesARGB[imageColorPos + 2] = c.G;
+                    pixelsImagesARGB[imageColorPos + 3] = c.B;
                 }
             }
         }

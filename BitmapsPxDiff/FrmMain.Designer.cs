@@ -34,7 +34,6 @@ namespace BitmapsPxDiff
         {
             this.pb = new BitmapsPxDiff.PictureBoxEx();
             this.tlbLeftTopPanels = new System.Windows.Forms.TableLayoutPanel();
-            this.leftPanelSplitter = new System.Windows.Forms.Splitter();
             this.btnLoadImage1 = new System.Windows.Forms.Button();
             this.btnLoadImage2 = new System.Windows.Forms.Button();
             this.btnSwapImages = new System.Windows.Forms.Button();
@@ -50,6 +49,7 @@ namespace BitmapsPxDiff
             this.tbScriptInput = new System.Windows.Forms.TextBox();
             this.cbAutoRunScriptAfterChange = new System.Windows.Forms.CheckBox();
             this.btnRunStopScript = new System.Windows.Forms.Button();
+            this.leftPanelSplitter = new System.Windows.Forms.Splitter();
             this.tlbLeftBottomPanels = new System.Windows.Forms.TableLayoutPanel();
             this.tbScriptOutput = new System.Windows.Forms.TextBox();
             this.tlbLoadSaveScript = new System.Windows.Forms.TableLayoutPanel();
@@ -288,8 +288,8 @@ namespace BitmapsPxDiff
             this.tbScriptInput.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.tbScriptInput.Size = new System.Drawing.Size(364, 222);
             this.tbScriptInput.TabIndex = 7;
-            this.tbScriptInput.Text = "resultA = 255\r\nresultR = image1R + 1\r\nresultG = image1G + 1\r\nresultB = image1B + " +
-    "1";
+            this.tbScriptInput.Text = "result[1] = 255\r\nresult[2] = colors[1][2] + 1\r\nresult[3] = colors[1][3] + 1\r\nresu" +
+    "lt[4] = colors[1][4] + 1";
             this.tbScriptInput.TextChanged += new System.EventHandler(this.tbScriptInput_TextChanged);
             // 
             // cbAutoRunScriptAfterChange
@@ -318,6 +318,18 @@ namespace BitmapsPxDiff
             this.btnRunStopScript.UseVisualStyleBackColor = true;
             this.btnRunStopScript.Click += new System.EventHandler(this.btnRunStopScript_Click);
             // 
+            // leftPanelSplitter
+            // 
+            this.leftPanelSplitter.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.leftPanelSplitter.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.leftPanelSplitter.Location = new System.Drawing.Point(0, 490);
+            this.leftPanelSplitter.Name = "leftPanelSplitter";
+            this.leftPanelSplitter.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+            this.leftPanelSplitter.Size = new System.Drawing.Size(370, 6);
+            this.leftPanelSplitter.TabIndex = 3;
+            this.leftPanelSplitter.TabStop = false;
+            this.leftPanelSplitter.SplitterMoving += new System.Windows.Forms.SplitterEventHandler(this.leftPanelSplitter_SplitterMoving);
+            // 
             // tlbLeftBottomPanels
             // 
             this.tlbLeftBottomPanels.ColumnCount = 1;
@@ -326,7 +338,7 @@ namespace BitmapsPxDiff
             this.tlbLeftBottomPanels.Controls.Add(this.tlbLoadSaveScript, 0, 1);
             this.tlbLeftBottomPanels.Controls.Add(this.btnSaveResultImage, 0, 2);
             this.tlbLeftBottomPanels.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.tlbLeftBottomPanels.Location = new System.Drawing.Point(0, 0);
+            this.tlbLeftBottomPanels.Location = new System.Drawing.Point(0, 496);
             this.tlbLeftBottomPanels.Name = "tlbLeftBottomPanels";
             this.tlbLeftBottomPanels.RowCount = 3;
             this.tlbLeftBottomPanels.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
@@ -530,18 +542,6 @@ namespace BitmapsPxDiff
             this.panelLeft.Name = "panelLeft";
             this.panelLeft.Size = new System.Drawing.Size(370, 670);
             this.panelLeft.TabIndex = 2;
-            // 
-            // leftPanelSplitter
-            // 
-            this.leftPanelSplitter.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.leftPanelSplitter.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.leftPanelSplitter.Location = new System.Drawing.Point(0, 490);
-            this.leftPanelSplitter.Name = "leftPanelSplitter";
-            this.leftPanelSplitter.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.leftPanelSplitter.Size = new System.Drawing.Size(370, 6);
-            this.leftPanelSplitter.TabIndex = 3;
-            this.leftPanelSplitter.TabStop = false;
-            this.leftPanelSplitter.SplitterMoving += new System.Windows.Forms.SplitterEventHandler(this.leftPanelSplitter_SplitterMoving);
             // 
             // mainSplitter
             // 
