@@ -252,6 +252,14 @@ namespace BitmapsPxDiff
             imagePointerPixelInfoFormat = ImagePointerPixelInfoFormat.rgbDec;
             RefreshImagesPixelInfo();
         }
+        private void splitter_SplitterMoving(object sender, SplitterEventArgs e)
+        {
+            mainSplitter.SplitPosition = mainSplitter.SplitPosition; // refresh controls state
+        }
+        private void leftPanelSplitter_SplitterMoving(object sender, SplitterEventArgs e)
+        {
+            leftPanelSplitter.SplitPosition = leftPanelSplitter.SplitPosition; // refresh controls state
+        }
         // THREADS EVENTS METHODS: *****************************************************************************
         private void UpdateControlsOnRenderingStarted()
         {
@@ -393,11 +401,6 @@ namespace BitmapsPxDiff
                 }
             }
             return "";
-        }
-
-        private void splitter_SplitterMoving(object sender, SplitterEventArgs e)
-        {
-            splitter.SplitPosition = splitter.SplitPosition; // refresh controls state
         }
     }
 }
