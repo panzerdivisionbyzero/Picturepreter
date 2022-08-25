@@ -10,7 +10,7 @@ namespace BitmapsPxDiff
     {
         private int controlAddCount = 0;
         private ImageControlsPanel.ImageControlsPanelEvents internalEvents; // events assigned to each ImageControlsPanel (sub-panel)
-        private List<ImageControlsPanel> imageControlsPanels = new List<ImageControlsPanel>(); // list of sub-panels
+        public List<ImageControlsPanel> imageControlsPanels = new List<ImageControlsPanel>(); // list of sub-panels
 
         public event EventHandler? OnImageSelected;
         public event EventHandler? OnAddImageClick;
@@ -29,6 +29,8 @@ namespace BitmapsPxDiff
             imageControlsPanels[0].btnRemoveImage.Hide();
             imageControlsPanels[0].btnSwapOrAddImage.Hide();
             imageControlsPanels[0].rbSelectImage.Text = "Result image preview";
+            imageControlsPanels[0].lblImageNumber.Text = "";
+            imageControlsPanels[0].rbSelectImage.Location = new System.Drawing.Point(ImageControlsPanel.buttonHeight, 8);
             this.Controls.SetChildIndex(imageControlsPanels[0], 0); // dock order: the last of all panels
         }
         // EVENTS METHODS: ****************************************************************
@@ -118,6 +120,17 @@ namespace BitmapsPxDiff
                 OnLoadImageClick(sender, e);
             }
         }
+        public int GetRadioButtonSenderIndex(ref Message msg)
+        {
+            for (int i = 0; i < imageControlsPanels.Count; i++)
+            {
+                if (msg.HWnd.Equals(imageControlsPanels[i].rbSelectImage.Handle))
+                {
+                    return i;
+                }
+            }
+            return -1;
+        }
         // PUBLIC METHODS: **************************************************************
         public void AddImageControlsSet()
         {
@@ -142,12 +155,15 @@ namespace BitmapsPxDiff
         {
             return imageControlsPanels.Count;
         }
-        public void CheckPanelWithIndex(int panelIndex)
+        public bool TryCheckPanelAtIndex(int panelIndex)
         {
-            if ((panelIndex >= 0) || (panelIndex < imageControlsPanels.Count))
+            if ((panelIndex >= 0) && (panelIndex < imageControlsPanels.Count))
             {
                 imageControlsPanels[panelIndex].rbSelectImage.Checked = true;
+                imageControlsPanels[panelIndex].rbSelectImage.Focus(); // forced focus
+                return true;
             }
+            return false;
         }
         public void ShowPixelFormatLabels()
         {
@@ -194,10 +210,15 @@ namespace BitmapsPxDiff
                 {
                     anyPanelChecked = imageControlsPanels[i].rbSelectImage.Checked;
                 }
+
+                if (i < imageControlsPanels.Count - 1)
+                {
+                    imageControlsPanels[i].lblImageNumber.Text = (i + 1).ToString();
+                }
             }
             if (!anyPanelChecked)
             {
-                CheckPanelWithIndex(0);
+                TryCheckPanelAtIndex(0);
             }
             this.Height = imageControlsPanels.Last().Bottom;
         }
@@ -211,6 +232,7 @@ namespace BitmapsPxDiff
         private Panel leftPanel = new Panel();
         private Panel middlePanel = new Panel();
         private Panel rightPanel = new Panel();
+        public Label lblImageNumber = new Label();
         public RadioButton rbSelectImage = new RadioButton();
         public Button btnSwapOrAddImage = new Button();
         public Button btnRemoveImage = new Button();
@@ -235,68 +257,57 @@ namespace BitmapsPxDiff
 
             // preparing leftPanel:
             leftPanel.Name = "leftPanel" + (panelNumber).ToString();
-            leftPanel.TabIndex = panelNumber;
             leftPanel.AutoSize = true;
             leftPanel.Dock = DockStyle.Left;
             leftPanel.Padding = new System.Windows.Forms.Padding(buttonMargin);
 
             // preparing rightPanel:
             rightPanel.Name = "rightPanel" + (panelNumber).ToString();
-            rightPanel.TabIndex = panelNumber;
             rightPanel.AutoSize = true;
             rightPanel.Dock = DockStyle.Right;
             rightPanel.Padding = new System.Windows.Forms.Padding(buttonMargin, 0, 0, 0);
 
             // preparing middlePanel:
             middlePanel.Name = "middlePanel" + (panelNumber).ToString();
-            middlePanel.TabIndex = panelNumber;
             middlePanel.AutoSize = true;
             middlePanel.Dock = DockStyle.Fill;
             middlePanel.Padding = new System.Windows.Forms.Padding(0, buttonMargin,0, buttonMargin);
 
-            // preparing lblPixelInfo:
-            lblPixelInfo.SuspendLayout();
-            lblPixelInfo.Name = "lblPixelInfo" + (panelNumber).ToString();
-            lblPixelInfo.AutoSize = false;
-            lblPixelInfo.Font = new Font( "Cascadia Mono",8);
-            lblPixelInfo.Size = new System.Drawing.Size(112, buttonHeight);
-            lblPixelInfo.TextAlign = ContentAlignment.MiddleCenter;
-            lblPixelInfo.Text = lblPixelInfo.Name;
-            lblPixelInfo.Location = new System.Drawing.Point(200, 0);
-            lblPixelInfo.Margin = new System.Windows.Forms.Padding(buttonMargin);            
-            lblPixelInfo.Dock = DockStyle.Right;
-            lblPixelInfo.TabIndex = panelNumber;
+            // preparing lblImageNumber:
+            lblImageNumber.SuspendLayout();
+            lblImageNumber.Name = "lblImageNumber" + (panelNumber).ToString();
+            lblImageNumber.AutoSize = false;
+            lblImageNumber.Font = new Font("Cascadia Mono", 8);
+            lblImageNumber.Size = new System.Drawing.Size(buttonHeight, buttonHeight + buttonMargin);
+            lblImageNumber.TextAlign = ContentAlignment.MiddleCenter;
+            lblImageNumber.Text = "00";
+            lblImageNumber.Location = new System.Drawing.Point(0, 2);
 
             // preparing rbSelectImage:
             rbSelectImage.SuspendLayout();
             rbSelectImage.Name = "rbSelectImage" + (panelNumber).ToString();
             rbSelectImage.AutoSize = true;
-            rbSelectImage.Size = new System.Drawing.Size(buttonHeight, buttonHeight);
-            rbSelectImage.Location = new System.Drawing.Point(0, 0);
-            rbSelectImage.Margin = new System.Windows.Forms.Padding(buttonMargin);
+            rbSelectImage.Size = new System.Drawing.Size(buttonHeight - buttonMargin, buttonHeight);
+            rbSelectImage.Location = new System.Drawing.Point(buttonHeight, 10);
             rbSelectImage.Text = "";
-            rbSelectImage.Dock = DockStyle.Left;
-            rbSelectImage.TabIndex = panelNumber;
             rbSelectImage.CheckedChanged += events.rbSelectImageEvent;
 
             // preparing btnSwapOrAddImage:
             btnSwapOrAddImage.SuspendLayout();
             btnSwapOrAddImage.Name = "btnSwapOrAddImage" + (panelNumber).ToString();
             btnSwapOrAddImage.Size = new System.Drawing.Size(buttonHeight, buttonHeight);
-            btnSwapOrAddImage.Location = new System.Drawing.Point(buttonHeight, buttonMargin);
+            btnSwapOrAddImage.Location = new System.Drawing.Point(rbSelectImage.Right, buttonMargin);
             btnSwapOrAddImage.Margin = new System.Windows.Forms.Padding(buttonMargin);
             btnSwapOrAddImage.Text = "?";
-            btnSwapOrAddImage.TabIndex = panelNumber;
             btnSwapOrAddImage.Click += events.btnSwapOrAddImageEvent;
 
             // preparing btnRemoveImage:
             btnRemoveImage.SuspendLayout();
             btnRemoveImage.Name = "btnRemoveImage" + (panelNumber).ToString();
             btnRemoveImage.Size = new System.Drawing.Size(buttonHeight, buttonHeight);
-            btnRemoveImage.Location = new System.Drawing.Point(btnSwapOrAddImage.Right+buttonMargin, buttonMargin);
+            btnRemoveImage.Location = new System.Drawing.Point(btnSwapOrAddImage.Right + buttonMargin, buttonMargin);
             btnRemoveImage.Margin = new System.Windows.Forms.Padding(0, buttonMargin, 0, buttonMargin);
             btnRemoveImage.Text = "X";
-            btnRemoveImage.TabIndex = panelNumber;
             btnRemoveImage.Click += events.btnRemoveImageEvent;
 
             // preparing btnLoadImage:
@@ -307,8 +318,19 @@ namespace BitmapsPxDiff
             btnLoadImage.Margin = new System.Windows.Forms.Padding(0, buttonMargin, 0, buttonMargin);
             btnLoadImage.Text = "Load image";
             btnLoadImage.Dock = DockStyle.Fill;
-            btnLoadImage.TabIndex = panelNumber;
             btnLoadImage.Click += events.btnLoadImageEvent;
+
+            // preparing lblPixelInfo:
+            lblPixelInfo.SuspendLayout();
+            lblPixelInfo.Name = "lblPixelInfo" + (panelNumber).ToString();
+            lblPixelInfo.AutoSize = false;
+            lblPixelInfo.Font = new Font("Cascadia Mono", 8);
+            lblPixelInfo.Size = new System.Drawing.Size(112, buttonHeight - buttonMargin);
+            lblPixelInfo.TextAlign = ContentAlignment.MiddleCenter;
+            lblPixelInfo.Text = lblPixelInfo.Name;
+            lblPixelInfo.Location = new System.Drawing.Point(0, 0);
+            lblPixelInfo.Margin = new System.Windows.Forms.Padding(buttonMargin);
+            lblPixelInfo.Dock = DockStyle.Right;
 
             // adding controls to panels:
             middlePanel.Controls.Add(btnLoadImage);
@@ -316,6 +338,7 @@ namespace BitmapsPxDiff
             leftPanel.Controls.Add(btnRemoveImage);
             leftPanel.Controls.Add(btnSwapOrAddImage);
             leftPanel.Controls.Add(rbSelectImage);
+            leftPanel.Controls.Add(lblImageNumber);
 
             this.Controls.Add(leftPanel);
             this.Controls.Add(middlePanel);
@@ -328,12 +351,14 @@ namespace BitmapsPxDiff
             btnRemoveImage.ResumeLayout(false);
             btnSwapOrAddImage.ResumeLayout(false);
             rbSelectImage.ResumeLayout(false);
+            lblImageNumber.ResumeLayout(false);
         }
         public void SetControlsTags(int tag)
         {
             this.Tag = tag;
             btnLoadImage.Tag = tag;
             lblPixelInfo.Tag = tag;
+            lblImageNumber.Tag = tag;
             btnRemoveImage.Tag = tag;
             btnSwapOrAddImage.Tag = tag;
             rbSelectImage.Tag = tag;

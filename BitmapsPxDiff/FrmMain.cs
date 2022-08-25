@@ -32,10 +32,33 @@ namespace BitmapsPxDiff
             sourceImages.Add(new Bitmap(1, 1));
             sourceImages.Add(new Bitmap(1, 1));
             imagesControlsPanel.AddImageControlsSet();
-            imagesControlsPanel.CheckPanelWithIndex(0);
+            imagesControlsPanel.TryCheckPanelAtIndex(0);
             imagesControlsPanel.AddImageControlsSet();
         }
         // CONTROLS EVENTS METHODS: *****************************************************************************
+        // https://stackoverflow.com/questions/22426390/disable-selection-of-controls-by-arrow-keys-in-a-form
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData) // overrides default RadioButton action for imagesControlsPanel controls
+        {
+            // imagesControlsPanel radio buttons are scattered between separate panels,
+            // so it's impossible to move between them by arrows;
+            // instead of creating separate panel for radio buttons only, I decided to
+            // intercept key event for this particular case, and perform transition
+            // manually in imagesControlsPanel.rbSelectImage_ManualKeyDown();
+            // The second reason to intercept key event was the problem with default
+            // RadioButton action, which automatically changes the focus to other
+            // control on the same panel, which is much undesirable in this case;
+            if (keyData == Keys.Up || keyData == Keys.Down)
+            {
+                int panelIndex = imagesControlsPanel.GetRadioButtonSenderIndex(ref msg);
+                if (panelIndex >= 0)
+                {
+                    panelIndex += (keyData == Keys.Up) ? -1 : 1;
+                    imagesControlsPanel.TryCheckPanelAtIndex(panelIndex);
+                    return true;
+                }
+            }
+            return base.ProcessCmdKey(ref msg, keyData);
+        }
         private void FrmMain_FormClosing(object sender, FormClosingEventArgs e)
         {
             if ((scriptRenderer != null) && (scriptRenderer.Running))
@@ -112,7 +135,7 @@ namespace BitmapsPxDiff
 
             if (index >= sourceImages.Count) { sourceImages.Add(new Bitmap(odLoadImage.FileName)); }
                                         else { sourceImages[index] = new Bitmap(odLoadImage.FileName); }
-            imagesControlsPanel.CheckPanelWithIndex(index);
+            imagesControlsPanel.TryCheckPanelAtIndex(index);
 
             // adjust result image dimensions:
             Point newResultDimensions = Helpers.GetImagesSizeIntersection(sourceImages);
@@ -216,7 +239,7 @@ namespace BitmapsPxDiff
         {
             if (currentImageIndex != resultImageFictionalIndex)
             {
-                imagesControlsPanel.CheckPanelWithIndex(imagesControlsPanel.GetPanelsCount() - 1);
+                imagesControlsPanel.TryCheckPanelAtIndex(imagesControlsPanel.GetPanelsCount() - 1);
             }
             if (scriptRenderer.Running)
             {
