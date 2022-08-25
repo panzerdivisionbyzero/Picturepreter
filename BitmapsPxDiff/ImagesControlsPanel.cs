@@ -9,29 +9,29 @@ namespace BitmapsPxDiff
     public class ImagesControlsPanel : Panel
     {
         private int controlAddCount = 0;
-        private ImageControlsPanel.ImageControlsPanelEvents internalEvents; // events assigned to each ImageControlsPanel (sub-panel)
-        public List<ImageControlsPanel> imageControlsPanels = new List<ImageControlsPanel>(); // list of sub-panels
+        private ImageControlsItem.ImageControlsItemEvents internalEvents; // events assigned to each ImageControlsItem (sub-panel)
+        public List<ImageControlsItem> imagesControlsItems = new List<ImageControlsItem>(); // list of sub-panels
 
-        public event EventHandler? OnImageSelected;
-        public event EventHandler? OnAddImageClick;
-        public event EventHandler? OnLoadImageClick;
-        public event EventHandler? OnRemoveImageClick;
-        public event EventHandler? OnSwitchImageClick;
+        public event EventHandler? OnImageChecked;
+        public event EventHandler? OnNewImageControlsAdded;
+        public event EventHandler? OnLoadImageButtonClick;
+        public event EventHandler? OnImageControlsRemoved;
+        public event EventHandler? OnBeforeSwapImageControls;
 
         public ImagesControlsPanel()
         {
             // prepare events for sub-panels:
-            internalEvents = new ImageControlsPanel.ImageControlsPanelEvents(rbSelectImage_CheckedChanged, btnSwitchOrAddImage_Click, btnRemoveImage_Click, btnLoadImage_Click);
+            internalEvents = new ImageControlsItem.ImageControlsItemEvents(rbSelectImage_CheckedChanged, btnSwitchOrAddImage_Click, btnRemoveImage_Click, btnLoadImage_Click);
             
             // create first sub-panel and adjust it to "result image" panel role:
             AddImageControlsSet(internalEvents);
-            imageControlsPanels[0].btnLoadImage.Hide();
-            imageControlsPanels[0].btnRemoveImage.Hide();
-            imageControlsPanels[0].btnSwapOrAddImage.Hide();
-            imageControlsPanels[0].rbSelectImage.Text = "Result image preview";
-            imageControlsPanels[0].lblImageNumber.Text = "";
-            imageControlsPanels[0].rbSelectImage.Location = new System.Drawing.Point(ImageControlsPanel.buttonHeight, 8);
-            this.Controls.SetChildIndex(imageControlsPanels[0], 0); // dock order: the last of all panels
+            imagesControlsItems[0].btnLoadImage.Hide();
+            imagesControlsItems[0].btnRemoveImage.Hide();
+            imagesControlsItems[0].btnSwapOrAddImage.Hide();
+            imagesControlsItems[0].rbSelectImage.Text = "Result image preview";
+            imagesControlsItems[0].lblImageNumber.Text = "";
+            imagesControlsItems[0].rbSelectImage.Location = new System.Drawing.Point(ImageControlsItem.buttonHeight, 8);
+            this.Controls.SetChildIndex(imagesControlsItems[0], 0); // dock order: the last of all panels
         }
         // EVENTS METHODS: ****************************************************************
         private void rbSelectImage_CheckedChanged(object sender, EventArgs e)
@@ -43,7 +43,7 @@ namespace BitmapsPxDiff
             RadioButton rb = (RadioButton)sender;
             if (rb.Checked) // radio buttons belong to different panels, so it's necessary to manually uncheck others
             {
-                foreach (ImageControlsPanel panel in imageControlsPanels)
+                foreach (ImageControlsItem panel in imagesControlsItems)
                 {
                     if ((int)panel.Tag != (int)rb.Tag)
                     {
@@ -51,9 +51,9 @@ namespace BitmapsPxDiff
                     }
                 }
             }
-            if (OnImageSelected != null)
+            if (OnImageChecked != null)
             {
-                OnImageSelected(sender, e);
+                OnImageChecked(sender, e);
             }
         }
         private void btnSwitchOrAddImage_Click(object sender, EventArgs e)
@@ -64,43 +64,48 @@ namespace BitmapsPxDiff
             }
             Button btn = (Button)sender;
             int tagIndex = (int)btn.Tag;
-            if (tagIndex > imageControlsPanels.Count - 2) // [index-1] is result image index; [index-2] should have btnAddImage_Click() action;
+            if (tagIndex > imagesControlsItems.Count - 2) // [index-1] is result image index; [index-2] should have btnAddImage_Click() action;
             {
                 return;
             }
-            else if (tagIndex == imageControlsPanels.Count - 2) // "+" button
+            else if (tagIndex == imagesControlsItems.Count - 2) // "+" button
             {
                 AddImageControlsSet();
-                if (OnAddImageClick != null)
+                if (OnNewImageControlsAdded != null)
                 {
-                    OnAddImageClick(sender, e);
+                    OnNewImageControlsAdded(sender, e);
                 }
             }
             else // "v" button
             {
-                imageControlsPanels.Reverse(tagIndex, 2);
-                if (OnSwitchImageClick != null) // trigger form event first (with current sender.Tag value)
+                int checkedPanelIndex = GetCheckedPanelIndex();
+                if (OnBeforeSwapImageControls != null) // trigger form event first (with current sender.Tag value)
                 {
-                    OnSwitchImageClick(sender, e);
+                    OnBeforeSwapImageControls(sender, e);
                 }
+                imagesControlsItems.Reverse(tagIndex, 2);
                 RefreshControlsTagsAndTexts(); // reset sender.Tag value
+                
+                if (checkedPanelIndex != -1) {
+                    TryCheckPanelAtIndex(checkedPanelIndex);
+                }
             }
         }
         private void btnRemoveImage_Click(object sender, EventArgs e)
         {
-            if (!(sender is Button) || (imageControlsPanels.Count < 3))
+            if (!(sender is Button) || (imagesControlsItems.Count < 3))
             {
                 return;
             }
             Button btn = (Button)sender;
             int tagIndex = (int)btn.Tag;
-            imageControlsPanels[tagIndex].Controls.Clear();
-            this.Controls.Remove(imageControlsPanels[tagIndex]);
-            imageControlsPanels.RemoveAt(tagIndex);
+            imagesControlsItems[tagIndex].Controls.Clear();
+            this.Controls.Remove(imagesControlsItems[tagIndex]);
+            imagesControlsItems.RemoveAt(tagIndex);
             RefreshControlsTagsAndTexts();
-            if (OnRemoveImageClick != null)
+            if (OnImageControlsRemoved != null)
             {
-                OnRemoveImageClick(sender, e);
+                OnImageControlsRemoved(sender, e);
             }
         }
         private void btnLoadImage_Click(object sender, EventArgs e)
@@ -111,20 +116,20 @@ namespace BitmapsPxDiff
             }
             Button btn = (Button)sender;
             int tagIndex = (int)btn.Tag;
-            if (tagIndex > imageControlsPanels.Count - 2)
+            if (tagIndex > imagesControlsItems.Count - 2)
             {
                 return;
             }
-            if (OnLoadImageClick != null)
+            if (OnLoadImageButtonClick != null)
             {
-                OnLoadImageClick(sender, e);
+                OnLoadImageButtonClick(sender, e);
             }
         }
         public int GetRadioButtonSenderIndex(ref Message msg)
         {
-            for (int i = 0; i < imageControlsPanels.Count; i++)
+            for (int i = 0; i < imagesControlsItems.Count; i++)
             {
-                if (msg.HWnd.Equals(imageControlsPanels[i].rbSelectImage.Handle))
+                if (msg.HWnd.Equals(imagesControlsItems[i].rbSelectImage.Handle))
                 {
                     return i;
                 }
@@ -136,16 +141,16 @@ namespace BitmapsPxDiff
         {
             AddImageControlsSet(internalEvents);
         }
-        public void AddImageControlsSet(ImageControlsPanel.ImageControlsPanelEvents events)
+        public void AddImageControlsSet(ImageControlsItem.ImageControlsItemEvents events)
         {
-            ImageControlsPanel newPanel = new ImageControlsPanel(controlAddCount++, events);
+            ImageControlsItem newPanel = new ImageControlsItem(controlAddCount++, events);
             newPanel.SuspendLayout();
-            newPanel.Size = new System.Drawing.Size(this.Width - 10, ImageControlsPanel.buttonHeight + 2 * ImageControlsPanel.buttonMargin);
+            newPanel.Size = new System.Drawing.Size(this.Width - 10, ImageControlsItem.buttonHeight + 2 * ImageControlsItem.buttonMargin);
             newPanel.Location = new System.Drawing.Point(0, 0);
             newPanel.Dock = DockStyle.Top;
-            newPanel.SetControlsTags(imageControlsPanels.Count);
-            int index = Math.Max(0, imageControlsPanels.Count - 1);
-            imageControlsPanels.Insert(index, newPanel);
+            newPanel.SetControlsTags(imagesControlsItems.Count);
+            int index = Math.Max(0, imagesControlsItems.Count - 1);
+            imagesControlsItems.Insert(index, newPanel);
             this.Controls.Add(newPanel);
 
             newPanel.ResumeLayout(true);
@@ -153,78 +158,80 @@ namespace BitmapsPxDiff
         }
         public int GetPanelsCount()
         {
-            return imageControlsPanels.Count;
+            return imagesControlsItems.Count;
+        }
+        public int GetCheckedPanelIndex()
+        { 
+            for (int i = 0; i < imagesControlsItems.Count; i++)
+            {
+                if (imagesControlsItems[i].rbSelectImage.Checked)
+                    return i;
+            }
+            return -1;
         }
         public bool TryCheckPanelAtIndex(int panelIndex)
         {
-            if ((panelIndex >= 0) && (panelIndex < imageControlsPanels.Count))
+            if ((panelIndex >= 0) && (panelIndex < imagesControlsItems.Count))
             {
-                imageControlsPanels[panelIndex].rbSelectImage.Checked = true;
-                imageControlsPanels[panelIndex].rbSelectImage.Focus(); // forced focus
+                imagesControlsItems[panelIndex].rbSelectImage.Checked = true;
+                imagesControlsItems[panelIndex].rbSelectImage.Focus(); // forced focus
                 return true;
             }
             return false;
         }
-        public void ShowPixelFormatLabels()
+        public void SetPixelFormatLabelsVisibility(bool visible)
         {
-            foreach (ImageControlsPanel panel in imageControlsPanels)
+            foreach (ImageControlsItem panel in imagesControlsItems)
             {
-                panel.lblPixelInfo.Show();
-            }
-        }
-        public void HidePixelFormatLabels()
-        {
-            foreach (ImageControlsPanel panel in imageControlsPanels)
-            {
-                panel.lblPixelInfo.Hide();
+                panel.lblPixelInfo.Visible = visible;
             }
         }
         public bool PixelFormatLabelsVisible()
         {
-            return (imageControlsPanels.Count > 0) && (imageControlsPanels[0].lblPixelInfo.Visible);
+            return (imagesControlsItems.Count > 0) && (imagesControlsItems[0].lblPixelInfo.Visible);
         }
         public void SetPixelFormatLabelText(int panelIndex, string text)
         {
-            if (panelIndex >= 0 && panelIndex <= imageControlsPanels.Count)
+            if (panelIndex >= 0 && panelIndex <= imagesControlsItems.Count)
             {
-                imageControlsPanels[panelIndex].lblPixelInfo.Text = text;
+                imagesControlsItems[panelIndex].lblPixelInfo.Text = text;
             }
         }
         // OTHER METHODS: ***************************************************************
         private void RefreshControlsTagsAndTexts()
         {
             bool anyPanelChecked = false;
-            for (int i = 0; i < imageControlsPanels.Count; i++)
+            for (int i = 0; i < imagesControlsItems.Count; i++)
             {
-                imageControlsPanels[i].SetControlsTags(i);
-                this.Controls.SetChildIndex(imageControlsPanels[i], 0); // dock order: before imageControlsPanels[0] (which has dock order = 0)
-                if (i < imageControlsPanels.Count - 2)
+                imagesControlsItems[i].SetControlsTags(i);
+                this.Controls.SetChildIndex(imagesControlsItems[i], 0); // dock order: before imagesControlsItems[0] (which has dock order = 0)
+                if (i < imagesControlsItems.Count - 2)
                 {
-                    imageControlsPanels[i].SetSwapOrAddImageButton("v");
+                    imagesControlsItems[i].SetSwapOrAddImageButton("v");
                 }
-                else if (i == imageControlsPanels.Count - 2)
+                else if (i == imagesControlsItems.Count - 2)
                 {
-                    imageControlsPanels[i].SetSwapOrAddImageButton("+");
+                    imagesControlsItems[i].SetSwapOrAddImageButton("+");
                 }
                 if (!anyPanelChecked)
                 {
-                    anyPanelChecked = imageControlsPanels[i].rbSelectImage.Checked;
+                    anyPanelChecked = imagesControlsItems[i].rbSelectImage.Checked;
                 }
 
-                if (i < imageControlsPanels.Count - 1)
+                if (i < imagesControlsItems.Count - 1)
                 {
-                    imageControlsPanels[i].lblImageNumber.Text = (i + 1).ToString();
+                    imagesControlsItems[i].lblImageNumber.Text = (i + 1).ToString();
                 }
             }
             if (!anyPanelChecked)
             {
                 TryCheckPanelAtIndex(0);
             }
-            this.Height = imageControlsPanels.Last().Bottom;
+            this.Height = imagesControlsItems.Last().Bottom;
         }
     }
 
-    public class ImageControlsPanel : Panel
+    public class ImageControlsItem : Panel
     {
         public const int buttonHeight = 23;
         public const int buttonMargin = 4;
@@ -239,10 +246,10 @@ namespace BitmapsPxDiff
         public Button btnLoadImage = new Button();
         public Label lblPixelInfo = new Label();
 
-        public struct ImageControlsPanelEvents
+        public struct ImageControlsItemEvents
         {
             public EventHandler rbSelectImageEvent, btnSwapOrAddImageEvent, btnRemoveImageEvent, btnLoadImageEvent;
-            public ImageControlsPanelEvents (EventHandler rbSelectImageEvent, EventHandler btnSwapOrAddImageEvent, EventHandler btnRemoveImageEvent, EventHandler btnLoadImageEvent)
+            public ImageControlsItemEvents (EventHandler rbSelectImageEvent, EventHandler btnSwapOrAddImageEvent, EventHandler btnRemoveImageEvent, EventHandler btnLoadImageEvent)
             {
                 this.rbSelectImageEvent = rbSelectImageEvent;
                 this.btnSwapOrAddImageEvent = btnSwapOrAddImageEvent;
@@ -250,9 +257,9 @@ namespace BitmapsPxDiff
                 this.btnLoadImageEvent = btnLoadImageEvent;
             }
         }
-        public ImageControlsPanel(int panelNumber, ImageControlsPanelEvents events)
+        public ImageControlsItem(int panelNumber, ImageControlsItemEvents events)
         {
-            this.Name = "imageControlsPanel" + (panelNumber).ToString();
+            this.Name = "imageControlsItem" + (panelNumber).ToString();
             this.TabIndex = panelNumber;
 
             // preparing leftPanel:

@@ -47,7 +47,7 @@ namespace BitmapsPxDiff
             this.cbAutoRunScriptAfterChange = new System.Windows.Forms.CheckBox();
             this.btnRunStopScript = new System.Windows.Forms.Button();
             this.imagesControlsPanel = new BitmapsPxDiff.ImagesControlsPanel();
-            this.leftPanelSplitter = new System.Windows.Forms.Splitter();
+            this.splitterScriptOutputHeight = new System.Windows.Forms.Splitter();
             this.tlbLeftBottomPanels = new System.Windows.Forms.TableLayoutPanel();
             this.tbScriptOutput = new System.Windows.Forms.TextBox();
             this.tlbLoadSaveScript = new System.Windows.Forms.TableLayoutPanel();
@@ -63,7 +63,7 @@ namespace BitmapsPxDiff
             this.tsslCursorCoords = new System.Windows.Forms.ToolStripStatusLabel();
             this.tsslEmpty = new System.Windows.Forms.ToolStripStatusLabel();
             this.panelLeft = new System.Windows.Forms.Panel();
-            this.mainSplitter = new System.Windows.Forms.Splitter();
+            this.splitterLeftPanelWidth = new System.Windows.Forms.Splitter();
             this.panelRight = new System.Windows.Forms.Panel();
             ((System.ComponentModel.ISupportInitialize)(this.pb)).BeginInit();
             this.tlbLeftTopPanels.SuspendLayout();
@@ -277,23 +277,23 @@ namespace BitmapsPxDiff
             this.imagesControlsPanel.Name = "imagesControlsPanel";
             this.imagesControlsPanel.Size = new System.Drawing.Size(394, 122);
             this.imagesControlsPanel.TabIndex = 12;
-            this.imagesControlsPanel.OnImageSelected += new System.EventHandler(this.imagesControlsPanel_OnImageSelected);
-            this.imagesControlsPanel.OnAddImageClick += new System.EventHandler(this.imagesControlsPanel_OnAddImageClick);
-            this.imagesControlsPanel.OnLoadImageClick += new System.EventHandler(this.imagesControlsPanel_OnLoadImageClick);
-            this.imagesControlsPanel.OnRemoveImageClick += new System.EventHandler(this.imagesControlsPanel_OnRemoveImageClick);
-            this.imagesControlsPanel.OnSwitchImageClick += new System.EventHandler(this.imagesControlsPanel_OnSwitchImageClick);
+            this.imagesControlsPanel.OnImageChecked += new System.EventHandler(this.imagesControlsPanel_OnImageChecked);
+            this.imagesControlsPanel.OnNewImageControlsAdded += new System.EventHandler(this.imagesControlsPanel_OnNewImageControlsAdded);
+            this.imagesControlsPanel.OnLoadImageButtonClick += new System.EventHandler(this.imagesControlsPanel_OnLoadImageButtonClick);
+            this.imagesControlsPanel.OnImageControlsRemoved += new System.EventHandler(this.imagesControlsPanel_OnImageControlsRemoved);
+            this.imagesControlsPanel.OnBeforeSwapImageControls += new System.EventHandler(this.imagesControlsPanel_OnBeforeSwapImageControls);
             // 
-            // leftPanelSplitter
+            // splitterScriptOutputHeight
             // 
-            this.leftPanelSplitter.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.leftPanelSplitter.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.leftPanelSplitter.Location = new System.Drawing.Point(0, 517);
-            this.leftPanelSplitter.Name = "leftPanelSplitter";
-            this.leftPanelSplitter.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.leftPanelSplitter.Size = new System.Drawing.Size(400, 6);
-            this.leftPanelSplitter.TabIndex = 3;
-            this.leftPanelSplitter.TabStop = false;
-            this.leftPanelSplitter.SplitterMoving += new System.Windows.Forms.SplitterEventHandler(this.leftPanelSplitter_SplitterMoving);
+            this.splitterScriptOutputHeight.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.splitterScriptOutputHeight.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.splitterScriptOutputHeight.Location = new System.Drawing.Point(0, 517);
+            this.splitterScriptOutputHeight.Name = "splitterScriptOutputHeight";
+            this.splitterScriptOutputHeight.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+            this.splitterScriptOutputHeight.Size = new System.Drawing.Size(400, 6);
+            this.splitterScriptOutputHeight.TabIndex = 3;
+            this.splitterScriptOutputHeight.TabStop = false;
+            this.splitterScriptOutputHeight.SplitterMoving += new System.Windows.Forms.SplitterEventHandler(this.splitterScriptOutputHeight_SplitterMoving);
             // 
             // tlbLeftBottomPanels
             // 
@@ -430,7 +430,7 @@ namespace BitmapsPxDiff
             // panelLeft
             // 
             this.panelLeft.Controls.Add(this.tlbLeftTopPanels);
-            this.panelLeft.Controls.Add(this.leftPanelSplitter);
+            this.panelLeft.Controls.Add(this.splitterScriptOutputHeight);
             this.panelLeft.Controls.Add(this.tlbLeftBottomPanels);
             this.panelLeft.Dock = System.Windows.Forms.DockStyle.Left;
             this.panelLeft.Location = new System.Drawing.Point(0, 0);
@@ -438,15 +438,15 @@ namespace BitmapsPxDiff
             this.panelLeft.Size = new System.Drawing.Size(400, 697);
             this.panelLeft.TabIndex = 2;
             // 
-            // mainSplitter
+            // splitterLeftPanelWidth
             // 
-            this.mainSplitter.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.mainSplitter.Location = new System.Drawing.Point(400, 0);
-            this.mainSplitter.Name = "mainSplitter";
-            this.mainSplitter.Size = new System.Drawing.Size(6, 697);
-            this.mainSplitter.TabIndex = 3;
-            this.mainSplitter.TabStop = false;
-            this.mainSplitter.SplitterMoving += new System.Windows.Forms.SplitterEventHandler(this.splitter_SplitterMoving);
+            this.splitterLeftPanelWidth.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.splitterLeftPanelWidth.Location = new System.Drawing.Point(400, 0);
+            this.splitterLeftPanelWidth.Name = "splitterLeftPanelWidth";
+            this.splitterLeftPanelWidth.Size = new System.Drawing.Size(6, 697);
+            this.splitterLeftPanelWidth.TabIndex = 3;
+            this.splitterLeftPanelWidth.TabStop = false;
+            this.splitterLeftPanelWidth.SplitterMoving += new System.Windows.Forms.SplitterEventHandler(this.splitterLeftPanelWidth_SplitterMoving);
             // 
             // panelRight
             // 
@@ -464,7 +464,7 @@ namespace BitmapsPxDiff
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1288, 719);
             this.Controls.Add(this.panelRight);
-            this.Controls.Add(this.mainSplitter);
+            this.Controls.Add(this.splitterLeftPanelWidth);
             this.Controls.Add(this.panelLeft);
             this.Controls.Add(this.statusStrip);
             this.KeyPreview = true;
@@ -496,7 +496,7 @@ namespace BitmapsPxDiff
         private PictureBoxEx pb;
         private OpenFileDialog odLoadImage;
         private TableLayoutPanel tlbLeftTopPanels;
-        private Splitter leftPanelSplitter;
+        private Splitter splitterScriptOutputHeight;
         private TableLayoutPanel tlbLeftBottomPanels;
         private TableLayoutPanel tlbLoadSaveScript;
         private Button btnLoadScript;
@@ -520,7 +520,7 @@ namespace BitmapsPxDiff
         private ToolStripStatusLabel tsslCursorCoords;
         private ToolStripStatusLabel tsslEmpty;
         private Panel panelLeft;
-        private Splitter mainSplitter;
+        private Splitter splitterLeftPanelWidth;
         private Panel panelRight;
         private ImagesControlsPanel imagesControlsPanel;
         private CheckBox chbPixelInfoHex;

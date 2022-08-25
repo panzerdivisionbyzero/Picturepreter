@@ -3,7 +3,7 @@ using System.Drawing.Imaging;
 
 namespace BitmapsPxDiff
 {
-    public delegate void OnRefreshRenderingProgressEvent(Bitmap newImage, string newStatus);
+    public delegate void OnChunkFinishedEvent(Bitmap newImage, string newStatus);
     public class ScriptRenderer
 	{
         // structs:
@@ -41,7 +41,7 @@ namespace BitmapsPxDiff
         private List<string> threadsLogs = new List<string>();
 
         // rendering events:
-        private OnRefreshRenderingProgressEvent onRefreshRenderingProgress; // an event allowing mainRenderThread to update progress and return results
+        private OnChunkFinishedEvent onChunkFinished; // an event allowing mainRenderThread to update progress and return results
         private Action onRenderingStarted;
         private Action onRenderingFinished;
 
@@ -50,10 +50,10 @@ namespace BitmapsPxDiff
         private bool _running = false; 
         public bool Running { get => _running; }
 
-        public ScriptRenderer(OnRefreshRenderingProgressEvent onRefreshRenderingProgress, Action onRenderingStarted, Action onRenderingFinished)
+        public ScriptRenderer(OnChunkFinishedEvent onChunkFinished, Action onRenderingStarted, Action onRenderingFinished)
         {
             _running = false;
-            this.onRefreshRenderingProgress = onRefreshRenderingProgress;
+            this.onChunkFinished = onChunkFinished;
             this.onRenderingStarted = onRenderingStarted;
             this.onRenderingFinished = onRenderingFinished;
         }
@@ -182,14 +182,14 @@ namespace BitmapsPxDiff
         }
         private void RefreshRenderingProgress(string scriptStatus)
         {
-            if ((onRefreshRenderingProgress is null) || (localResultImage is null))
+            if ((onChunkFinished is null) || (localResultImage is null))
             {
                 return;
             }
             TimeSpan ts = TimeSpan.FromMilliseconds(stopwatch.ElapsedMilliseconds);
             lock (resultImgLocker)
             {
-                onRefreshRenderingProgress((Bitmap)localResultImage.Clone(), scriptStatus + "\r\nTime elapsed: " + ts.ToString(@"hh\:mm\:ss\.fff"));
+                onChunkFinished((Bitmap)localResultImage.Clone(), scriptStatus + "\r\nTime elapsed: " + ts.ToString(@"hh\:mm\:ss\.fff"));
             }
         }
         private ImageChunk[] GenerateImageChunks(int imageWidth, int imageHeight)
