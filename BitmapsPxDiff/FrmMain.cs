@@ -36,6 +36,14 @@ namespace BitmapsPxDiff
             imagesControlsPanel.AddImageControlsSet();
         }
         // CONTROLS EVENTS METHODS: *****************************************************************************
+        private void FrmMain_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Control && (e.KeyValue >= (int)Keys.D0) && (e.KeyValue <= (int)Keys.D9))
+            {
+                if (imagesControlsPanel.TryCheckPanelAtIndex(e.KeyValue - (int)Keys.D1))
+                    e.SuppressKeyPress = true;
+            }
+        }
         // https://stackoverflow.com/questions/22426390/disable-selection-of-controls-by-arrow-keys-in-a-form
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData) // overrides default RadioButton action for imagesControlsPanel controls
         {

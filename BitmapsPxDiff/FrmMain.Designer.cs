@@ -467,9 +467,11 @@ namespace BitmapsPxDiff
             this.Controls.Add(this.mainSplitter);
             this.Controls.Add(this.panelLeft);
             this.Controls.Add(this.statusStrip);
+            this.KeyPreview = true;
             this.Name = "FrmMain";
             this.Text = "Picturepreter";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FrmMain_FormClosing);
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.FrmMain_KeyDown);
             ((System.ComponentModel.ISupportInitialize)(this.pb)).EndInit();
             this.tlbLeftTopPanels.ResumeLayout(false);
             this.tlbLeftTopPanels.PerformLayout();
