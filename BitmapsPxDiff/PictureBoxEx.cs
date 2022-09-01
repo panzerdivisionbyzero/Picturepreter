@@ -37,15 +37,12 @@ namespace BitmapsPxDiff
             set
             {
                 base.Image = value;
-                // _imageBackup update:
-                _imageBackup = (value is null) ? _imageBackup = null : _imageBackup = (Image)value.Clone();
+                _imageBackup = (value is null) ? _imageBackup = null : _imageBackup = (Image)value.Clone(); // _imageBackup update
 
-                if (OnImageChange != null) // event call
-                {
+                if (OnImageChange != null) { // event call
                     OnImageChange(this, new EventArgs());
                 }
-                if (!disablePrintImagePointer) // draw pointer on the new image
-                {
+                if (!disablePrintImagePointer) { // draw pointer on the new image
                     DrawImagePointer();
                 }
             }
@@ -60,7 +57,7 @@ namespace BitmapsPxDiff
             {
                 if (imagePointerSet)
                 {
-                    return _imagePointer;
+                    return _imagePointer; 
                 }
                 return null;
             }
@@ -71,10 +68,8 @@ namespace BitmapsPxDiff
         /// </summary>
         private void ClearPointer()
         {
-            if (!imagePointerSet)
-            {
-                return;
-            }
+            if (!imagePointerSet) return;
+            
             imagePointerSet = false;
             base.Image = _imageBackup;
         }
@@ -93,10 +88,8 @@ namespace BitmapsPxDiff
         /// </summary>
         private void DrawImagePointer()
         {
-            if (disablePrintImagePointer || (Image is null))
-            {
-                return;
-            }
+            if (disablePrintImagePointer || (Image is null)) return;
+
             disablePrintImagePointer = true;
             if (imagePointerSet && (_imageBackup != null))
             {

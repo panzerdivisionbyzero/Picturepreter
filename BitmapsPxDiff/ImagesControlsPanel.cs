@@ -42,10 +42,8 @@ namespace BitmapsPxDiff
         /// </summary>
         private void rbSelectImage_CheckedChanged(object sender, EventArgs e)
         {
-            if (!(sender is RadioButton))
-            {
-                return;
-            }
+            if (!(sender is RadioButton)) return;
+
             RadioButton rb = (RadioButton)sender;
             if (rb.Checked) // radio buttons belong to different panels, so it's necessary to manually uncheck others
             {
@@ -57,8 +55,7 @@ namespace BitmapsPxDiff
                     }
                 }
             }
-            if (OnImageChecked != null)
-            {
+            if (OnImageChecked != null) {
                 OnImageChecked(sender, e);
             }
         }
@@ -70,10 +67,8 @@ namespace BitmapsPxDiff
         /// </summary>
         private void btnSwitchOrAddImage_Click(object sender, EventArgs e)
         {
-            if (!(sender is Button))
-            {
-                return;
-            }
+            if (!(sender is Button)) return;
+
             Button btn = (Button)sender;
             int tagIndex = (int)btn.Tag;
             if (tagIndex > imagesControlsItems.Count - 2) // [index-1] is result image index; [index-2] should have btnAddImage_Click() action;
@@ -109,18 +104,18 @@ namespace BitmapsPxDiff
         /// </summary>
         private void btnRemoveImage_Click(object sender, EventArgs e)
         {
-            if (!(sender is Button) || (imagesControlsItems.Count < 3))
-            {
-                return;
-            }
+            if (!(sender is Button) || (imagesControlsItems.Count < 3)) return; // at least one source image panel must remain (keeps btnSwitchOrAddImage with "+" functionality)
+
             Button btn = (Button)sender;
             int tagIndex = (int)btn.Tag;
+
             imagesControlsItems[tagIndex].Controls.Clear();
             this.Controls.Remove(imagesControlsItems[tagIndex]);
             imagesControlsItems.RemoveAt(tagIndex);
+
             RefreshControlsTagsAndText();
-            if (OnImageControlsRemoved != null)
-            {
+
+            if (OnImageControlsRemoved != null) {
                 OnImageControlsRemoved(sender, e);
             }
         }
@@ -130,8 +125,7 @@ namespace BitmapsPxDiff
         /// </summary>
         private void btnLoadImage_Click(object sender, EventArgs e)
         {
-            if (OnLoadImageButtonClick != null)
-            {
+            if (OnLoadImageButtonClick != null) {
                 OnLoadImageButtonClick(sender, e);
             }
         }
@@ -273,6 +267,7 @@ namespace BitmapsPxDiff
                 {
                     imagesControlsItems[i].btnSwapOrAddImage.Text = "+";
                 }
+
                 if (!anyPanelChecked)
                 {
                     anyPanelChecked = imagesControlsItems[i].rbSelectImage.Checked;

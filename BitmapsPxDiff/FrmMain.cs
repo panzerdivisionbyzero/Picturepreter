@@ -11,7 +11,7 @@ namespace BitmapsPxDiff
     /// </summary>
     public partial class FrmMain : Form
     {
-        private const int resultImageFictionalIndex = -1; // exceptional "extension" to unify sourceImages[] indexing with imagesControlsPanel.imagesControlsItems[] (imagesControlsItems[] contains result image)
+        private const int resultImageFictionalIndex = -1; // exceptional "extension" to unify sourceImages[] indexing with imagesControlsPanel.imagesControlsItems[] (imagesControlsItems[] contains result image position)
 
         private int currentImageIndex = resultImageFictionalIndex; // index of image chosen by radio buttons;
         private List<Bitmap> sourceImages = new List<Bitmap>();
@@ -225,8 +225,8 @@ namespace BitmapsPxDiff
         }
         /// <summary>
         /// Processes imagesControlPanel OnImageChecked event;
-        /// switches to image of given index (sourceImages[] or resultImage if index is beyond bounds)
-        /// stops scriptRenderer processing if switches to one of sourceImages[];
+        /// switches to image of given index (sourceImages[] or resultImage if index is beyond bounds);
+        /// stops scriptRenderer processing if switching to one of sourceImages[];
         /// </summary>
         private void imagesControlsPanel_OnImageChecked(object sender, EventArgs e)
         {
@@ -337,6 +337,7 @@ namespace BitmapsPxDiff
             if (scriptRenderer.Running) {
                 scriptRenderer.StopRendering();
             }
+
             try
             {
                 tbScriptInput.Text = File.ReadAllText(odLoadScript.FileName);
@@ -353,6 +354,7 @@ namespace BitmapsPxDiff
         private void btnSaveScript_Click(object sender, EventArgs e)
         {
             if (sdSaveScript.ShowDialog() != DialogResult.OK) return;
+
             try
             {
                 File.WriteAllText(sdSaveScript.FileName, tbScriptInput.Text);
@@ -398,6 +400,7 @@ namespace BitmapsPxDiff
                     MessageBox.Show("Unknown file format.");
                     return;
             }
+
             try // try save file:
             {
                 resultImage.Save(sdSaveResultImage.FileName, imgFormat);
@@ -491,8 +494,7 @@ namespace BitmapsPxDiff
         // OTHER METHODS: *****************************************************************************
         /// <summary>
         /// Reads project build date (it's kind of automatic version number);
-        /// Used code from:
-        /// https://stackoverflow.com/questions/1600962/displaying-the-build-date?answertab=modifieddesc#tab-top
+        /// Taken from: https://stackoverflow.com/questions/1600962/displaying-the-build-date?answertab=modifieddesc#tab-top
         /// </summary>
         public static DateTime? getAssemblyBuildDateTime()
         { 

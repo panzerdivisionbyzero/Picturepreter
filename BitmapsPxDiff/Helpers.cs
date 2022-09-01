@@ -6,9 +6,16 @@ using System.Threading.Tasks;
 
 namespace BitmapsPxDiff
 {
-    //public static Helpers helpers;
+    /// <summary>
+    /// Contains helper methods for other classes;
+    /// </summary>
     public static class Helpers
     {
+        /// <summary>
+        /// Calculates given images size intersection;
+        /// </summary>
+        /// <param name="images">Source images to compare</param>
+        /// <returns>Intersection size</returns>
         public static Point GetImagesSizeIntersection(List<Bitmap> images)
         {
             if ((images is null) || (images.Count == 0))

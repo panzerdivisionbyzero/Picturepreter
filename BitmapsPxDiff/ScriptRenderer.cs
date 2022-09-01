@@ -26,6 +26,7 @@ namespace BitmapsPxDiff
         }
 
         // threads variables:
+        const int chunkSize = 32;
         const int maxChunksThreads = 16;
         ManualResetEvent[] endOfWorkEvents = new ManualResetEvent[maxChunksThreads];
         ThreadDataSet[] threadsDataSets = new ThreadDataSet[maxChunksThreads];
@@ -183,7 +184,6 @@ namespace BitmapsPxDiff
             // render finish:
             stopwatch.Stop();
             RefreshRenderingProgress(scriptStatus);
-
             if (onRenderingFinished != null) {
                 onRenderingFinished();
             }
@@ -209,10 +209,8 @@ namespace BitmapsPxDiff
         /// <param name="scriptStatus">Status tu display on form script output; "Time elapsed" counter is automatically added;</param>
         private void RefreshRenderingProgress(string scriptStatus)
         {
-            if ((onChunkFinished is null) || (localResultImage is null))
-            {
-                return;
-            }
+            if ((onChunkFinished is null) || (localResultImage is null)) return;
+
             TimeSpan ts = TimeSpan.FromMilliseconds(stopwatch.ElapsedMilliseconds);
             lock (resultImgLocker)
             {
@@ -227,7 +225,6 @@ namespace BitmapsPxDiff
         /// <returns>Calculated chunks[]</returns>
         private ImageChunk[] GenerateImageChunks(int imageWidth, int imageHeight)
         {
-            int chunkSize = 32;
             int chunksX = (int)Math.Ceiling(Convert.ToDouble(imageWidth) / Convert.ToDouble(chunkSize));
             int chunksY = (int)Math.Ceiling(Convert.ToDouble(imageHeight) / Convert.ToDouble(chunkSize));
             ImageChunk[] chunks = new ImageChunk[chunksX * chunksY];
@@ -275,13 +272,12 @@ namespace BitmapsPxDiff
                 }
                 BitmapToPixelsArray(ref thrSourceImages[i], ref chunk, ref pixelsImagesARGB, i, thrSourceImages.Length);
             }
-            
+
             if (interruptRendering) // interrupt signal check
             { 
                 endOfWorkEvents[index].Set(); 
                 return; 
             }
-
             // LUA script operations:
             if (!luaScriptCalc.LuaChangeColor(localScript, ref pixelsImagesARGB, ref pixelsOut, threadsDataSets[index].scriptLogs, envVars, ref errorMessage))
             {
@@ -297,7 +293,6 @@ namespace BitmapsPxDiff
                 endOfWorkEvents[index].Set();
                 return;
             }
-
             // pasting thread result into the aggregate bitmap
             lock (resultImgLocker)
             {

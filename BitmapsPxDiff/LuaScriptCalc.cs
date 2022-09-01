@@ -32,7 +32,7 @@ namespace BitmapsPxDiff
     /// - currentX
     /// - currentY
     /// - imagesCount
-    /// - colors[imageIndex] = {A,R,G,B}
+    /// - imagesPixels[imageIndex] = {A,R,G,B}
     /// - result = {A,R,G,B}
     /// and functions:
     /// - CastToByte()
@@ -146,15 +146,15 @@ function DebugImageEnd(s)
 end
 pxPos = 1
 pxStep = imagesCount*4;
-colors = {}
+imagesPixels = {}
 result = {0,0,0,0}
 for i=1, imagesCount do
-    table.insert(colors, {0,0,0,0})
+    table.insert(imagesPixels, {0,0,0,0})
 end
 for i=1, Tablelength(pixelsOut) do
     for im=1, imagesCount do
         colorPxPos = pxPos+(im-1)*4
-        colors[im] = {pixelsIn[colorPxPos],pixelsIn[colorPxPos+1],pixelsIn[colorPxPos+2],pixelsIn[colorPxPos+3]}
+        imagesPixels[im] = {pixelsIn[colorPxPos],pixelsIn[colorPxPos+1],pixelsIn[colorPxPos+2],pixelsIn[colorPxPos+3]}
     end
     pixelsOut[i]=ChangeColor()
     currentX=currentX+1

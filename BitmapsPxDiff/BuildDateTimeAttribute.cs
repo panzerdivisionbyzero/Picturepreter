@@ -6,7 +6,10 @@ using System.Threading.Tasks;
 
 namespace BitmapsPxDiff
 {
-    // https://stackoverflow.com/questions/1600962/displaying-the-build-date?answertab=modifieddesc#tab-top
+    /// <summary>
+    /// Reads project build date (it's kind of automatic version number);
+    /// Taken from: https://stackoverflow.com/questions/1600962/displaying-the-build-date?answertab=modifieddesc#tab-top
+    /// </summary>
     [AttributeUsage(AttributeTargets.Assembly)]
     public class BuildDateTimeAttribute : Attribute
     {

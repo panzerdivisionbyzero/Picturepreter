@@ -240,8 +240,8 @@ namespace BitmapsPxDiff
             this.tbScriptInput.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.tbScriptInput.Size = new System.Drawing.Size(394, 214);
             this.tbScriptInput.TabIndex = 7;
-            this.tbScriptInput.Text = "result[1] = 255\r\nresult[2] = colors[1][2] + 1\r\nresult[3] = colors[1][3] + 1\r\nresu" +
-    "lt[4] = colors[1][4] + 1";
+            this.tbScriptInput.Text = "result[1] = 255\r\nresult[2] = imagesPixels[1][2] + 1\r\nresult[3] = imagesPixels[1][" +
+    "3] + 1\r\nresult[4] = imagesPixels[1][4] + 1";
             this.tbScriptInput.TextChanged += new System.EventHandler(this.tbScriptInput_TextChanged);
             // 
             // cbAutoRunScriptAfterChange
