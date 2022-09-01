@@ -546,9 +546,9 @@ namespace BitmapsPxDiff
         /// </summary>
         private void RefreshImagesPixelInfo()
         {
-            if (this.chbDisplayPixelInfo.Checked != imagesControlsPanel.PixelFormatLabelsVisible()) 
+            if (this.chbDisplayPixelInfo.Checked != imagesControlsPanel.PixelInfoLabelsVisible()) 
             {
-                imagesControlsPanel.SetPixelFormatLabelsVisibility(this.chbDisplayPixelInfo.Checked);
+                imagesControlsPanel.SetPixelInfoLabelsVisibility(this.chbDisplayPixelInfo.Checked);
             }
 
             if (!this.chbDisplayPixelInfo.Checked) return; // no controls to print at
@@ -563,7 +563,7 @@ namespace BitmapsPxDiff
                 tsslCursorCoords.Text = "";
                 for (int i = 0; i < imagesControlsPanel.GetPanelsCount(); i++)
                 {
-                    imagesControlsPanel.SetPixelFormatLabelText(i, "");
+                    imagesControlsPanel.SetPixelInfoLabelText(i, "");
                 }
             }
             else
@@ -573,9 +573,9 @@ namespace BitmapsPxDiff
 
                 for (int i = 0; i < sourceImages.Count; i++)
                 {
-                    imagesControlsPanel.SetPixelFormatLabelText(i, FormatBitmapPixelInfo(pixelStringFormat, sourceImages[i], p));
+                    imagesControlsPanel.SetPixelInfoLabelText(i, FormatBitmapPixelInfo(pixelStringFormat, sourceImages[i], p));
                 }
-                imagesControlsPanel.SetPixelFormatLabelText(imagesControlsPanel.GetPanelsCount() - 1, FormatBitmapPixelInfo(pixelStringFormat, resultImage, p));
+                imagesControlsPanel.SetPixelInfoLabelText(imagesControlsPanel.GetPanelsCount() - 1, FormatBitmapPixelInfo(pixelStringFormat, resultImage, p));
             }
         }
         /// <summary>

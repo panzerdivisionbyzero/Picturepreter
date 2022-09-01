@@ -6,11 +6,16 @@ using System.Threading.Tasks;
 
 namespace BitmapsPxDiff
 {
+    /// <summary>
+    /// Contains and manages a list of ImageControlsItem objects (sub-panels);
+    /// Each ImageControlsItem (except the last one) corresponts to specific FrmMain.sourceImages[] with the same index;
+    /// The last imagesControlsItems[] member corrensponds to FrmMain.resultImage;
+    /// </summary>
     public class ImagesControlsPanel : Panel
     {
         private int controlAddCount = 0;
         private ImageControlsItem.ImageControlsItemEvents internalEvents; // events assigned to each ImageControlsItem (sub-panel)
-        public List<ImageControlsItem> imagesControlsItems = new List<ImageControlsItem>(); // list of sub-panels
+        private List<ImageControlsItem> imagesControlsItems = new List<ImageControlsItem>(); // list of sub-panels
 
         public event EventHandler? OnImageChecked;
         public event EventHandler? OnNewImageControlsAdded;
@@ -18,6 +23,9 @@ namespace BitmapsPxDiff
         public event EventHandler? OnImageControlsRemoved;
         public event EventHandler? OnBeforeSwapImageControls;
 
+        /// <summary>
+        /// Class constructor; Prepares internalEvents struct and creates first imagesControlsItems[] item (for resultImage)
+        /// </summary>
         public ImagesControlsPanel()
         {
             // prepare events for sub-panels:
@@ -25,15 +33,13 @@ namespace BitmapsPxDiff
             
             // create first sub-panel and adjust it to "result image" panel role:
             AddImageControlsSet(internalEvents);
-            imagesControlsItems[0].btnLoadImage.Hide();
-            imagesControlsItems[0].btnRemoveImage.Hide();
-            imagesControlsItems[0].btnSwapOrAddImage.Hide();
-            imagesControlsItems[0].rbSelectImage.Text = "Result image preview";
-            imagesControlsItems[0].lblImageNumber.Text = "";
-            imagesControlsItems[0].rbSelectImage.Location = new System.Drawing.Point(ImageControlsItem.buttonHeight, 8);
+            imagesControlsItems[0].SetToResultImageRole();
             this.Controls.SetChildIndex(imagesControlsItems[0], 0); // dock order: the last of all panels
         }
         // EVENTS METHODS: ****************************************************************
+        /// <summary>
+        /// ImageControlsItem rbSelectImage checkedChanged event; Resets other imagesControlsItems[] radio buttons state and calls OnImageChecked() event;
+        /// </summary>
         private void rbSelectImage_CheckedChanged(object sender, EventArgs e)
         {
             if (!(sender is RadioButton))
@@ -56,6 +62,12 @@ namespace BitmapsPxDiff
                 OnImageChecked(sender, e);
             }
         }
+        /// <summary>
+        /// ImageControlsItem btnSwitchOrAddImage click event; Action depends on button Tag value (interpreted as image index):
+        /// - Tag == imagesControlsItems.Count - 1 means resultImage index, which cannot be switched (always at the end of the list; btnSwitchOrAddImage is hidden for this index);
+        /// - Tag == imagesControlsItems.Count - 2 means the last source image index; in this case the button performs "Add image" function ("+" button);
+        /// - Tag  < imagesControlsItems.Count - 2 means some other source image index; in this case the button performs "Switch image" function ("v" button);
+        /// </summary>
         private void btnSwitchOrAddImage_Click(object sender, EventArgs e)
         {
             if (!(sender is Button))
@@ -84,13 +96,17 @@ namespace BitmapsPxDiff
                     OnBeforeSwapImageControls(sender, e);
                 }
                 imagesControlsItems.Reverse(tagIndex, 2);
-                RefreshControlsTagsAndTexts(); // reset sender.Tag value
+                RefreshControlsTagsAndText(); // reset sender.Tag value
                 
                 if (checkedPanelIndex != -1) {
                     TryCheckPanelAtIndex(checkedPanelIndex);
                 }
             }
         }
+        /// <summary>
+        /// ImageControlsItem btnRemoveImage click event; initiates removing its ImageControlsItem and calls OnImageControlsRemoved() event;
+        /// ImageControlsItem index is read from button Tag property;
+        /// </summary>
         private void btnRemoveImage_Click(object sender, EventArgs e)
         {
             if (!(sender is Button) || (imagesControlsItems.Count < 3))
@@ -102,45 +118,35 @@ namespace BitmapsPxDiff
             imagesControlsItems[tagIndex].Controls.Clear();
             this.Controls.Remove(imagesControlsItems[tagIndex]);
             imagesControlsItems.RemoveAt(tagIndex);
-            RefreshControlsTagsAndTexts();
+            RefreshControlsTagsAndText();
             if (OnImageControlsRemoved != null)
             {
                 OnImageControlsRemoved(sender, e);
             }
         }
+        /// <summary>
+        /// ImageControlsItem btnLoadImage click; calls OnLoadImageButtonClick() event;
+        /// Loading image is in responsibility of the FrmMain;
+        /// </summary>
         private void btnLoadImage_Click(object sender, EventArgs e)
         {
-            if (!(sender is Button))
-            {
-                return;
-            }
-            Button btn = (Button)sender;
-            int tagIndex = (int)btn.Tag;
-            if (tagIndex > imagesControlsItems.Count - 2)
-            {
-                return;
-            }
             if (OnLoadImageButtonClick != null)
             {
                 OnLoadImageButtonClick(sender, e);
             }
         }
-        public int GetRadioButtonSenderIndex(ref Message msg)
-        {
-            for (int i = 0; i < imagesControlsItems.Count; i++)
-            {
-                if (msg.HWnd.Equals(imagesControlsItems[i].rbSelectImage.Handle))
-                {
-                    return i;
-                }
-            }
-            return -1;
-        }
         // PUBLIC METHODS: **************************************************************
+        /// <summary>
+        /// Creates a new ImageControlsItem in imagesControlsItems[] by calling another version of AddImageControlsSet();
+        /// </summary>
         public void AddImageControlsSet()
         {
             AddImageControlsSet(internalEvents);
         }
+        /// <summary>
+        /// Creates a new ImageControlsItem in imagesControlsItems[] and calls RefreshControlsTagsAndText();
+        /// </summary>
+        /// <param name="events">Events set passed to the new ImageControlsItem controls</param>
         public void AddImageControlsSet(ImageControlsItem.ImageControlsItemEvents events)
         {
             ImageControlsItem newPanel = new ImageControlsItem(controlAddCount++, events);
@@ -154,12 +160,21 @@ namespace BitmapsPxDiff
             this.Controls.Add(newPanel);
 
             newPanel.ResumeLayout(true);
-            RefreshControlsTagsAndTexts();
+            RefreshControlsTagsAndText();
         }
+        /// <summary>
+        /// Returns imagesControlsItems.Count;
+        /// </summary>
+        /// <returns>imagesControlsItems.Count</returns>
         public int GetPanelsCount()
         {
             return imagesControlsItems.Count;
         }
+        /// <summary>
+        /// Returns the index of first found item from imagesControlsItems[] with rbSelectImage.Checked;
+        /// Literally means: which image is selected?
+        /// </summary>
+        /// <returns>first found imagesControlsItems[] index with rbSelectImage.Checked; "-1" if none;</returns>
         public int GetCheckedPanelIndex()
         { 
             for (int i = 0; i < imagesControlsItems.Count; i++)
@@ -169,6 +184,11 @@ namespace BitmapsPxDiff
             }
             return -1;
         }
+        /// <summary>
+        /// Checks and sets focus to imagesControlsItems[panelIndex].rbSelectImage if item with panelIndex exists;
+        /// </summary>
+        /// <param name="panelIndex">index of imagesControlsItems[] item</param>
+        /// <returns>"true" if item with panelIndex was found; otherwise "false";</returns>
         public bool TryCheckPanelAtIndex(int panelIndex)
         {
             if ((panelIndex >= 0) && (panelIndex < imagesControlsItems.Count))
@@ -179,18 +199,50 @@ namespace BitmapsPxDiff
             }
             return false;
         }
-        public void SetPixelFormatLabelsVisibility(bool visible)
+        /// <summary>
+        /// Returns imagesControlsItems[] with rbSelectImage.Handle the same as msg.HWnd;
+        /// Needed to alternatively specify by FrmMain.ProcessCmdKey() which radiobutton received KeyDown event;
+        /// See more information in FrmMain.ProcessCmdKey();
+        /// </summary>
+        /// <param name="msg">Component message (received by FrmMain.ProcessCmdKey())</param>
+        /// <returns>imagesControlsItems[] with rbSelectImage.Handle the same as msg.HWnd; "-1" if not found;</returns>
+        public int GetRadioButtonSenderIndex(ref Message msg)
+        {
+            for (int i = 0; i < imagesControlsItems.Count; i++)
+            {
+                if (msg.HWnd.Equals(imagesControlsItems[i].rbSelectImage.Handle))
+                {
+                    return i;
+                }
+            }
+            return -1;
+        }
+        /// <summary>
+        /// Hides or shows pixel format labels (lblPixelInfo) for each imagesControlsItems[] item;
+        /// </summary>
+        /// <param name="visible">visibility to be set to the labels</param>
+        public void SetPixelInfoLabelsVisibility(bool visible)
         {
             foreach (ImageControlsItem panel in imagesControlsItems)
             {
                 panel.lblPixelInfo.Visible = visible;
             }
         }
-        public bool PixelFormatLabelsVisible()
+        /// <summary>
+        /// Returns information whether pixel format labels are visible;
+        /// The visibility of the labels is assumed to be the same for all;
+        /// </summary>
+        /// <returns>"false" if there are no labels or they are not visible; "true" otherwise;</returns>
+        public bool PixelInfoLabelsVisible()
         {
             return (imagesControlsItems.Count > 0) && (imagesControlsItems[0].lblPixelInfo.Visible);
         }
-        public void SetPixelFormatLabelText(int panelIndex, string text)
+        /// <summary>
+        /// Sets the Text value to pixel info label belonging to imagesControlsItems[panelIndex];
+        /// </summary>
+        /// <param name="panelIndex">imagesControlsItems[] index</param>
+        /// <param name="text">text with pointed pixel info</param>
+        public void SetPixelInfoLabelText(int panelIndex, string text)
         {
             if (panelIndex >= 0 && panelIndex <= imagesControlsItems.Count)
             {
@@ -198,7 +250,15 @@ namespace BitmapsPxDiff
             }
         }
         // OTHER METHODS: ***************************************************************
-        private void RefreshControlsTagsAndTexts()
+        /// <summary>
+        /// Refreshes imagesControlsItems[] components properties values and panels order;
+        /// Components properties:
+        /// - imagesControlsItems[] components Tag value (by ImageControlsItem.SetControlsTags());
+        /// - refreshes panel number label (lblImageNumber.Text);
+        /// - btnSwapOrAddImage caption ("v" or "+" depending on current index);
+        /// - checks if anyPanelChecked and initiates TryCheckPanelAtIndex(0) if none is checked;
+        /// </summary>
+        private void RefreshControlsTagsAndText()
         {
             bool anyPanelChecked = false;
             for (int i = 0; i < imagesControlsItems.Count; i++)
@@ -207,11 +267,11 @@ namespace BitmapsPxDiff
                 this.Controls.SetChildIndex(imagesControlsItems[i], 0); // dock order: before imagesControlsItems[0] (which has dock order = 0)
                 if (i < imagesControlsItems.Count - 2)
                 {
-                    imagesControlsItems[i].SetSwapOrAddImageButton("v");
+                    imagesControlsItems[i].btnSwapOrAddImage.Text = "v";
                 }
                 else if (i == imagesControlsItems.Count - 2)
                 {
-                    imagesControlsItems[i].SetSwapOrAddImageButton("+");
+                    imagesControlsItems[i].btnSwapOrAddImage.Text = "+";
                 }
                 if (!anyPanelChecked)
                 {
@@ -230,7 +290,11 @@ namespace BitmapsPxDiff
             this.Height = imagesControlsItems.Last().Bottom;
         }
     }
-
+    /// <summary>
+    /// The member of ImagesControlsPanel.imagesControlsItems[];
+    /// Each ImageControlsItem corresponds to image from FrmMain (sourceImages[], resultImage);
+    /// Contains controls allowing user to manage FrmMain images (adding, removing, swapping, loading, selecting, pointed pixel info display)
+    /// </summary>
     public class ImageControlsItem : Panel
     {
         public const int buttonHeight = 23;
@@ -245,7 +309,9 @@ namespace BitmapsPxDiff
         public Button btnRemoveImage = new Button();
         public Button btnLoadImage = new Button();
         public Label lblPixelInfo = new Label();
-
+        /// <summary>
+        /// Structure containing set of events for ImageControlsItem components;
+        /// </summary>
         public struct ImageControlsItemEvents
         {
             public EventHandler rbSelectImageEvent, btnSwapOrAddImageEvent, btnRemoveImageEvent, btnLoadImageEvent;
@@ -257,10 +323,13 @@ namespace BitmapsPxDiff
                 this.btnLoadImageEvent = btnLoadImageEvent;
             }
         }
+
+        /// <summary>
+        /// Class constructor; creates controls, sets their events;
+        /// </summary>
         public ImageControlsItem(int panelNumber, ImageControlsItemEvents events)
         {
             this.Name = "imageControlsItem" + (panelNumber).ToString();
-            this.TabIndex = panelNumber;
 
             // preparing leftPanel:
             leftPanel.Name = "leftPanel" + (panelNumber).ToString();
@@ -360,6 +429,22 @@ namespace BitmapsPxDiff
             rbSelectImage.ResumeLayout(false);
             lblImageNumber.ResumeLayout(false);
         }
+        /// <summary>
+        /// Hides controls reserved for source image management;
+        /// </summary>
+        public void SetToResultImageRole()
+        {
+            this.btnLoadImage.Hide();
+            this.btnRemoveImage.Hide();
+            this.btnSwapOrAddImage.Hide();
+            this.rbSelectImage.Text = "Result image preview";
+            this.lblImageNumber.Text = "";
+            this.rbSelectImage.Location = new System.Drawing.Point(ImageControlsItem.buttonHeight, 8);
+        }
+        /// <summary>
+        /// Sets Tag property value for owned controls;
+        /// </summary>
+        /// <param name="tag">new Tag value</param>
         public void SetControlsTags(int tag)
         {
             this.Tag = tag;
@@ -369,10 +454,6 @@ namespace BitmapsPxDiff
             btnRemoveImage.Tag = tag;
             btnSwapOrAddImage.Tag = tag;
             rbSelectImage.Tag = tag;
-        }
-        public void SetSwapOrAddImageButton(string buttonText)
-        {
-            btnSwapOrAddImage.Text = buttonText;
         }
     }
 }

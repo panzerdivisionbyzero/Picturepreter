@@ -8,10 +8,6 @@ namespace BitmapsPxDiff
     /// - Interpolation Mode setting;
     /// - Pixel Offset Mode setting;
     /// - setting and displaying Image Pointer;
-    /// used code snippets:
-    /// https://stackoverflow.com/questions/29157/how-do-i-make-a-picturebox-use-nearest-neighbor-resampling
-    /// https://www.codeproject.com/messages/3182303/re-image-changed-in-picturebox-event-question.aspx
-    /// https://www.codeproject.com/Articles/20923/Mouse-Position-over-Image-in-a-PictureBox
     /// </summary>
     public class PictureBoxEx : PictureBox
     {
@@ -31,7 +27,10 @@ namespace BitmapsPxDiff
         public InterpolationMode InterpolationMode { get; set; }
         public PixelOffsetMode PixelOffsetMode { get; set; }
 
-        // https://www.codeproject.com/messages/3182303/re-image-changed-in-picturebox-event-question.aspx
+        /// <summary>
+        /// Overrides PictureBox.Image property to hook up OnImageChange() event and to allow drawing on Image without affecting original Image ("get" returns _imageBackup);
+        /// inspired by: https://www.codeproject.com/messages/3182303/re-image-changed-in-picturebox-event-question.aspx
+        /// </summary>
         public new Image? Image
         {
             get { return _imageBackup; }
@@ -51,7 +50,11 @@ namespace BitmapsPxDiff
                 }
             }
         }
-        public Point? ImagePointer // returns _imagePointer if imagePointerSet
+        /// <summary>
+        /// Pixel selection set by user;
+        /// returns _imagePointer if imagePointerSet
+        /// </summary>
+        public Point? ImagePointer
         {
             get
             {
@@ -63,6 +66,9 @@ namespace BitmapsPxDiff
             }
         }
         // IMAGE POINTER METHODS *********************************************
+        /// <summary>
+        /// Clears pixel selection (ImagePointer);
+        /// </summary>
         private void ClearPointer()
         {
             if (!imagePointerSet)
@@ -72,12 +78,19 @@ namespace BitmapsPxDiff
             imagePointerSet = false;
             base.Image = _imageBackup;
         }
+        /// <summary>
+        /// Redefines pixel selection (ImagePointer);
+        /// </summary>
+        /// <param name="p">new ImagePointer coordinates</param>
         private void RedefinePointer(Point p)
         {
             _imagePointer = p;
             imagePointerSet = true;
             DrawImagePointer();
         }
+        /// <summary>
+        /// Draws ImagePointer on Image; Gets original Image form _imageBackup;
+        /// </summary>
         private void DrawImagePointer()
         {
             if (disablePrintImagePointer || (Image is null))
@@ -106,6 +119,10 @@ namespace BitmapsPxDiff
             disablePrintImagePointer = false;
         }
         // EVENTS METHODS *********************************************
+        /// <summary>
+        /// Overrides PictureBox.OnPaint() event to change InterpolationMode and PixelOffsetMode;
+        /// based on: https://stackoverflow.com/questions/29157/how-do-i-make-a-picturebox-use-nearest-neighbor-resampling
+        /// </summary>
         protected override void OnPaint(PaintEventArgs paintEventArgs)
         {
             paintEventArgs.Graphics.InterpolationMode = InterpolationMode;
@@ -113,16 +130,26 @@ namespace BitmapsPxDiff
 
             base.OnPaint(paintEventArgs);
         }
+        /// <summary>
+        /// Overrides PictureBox.OnMouseMove() event to get currentMouseImagePos;
+        /// </summary>
         protected override void OnMouseMove(MouseEventArgs e)
         {
             currentMouseImagePos = TranslateZoomMousePosition(new Point(e.X, e.Y));
             base.OnMouseMove(e);
         }
+        /// <summary>
+        /// Overrides PictureBox.OnMouseLeave() event to reset currentMouseImagePos;
+        /// </summary>
+        /// <param name="e"></param>
         protected override void OnMouseLeave(EventArgs e)
         {
             currentMouseImagePos = null;
             base.OnMouseLeave(e);
         }
+        /// <summary>
+        /// Overrides PictureBox.OnMouseClick() event to perform image pointer feature actions (RedefinePointer(), ClearPointer());
+        /// </summary>
         protected override void OnMouseClick(MouseEventArgs e)
         {
             base.OnMouseClick(e);
@@ -148,7 +175,12 @@ namespace BitmapsPxDiff
             }
         }
         // OTHER METHODS *********************************************
-        // https://www.codeproject.com/Articles/20923/Mouse-Position-over-Image-in-a-PictureBox
+        /// <summary>
+        /// Translates component mouse coordinates to scaled image pixel coordinates;
+        /// taken from: https://www.codeproject.com/Articles/20923/Mouse-Position-over-Image-in-a-PictureBox
+        /// </summary>
+        /// <param name="coordinates"></param>
+        /// <returns></returns>
         public Point TranslateZoomMousePosition(Point coordinates)
         {
             if ((Image == null) || (Width == 0 || Height == 0 || Image.Width == 0 || Image.Height == 0))
