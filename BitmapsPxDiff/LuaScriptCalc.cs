@@ -2,7 +2,10 @@
 
 namespace BitmapsPxDiff
 {
-    public struct ScriptEnvironmentVariables // carries thread chunk info (script "work environment")
+    /// <summary>
+    /// Structure contains thread chunk info (script "work environment")
+    /// </summary>
+    public struct ScriptEnvironmentVariables
     {
         public int chunkX, chunkY, chunkLastX, chunkLastY, imageW, imageH, imagesCount;
         public ScriptEnvironmentVariables(int chunkStartX, int chunkStartY, int chunkWidth, int chunkHeight, int imageW, int imageH, int imagesCount)
@@ -17,11 +20,53 @@ namespace BitmapsPxDiff
         }
         public override string ToString() => $"chunkStartX={chunkX}\r\nchunkStartY={chunkY}\r\nchunkLastX={chunkLastX}\r\nchunkLastY={chunkLastY}\r\nimageW={imageW}\r\nimageH={imageH}\r\nimagesCount={imagesCount}\r\n";
     }
+    /// <summary>
+    /// LuaScriptCalc class processes given source pixels arrays by given script and returns result pixels array;
+    /// The script template provides global variables:
+    /// - chunkStartX
+    /// - chunkStartY
+    /// - chunkLastX
+    /// - chunkLastY
+    /// - imageW
+    /// - imageH
+    /// - currentX
+    /// - currentY
+    /// - imagesCount
+    /// - colors[imageIndex] = {A,R,G,B}
+    /// - result = {A,R,G,B}
+    /// and functions:
+    /// - CastToByte()
+    /// - Tablelength()
+    /// - DebugEachPx()
+    /// - DebugForPx()
+    /// - DebugChunkBegin()
+    /// - DebugChunkEnd()
+    /// - DebugImageBegin()
+    /// - DebugImageEnd()
+    /// (see scriptBegin and scriptEnd fields)
+    /// </summary>
     public class LuaScriptCalc
 	{
+        /// <summary>
+        /// Class constructor;
+        /// </summary>
 		public LuaScriptCalc()
 		{
 		}
+        /// <summary>
+        /// Responsible for entire script processing:
+        /// - prepares final script content;
+        /// - passes input data (as global variables) to MoonSharp (LUA script interpreter);
+        /// - initiates MoonSharp interpreter;
+        /// - takes out results (pixelsOut[], debug strings)
+        /// </summary>
+        /// <param name="dynamicCode">User-dependent script part (placed between scriptBegin and scriptEnd)</param>
+        /// <param name="pixelsImagesARGB">Source images pixels values in order: Pixels/Images/ARGB</param>
+        /// <param name="pixelsOut">Result image pixels values</param>
+        /// <param name="logsOut">LUA script debug logs</param>
+        /// <param name="envVars">Chunk and image params (script "work environment")</param>
+        /// <param name="errorMessage">Message returned in case of exception</param>
+        /// <returns></returns>
         public bool LuaChangeColor(string dynamicCode, ref byte[] pixelsImagesARGB, ref uint[] pixelsOut, List<string> logsOut, ScriptEnvironmentVariables envVars, ref string errorMessage)
         {
             bool result = false;
@@ -67,27 +112,24 @@ function CastToByte(i)
     if i>255 then i = i % 256 end
     return math.floor(i)
 end
-function rshift(x, by)
-    return math.floor(x / 2 ^ by)
-end
-function ChangeColor2 ()" + "\r\n";
+function ChangeColor()" + "\r\n";
         // (user script between scriptBegin and scriptEnd)
         const string scriptEnd = "\r\n" + @"return CastToByte(result[2]) + CastToByte(result[3])*256 + CastToByte(result[4])*65536 + CastToByte(result[1])*16777216
 end
-function tablelength(T)
+function Tablelength(T)
     local count = 0
     for _ in pairs(T) do count = count + 1 end
     return count
 end
-imageX=chunkStartX
-imageY=chunkStartY
+currentX=chunkStartX
+currentY=chunkStartY
 debug={}
 function DebugEachPx(s)
-    table.insert(debug,tablelength(debug)+1,s)    
+    table.insert(debug,Tablelength(debug)+1,s)    
 end
 function DebugForPx(x,y,s)
-    if imageX==x and imageY==y then
-        table.insert(debug,tablelength(debug)+1,s)
+    if currentX==x and currentY==y then
+        table.insert(debug,Tablelength(debug)+1,s)
     end
 end
 function DebugChunkBegin(s)
@@ -109,16 +151,16 @@ result = {0,0,0,0}
 for i=1, imagesCount do
     table.insert(colors, {0,0,0,0})
 end
-for i=1, tablelength(pixelsOut) do
+for i=1, Tablelength(pixelsOut) do
     for im=1, imagesCount do
         colorPxPos = pxPos+(im-1)*4
         colors[im] = {pixelsIn[colorPxPos],pixelsIn[colorPxPos+1],pixelsIn[colorPxPos+2],pixelsIn[colorPxPos+3]}
     end
-    pixelsOut[i]=ChangeColor2()
-    imageX=imageX+1
-    if imageX>chunkLastX then
-        imageX=chunkStartX
-        imageY=imageY+1
+    pixelsOut[i]=ChangeColor()
+    currentX=currentX+1
+    if currentX>chunkLastX then
+        currentX=chunkStartX
+        currentY=currentY+1
     end
     pxPos = pxPos + pxStep
 end
