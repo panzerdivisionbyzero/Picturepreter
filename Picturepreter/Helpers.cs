@@ -1,16 +1,14 @@
 ﻿/*
- * This unit is part of RPI Backing Track Player.
- * 
+ * This unit is part of Picturepreter.
  * 
  * Licensed under the terms of the GNU GPL 2.0 license,
  * excluding used libraries:
- * -United Openlibraries of Sound(uos) licensed under LGPL 2.1;
+ * - MoonSharp, licensed under MIT license;
  * and used code snippets marked with link to original source.
  * 
+ * Copyright(c) 2022 by Paweł Witkowski
  * 
- * Copyright(c) 2018 - 2022 by Pawel Witkowski
- * 
- * pawel.vitek.witkowski @gmail.com 
+ * pawel.vitek.witkowski@gmail.com 
 */
 using System;
 using System.Collections.Generic;

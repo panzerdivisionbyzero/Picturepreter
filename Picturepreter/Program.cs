@@ -1,3 +1,15 @@
+/*
+ * This unit is part of Picturepreter.
+ * 
+ * Licensed under the terms of the GNU GPL 2.0 license,
+ * excluding used libraries:
+ * - MoonSharp, licensed under MIT license;
+ * and used code snippets marked with link to original source.
+ * 
+ * Copyright(c) 2022 by Pawe³ Witkowski
+ * 
+ * pawel.vitek.witkowski@gmail.com 
+*/
 namespace Picturepreter
 {
     internal static class Program
