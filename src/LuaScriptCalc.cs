@@ -115,7 +115,6 @@ namespace Picturepreter
             return result;
         }
         /* LUA functions sources:
-         * https://stackoverflow.com/questions/5977654/how-do-i-use-the-bitwise-operator-xor-in-lua
          * https://stackoverflow.com/questions/2705793/how-to-get-number-of-entries-in-a-lua-table
          */
         const string scriptBegin = @"  

@@ -13,23 +13,20 @@ function CalcShadowFactor(gnd,shadow)
   return f
 end
 
-rf = CalcShadowFactor(image1R,image2R)
-gf = CalcShadowFactor(image1G,image2G)
-bf = CalcShadowFactor(image1B,image2B)
+rf = CalcShadowFactor(imagesPixels[1][2],imagesPixels[2][2])
+gf = CalcShadowFactor(imagesPixels[1][3],imagesPixels[2][3])
+bf = CalcShadowFactor(imagesPixels[1][4],imagesPixels[2][4])
 af = (rf+gf+bf)/3
-resultA = af
-resultR = 0
-resultG = 0
-resultB = 0
+result = {af,0,0,0}
 
 if transparencyToColor then
   function TransparencyToColor(r,g,b)
-    if resultA<255 then
-      resultR = r/255*(255-resultA)
-      resultG = g/255*(255-resultA)
-      resultB = b/255*(255-resultA)
+    if result[1]<255 then
+      result[2] = r/255*(255-result[1])
+      result[3] = g/255*(255-result[1])
+      result[4] = b/255*(255-result[1])
     end
-    resultA = 255
+    result[1] = 255
   end
   c = 128
   TransparencyToColor(c,c,c)
