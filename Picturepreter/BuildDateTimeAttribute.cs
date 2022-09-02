@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BitmapsPxDiff
+namespace Picturepreter
 {
     /// <summary>
     /// Reads project build date (it's kind of automatic version number);

@@ -1,7 +1,7 @@
 ﻿using System.Drawing.Drawing2D;
 
 
-namespace BitmapsPxDiff
+namespace Picturepreter
 {
     /// <summary>
     /// Inherits from PictureBox; Added features:

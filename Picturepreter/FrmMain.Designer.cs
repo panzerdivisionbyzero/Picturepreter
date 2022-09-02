@@ -2,7 +2,7 @@
 using System.ComponentModel;
 using System.Diagnostics;
 
-namespace BitmapsPxDiff
+namespace Picturepreter
 {
     partial class FrmMain
     {
@@ -32,7 +32,7 @@ namespace BitmapsPxDiff
         /// </summary>
         private void InitializeComponent()
         {
-            this.pb = new BitmapsPxDiff.PictureBoxEx();
+            this.pb = new Picturepreter.PictureBoxEx();
             this.tlbLeftTopPanels = new System.Windows.Forms.TableLayoutPanel();
             this.tlbSettingsControlsGroups = new System.Windows.Forms.TableLayoutPanel();
             this.gbInterpolationMode = new System.Windows.Forms.GroupBox();
@@ -46,7 +46,7 @@ namespace BitmapsPxDiff
             this.tbScriptInput = new System.Windows.Forms.TextBox();
             this.cbAutoRunScriptAfterChange = new System.Windows.Forms.CheckBox();
             this.btnRunStopScript = new System.Windows.Forms.Button();
-            this.imagesControlsPanel = new BitmapsPxDiff.ImagesControlsPanel();
+            this.imagesControlsPanel = new Picturepreter.ImagesControlsPanel();
             this.splitterScriptOutputHeight = new System.Windows.Forms.Splitter();
             this.tlbLeftBottomPanels = new System.Windows.Forms.TableLayoutPanel();
             this.tbScriptOutput = new System.Windows.Forms.TextBox();

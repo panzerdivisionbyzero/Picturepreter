@@ -1,6 +1,6 @@
 ﻿using MoonSharp.Interpreter;
 
-namespace BitmapsPxDiff
+namespace Picturepreter
 {
     /// <summary>
     /// Structure contains thread chunk info (script "work environment")

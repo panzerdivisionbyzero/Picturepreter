@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Drawing.Imaging;
 
-namespace BitmapsPxDiff
+namespace Picturepreter
 {
     public delegate void OnChunkFinishedEvent(Bitmap newImage, string newStatus);
     /// <summary>

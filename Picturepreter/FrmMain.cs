@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using System.Drawing.Imaging;
 using System.Drawing.Drawing2D;
-namespace BitmapsPxDiff
+namespace Picturepreter
 {
     /// <summary>
     /// The main form of application. It stores and manages:

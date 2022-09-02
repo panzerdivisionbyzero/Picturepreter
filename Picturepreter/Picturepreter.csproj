@@ -28,7 +28,7 @@
   </ItemGroup>
 
     <ItemGroup>
-	    <AssemblyAttribute Include="BitmapsPxDiff.BuildDateTime">
+	    <AssemblyAttribute Include="Picturepreter.BuildDateTime">
 		    <_Parameter1>$([System.DateTime]::Now.ToString("s"))</_Parameter1>
 	    </AssemblyAttribute>
     </ItemGroup>

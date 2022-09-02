@@ -1,4 +1,4 @@
-namespace BitmapsPxDiff
+namespace Picturepreter
 {
     internal static class Program
     {

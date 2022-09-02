@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BitmapsPxDiff
+namespace Picturepreter
 {
     /// <summary>
     /// Contains and manages a list of ImageControlsItem objects (sub-panels);
