@@ -74,6 +74,7 @@ namespace Picturepreter
             this.tsslState = new System.Windows.Forms.ToolStripStatusLabel();
             this.tsslCursorCoords = new System.Windows.Forms.ToolStripStatusLabel();
             this.tsslEmpty = new System.Windows.Forms.ToolStripStatusLabel();
+            this.tsslAbout = new System.Windows.Forms.ToolStripStatusLabel();
             this.panelLeft = new System.Windows.Forms.Panel();
             this.splitterLeftPanelWidth = new System.Windows.Forms.Splitter();
             this.panelRight = new System.Windows.Forms.Panel();
@@ -410,7 +411,8 @@ namespace Picturepreter
             this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsslState,
             this.tsslCursorCoords,
-            this.tsslEmpty});
+            this.tsslEmpty,
+            this.tsslAbout});
             this.statusStrip.Location = new System.Drawing.Point(0, 697);
             this.statusStrip.Name = "statusStrip";
             this.statusStrip.Size = new System.Drawing.Size(1288, 22);
@@ -436,8 +438,18 @@ namespace Picturepreter
             // tsslEmpty
             // 
             this.tsslEmpty.Name = "tsslEmpty";
-            this.tsslEmpty.Size = new System.Drawing.Size(777, 17);
+            this.tsslEmpty.Size = new System.Drawing.Size(683, 17);
             this.tsslEmpty.Spring = true;
+            // 
+            // tsslAbout
+            // 
+            this.tsslAbout.IsLink = true;
+            this.tsslAbout.LinkBehavior = System.Windows.Forms.LinkBehavior.HoverUnderline;
+            this.tsslAbout.LinkColor = System.Drawing.Color.Transparent;
+            this.tsslAbout.Name = "tsslAbout";
+            this.tsslAbout.Size = new System.Drawing.Size(63, 17);
+            this.tsslAbout.Text = "About...";
+            this.tsslAbout.Click += new System.EventHandler(this.tsslAbout_Click);
             // 
             // panelLeft
             // 
@@ -538,5 +550,6 @@ namespace Picturepreter
         private CheckBox chbPixelInfoHex;
         private CheckBox chbPixelInfoDisplayAlpha;
         private CheckBox chbDisplayPixelInfo;
+        private ToolStripStatusLabel tsslAbout;
     }
 }

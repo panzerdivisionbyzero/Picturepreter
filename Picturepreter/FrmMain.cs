@@ -428,6 +428,18 @@ namespace Picturepreter
         {
             splitterScriptOutputHeight.SplitPosition = splitterScriptOutputHeight.SplitPosition; // refresh controls state
         }
+        /// <summary>
+        /// Shows information about this app;
+        /// </summary>
+        private void tsslAbout_Click(object sender, EventArgs e)
+        {
+            string msg = this.Text + "\n\nLicensed under the terms of the GNU GPL 2.0 license.\n\n"
+                + "Uses MoonSharp library, licensed under MIT license\n"
+                + "and some code snippets (see readme file).\n\n"
+                + "Copyright(c) 2022 by Pawe³ Witkowski\n\n"
+                + "pawel.vitek.witkowski@gmail.com";
+            MessageBox.Show(msg, "About", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
         // THREADS EVENTS METHODS: *****************************************************************************
         /// <summary>
         /// Changes btnRunStopScript.Text and tsslState.Text to new context (scriptRenderer running)
