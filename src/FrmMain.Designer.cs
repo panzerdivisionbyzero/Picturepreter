@@ -445,7 +445,7 @@ namespace Picturepreter
             // 
             this.tsslAbout.IsLink = true;
             this.tsslAbout.LinkBehavior = System.Windows.Forms.LinkBehavior.HoverUnderline;
-            this.tsslAbout.LinkColor = System.Drawing.Color.Transparent;
+            this.tsslAbout.LinkColor = System.Drawing.Color.Black;
             this.tsslAbout.Name = "tsslAbout";
             this.tsslAbout.Size = new System.Drawing.Size(63, 17);
             this.tsslAbout.Text = "About...";
