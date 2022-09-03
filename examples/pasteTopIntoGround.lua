@@ -2,7 +2,7 @@
 -- 1. Load images:
 -- - palmsGroup_ground.bmp
 -- - palmsGroup_top.bmp
--- 2. Check "Result image" radio button
+-- 2. Check "Result image preview" radio button
 
 if imagesPixels[2][2]==88 and imagesPixels[2][3]==0 and imagesPixels[2][4]==0 then
   result[2]=imagesPixels[1][2]

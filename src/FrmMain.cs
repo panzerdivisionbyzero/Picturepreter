@@ -30,7 +30,7 @@ namespace Picturepreter
             // display build date at form title:
             DateTime? dt = getAssemblyBuildDateTime();
             if (dt != null) {
-                this.Text += " (built " + ((DateTime)dt).ToString("yyyyMMdd") + ")";
+                this.Text += " (build " + ((DateTime)dt).ToString("yyyyMMdd") + ")";
             }
 
             // create starting empty bitmaps and corresponding components:

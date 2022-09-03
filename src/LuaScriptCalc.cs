@@ -48,7 +48,7 @@ namespace Picturepreter
     /// - result = {A,R,G,B}
     /// and functions:
     /// - CastToByte()
-    /// - Tablelength()
+    /// - TableLength()
     /// - DebugEachPx()
     /// - DebugForPx()
     /// - DebugChunkBegin()
@@ -127,7 +127,7 @@ function ChangeColor()" + "\r\n";
         // (user script between scriptBegin and scriptEnd)
         const string scriptEnd = "\r\n" + @"return CastToByte(result[2]) + CastToByte(result[3])*256 + CastToByte(result[4])*65536 + CastToByte(result[1])*16777216
 end
-function Tablelength(T)
+function TableLength(T)
     local count = 0
     for _ in pairs(T) do count = count + 1 end
     return count
@@ -136,11 +136,11 @@ currentX=chunkStartX
 currentY=chunkStartY
 debug={}
 function DebugEachPx(s)
-    table.insert(debug,Tablelength(debug)+1,s)    
+    table.insert(debug,TableLength(debug)+1,s)    
 end
 function DebugForPx(x,y,s)
     if currentX==x and currentY==y then
-        table.insert(debug,Tablelength(debug)+1,s)
+        table.insert(debug,TableLength(debug)+1,s)
     end
 end
 function DebugChunkBegin(s)
@@ -162,7 +162,7 @@ result = {0,0,0,0}
 for i=1, imagesCount do
     table.insert(imagesPixels, {0,0,0,0})
 end
-for i=1, Tablelength(pixelsOut) do
+for i=1, TableLength(pixelsOut) do
     for im=1, imagesCount do
         colorPxPos = pxPos+(im-1)*4
         imagesPixels[im] = {pixelsIn[colorPxPos],pixelsIn[colorPxPos+1],pixelsIn[colorPxPos+2],pixelsIn[colorPxPos+3]}

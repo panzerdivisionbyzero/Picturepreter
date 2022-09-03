@@ -2,7 +2,7 @@
 -- 1. Load images:
 -- - palmsGroup_groundOnly.bmp
 -- - palmsGroup_ground.bmp
--- 2. Check "Result image" radio button
+-- 2. Check "Result image preview" radio button
 -- Optional: comment out or set "transparencyToColor" to "false"
 
 transparencyToColor = true

@@ -32,7 +32,10 @@ else
   result[4] = 255
 end
 
--- The script environment provides global variables:
+-- The script environment provides global variables and functions:
+-- - imagesPixels[imageIndex] = {A,R,G,B}
+-- - result = {A,R,G,B}
+-- (for read/use only purposes):
 -- - chunkStartX
 -- - chunkStartY
 -- - chunkLastX
@@ -42,14 +45,11 @@ end
 -- - currentX
 -- - currentY
 -- - imagesCount
--- - imagesPixels[imageIndex] = {A,R,G,B}
--- - result = {A,R,G,B}
--- and functions:
--- - CastToByte()
--- - Tablelength()
--- - DebugEachPx()
--- - DebugForPx()
--- - DebugChunkBegin()
--- - DebugChunkEnd()
--- - DebugImageBegin()
--- - DebugImageEnd()
+-- - CastToByte(int) // returns "byte" (int within range: [0..255])
+-- - TableLength(tab) // returns int
+-- - DebugEachPx(str) // prints given string into output text box
+-- - DebugForPx(x,y,str)
+-- - DebugChunkBegin(str)
+-- - DebugChunkEnd(str)
+-- - DebugImageBegin(str)
+-- - DebugImageEnd(str)

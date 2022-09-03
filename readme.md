@@ -2,19 +2,25 @@
 The Picturepreter is kind of graphics editor that performs user-written LUA script for each pixel. It's mainly designed for custom mixing 2 or more images, but it can be used for one image as well.  
 The script is processed asynchronously by multiple threads.
 
-# Usage instructions:
+<details open><summary>(click to hide image)</summary>
+
+![Picturepreter_readme_anim](https://user-images.githubusercontent.com/109442319/188285295-e058a8b8-b795-48d2-99b4-8dc1404505c4.gif)
+
+</details>
+
+# Usage instructions
 ### 1. Basics:
 - Use "+" or "X" buttons (top-left corner) to specify source images number;
-- Load images for all defined inputs; The result image dimensions ;
+- Load images for all defined inputs; The result image dimensions are defined by source images intersection;
 - Edit script as you want (see point 3 in this section for more details);
-- Click "Run script" button; "Result image preview" radio button should select automatically to show result image;
+- Click "Run script" button; "Result image preview" radio button should be selected automatically to show result image;
 ### 2. Other features:
-- Switching between images preview: click on the radiobuttons corresponding to the images (top-left corner); Alternatively use CTRL+{1-9} shortcut;
-- Swapping source images: click the "v" button to swap [n] source image with the [n+1] sorce image;
+- Switching between images preview: click on the radiobuttons corresponding to the images (top-left corner); Alternatively use CTRL+{1..9} shortcut;
+- Swapping source images: click the "v" button to swap [n] source image with [n+1] source image;
 - Interpolation mode selection: changes display smoothing;
 - Pixel info format checkboxes: changes visibility and format of pointed pixel info;
 - Image Pointer: click left mouse button on the image preview to point pixel constantly; click right mouse button to clear selection;
-- Script output text box: shows user-defined debug messages and (in case of error) script error information with full script printout;
+- Script output text box: displays user-defined debug messages and (in case of error) script error information with full script printout;
 - Load/Save script (always with load/save dialog);
 - Save result image (without Image Pointer; always with save dialog);
 ### 3. Script global variables and functions:
@@ -31,19 +37,19 @@ The script is processed asynchronously by multiple threads.
 - currentX
 - currentY
 - imagesCount
-- CastToByte()
-- Tablelength()
-- DebugEachPx()
-- DebugForPx()
-- DebugChunkBegin()
-- DebugChunkEnd()
-- DebugImageBegin()
-- DebugImageEnd()
+- CastToByte(int) // returns "byte" (int within range: [0..255])
+- TableLength(tab) // returns int
+- DebugEachPx(str) // prints given string into output text box
+- DebugForPx(x,y,str)
+- DebugChunkBegin(str)
+- DebugChunkEnd(str)
+- DebugImageBegin(str)
+- DebugImageEnd(str)
 ```
 ### 4. For more scripting information see "examples" directory;
 
 # Executable
-The executable file is placed in "bin" directory. I excluded .NET runtime libraries from build, because they are quite heavy, so to run executable you may need to install .NET SDK for your OS:  
+The executable file is attached in [Releases](https://github.com/panzerdivisionbyzero/Picturepreter/releases) section. It requires .NET SDK libraries, so you may need to install them if the app won't start:  
 https://dotnet.microsoft.com/en-us/download/dotnet/6.0
 
 # License
@@ -62,7 +68,9 @@ and used code snippets marked with link to original source and listed below:
 - GIT:
   - https://github.com/github/gitignore/blob/main/VisualStudio.gitignore
 
-Copyright (c) 2018-2022 by Paweł Witkowski
+Sample images come from KKND2: Krossfire;  
+
+Copyright (c) 2022 by Paweł Witkowski
 
 In case of questions contact me at: pawel.vitek.witkowski@gmail.com  
   
